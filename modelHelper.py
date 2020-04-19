@@ -97,4 +97,3 @@ class modelHelper:
             acc_av += a
         acc_av /= 6
         return conf_mat_av, clas_reps_av, acc_av
-
