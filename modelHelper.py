@@ -5,9 +5,11 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+
 
 class modelHelper:
-    def __init__(self, model, k, labels):
+    def __init__(self, model, k, labels, ids):
         self.modelName = model
         self.model = self.create_model()
         self.k = k
@@ -16,6 +18,8 @@ class modelHelper:
         self.conf_matrices = []
         self.class_reports = []
         self.accuracy_scores = []
+        self.pred_and_lab = []
+        self.tweet_ids = ids
 
     def create_features(self, features, vectorizer):
         processed_features = []
@@ -42,6 +46,7 @@ class modelHelper:
         processed_features = vectorizer.fit_transform(processed_features).toarray()
         self.processed_features = processed_features
 
+
     def create_model(self):
         if self.modelName == 'naive bayes':
             return GaussianNB()
@@ -59,6 +64,7 @@ class modelHelper:
             print("TRAIN:", train_index, "TEST:", test_index)
             X_train, X_test = self.processed_features[train_index], self.processed_features[test_index]
             y_train, y_test = self.labels[train_index], self.labels[test_index]
+            train_ids, test_ids = self.tweet_ids[train_index], self.tweet_ids[test_index]
             self.model.fit(X_train, y_train)
             predictions = self.model.predict(X_test)
             self.conf_matrices.append(confusion_matrix(y_test, predictions))
@@ -68,19 +74,28 @@ class modelHelper:
             self.class_reports.append(classification_report(y_test, predictions, output_dict=True))
             #  the fraction of correctly classified samples
             self.accuracy_scores.append(accuracy_score(y_test, predictions))
+            self.pred_and_lab.append((test_ids, y_test, predictions))
 
     def get_accuracy(self):
-        sum = np.zeros(shape=[3, 3])
+        s = len(self.conf_matrices[0])
+        sum = np.zeros(shape=[s, s])
         for c in self.conf_matrices:
             sum += c
         conf_mat_av = sum / len(self.conf_matrices)
-
+        # neg, neut, pos
+        '''
         clas_reps_sum = {'negative': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                          'neutral': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                          'positive': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0}}
         clas_reps_av = {'negative': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                         'neutral': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                         'positive': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0}}
+        '''
+        # -1, 1
+        clas_reps_sum = {'-1': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
+                         '1': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0}}
+        clas_reps_av = {'-1': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
+                        '1': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0}}
         for c in self.class_reports:
             # negativ, neutral, positive
             for k in clas_reps_sum.keys():
@@ -97,3 +112,21 @@ class modelHelper:
             acc_av += a
         acc_av /= 6
         return conf_mat_av, clas_reps_av, acc_av
+
+    def pred_vs_ytest_comp(self):
+        res = pd.DataFrame(columns=['tweet', 'label', 'prediction', 'correct_prediction'])
+        tweets = []
+        labels = []
+        preds = []
+        for tup in self.pred_and_lab:
+            tweets += list(tup[0])
+            labels += list(tup[1])
+            preds += list(tup[2])
+        res.tweet = tweets
+        res.label = labels
+        res.prediction = preds
+        res.correct_prediction = res.label == res.prediction
+        return res
+
+    # need to create a function that creates a table that each row is a tweet, and each column is a model,
+    # 1 being the model was correct for that tweet, 0 it was incorrect
