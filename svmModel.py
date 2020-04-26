@@ -48,12 +48,19 @@ vectorizer = TfidfVectorizer(max_features=2500, min_df=7, max_df=0.8, stop_words
 processed_features = nBModel.create_features(features, vectorizer)
 nBModel.train_and_test_model()
 accuracy = nBModel.get_accuracy()
-print('naive bayes results:')
+print('svm results:')
+print(accuracy)
+results = nBModel.get_predictions()
+df = pd.DataFrame(data={"id": results[0], "prediction": results[1], "label": results[2]})
+df['correct_prediction'] = df.prediction == df.label
+'''
 print(accuracy[0])
 print(accuracy[1])
 print(accuracy[2])
 results = nBModel.pred_vs_ytest_comp()
 print(results)
-results.to_csv("svm_results.csv")
+'''
+df.to_csv("svm_results.csv")
+df.to_excel("svm_results.xlsx")
 
 a = 1

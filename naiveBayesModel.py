@@ -42,20 +42,24 @@ labels = neg_pos_tweets.iloc[:, 24].values
 features = neg_pos_tweets.iloc[:, 2].values
 ids = neg_pos_tweets.iloc[:, 23].values
 
-
 nBModel = modelHelper("naive bayes", 5, labels, ids)
 vectorizer = TfidfVectorizer(max_features=2500, min_df=7, max_df=0.8, stop_words=stopwords.words('english'))
 processed_features = nBModel.create_features(features, vectorizer)
 nBModel.train_and_test_model()
 accuracy = nBModel.get_accuracy()
 print('naive bayes results:')
+print(accuracy)
+results = nBModel.get_predictions()
+df = pd.DataFrame(data={"id": results[0], "prediction": results[1], "label": results[2]})
+df['correct_prediction'] = df.prediction == df.label
+'''
 print(accuracy[0])
 print(accuracy[1])
 print(accuracy[2])
 results = nBModel.pred_vs_ytest_comp()
 print(results)
-results.to_csv("naive_bayes_results.csv")
-
-
+'''
+df.to_csv("naive_bayes_results.csv")
+df.to_excel("naive_bayes_results.xlsx")
 
 a = 1

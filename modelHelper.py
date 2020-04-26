@@ -5,6 +5,7 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score, cross_val_predict
 import pandas as pd
 
 
@@ -44,7 +45,14 @@ class modelHelper:
 
             processed_features.append(processed_feature)
         processed_features = vectorizer.fit_transform(processed_features).toarray()
-        self.processed_features = processed_features
+        s = int(len(processed_features)*0.8)
+
+        self.processed_features = processed_features[:s]
+        self.test = processed_features[s:]
+        self.test_labels = self.labels[s:]
+        self.test_ids = self.tweet_ids[s:]
+        self.labels = self.labels[:s]
+        self.fet_ids = self.tweet_ids[:s]
 
 
     def create_model(self):
@@ -57,6 +65,18 @@ class modelHelper:
         else:
             raise Exception('unknown model')
 
+    def train_and_test_model(self):
+        self.scores = (self.fet_ids, cross_val_score(self.model, self.processed_features, self.labels, cv=5))
+        p = cross_val_predict(self.model, self.test, self.test_labels, cv=3)
+        self.preds = (self.test_ids, p, self.test_labels)
+
+    def get_accuracy(self):
+        return self.scores
+
+    def get_predictions(self):
+        return self.preds
+
+    '''
     def train_and_test_model(self):
         # creating kfold cross validation sets
         kf = KFold(n_splits=self.k, random_state=None, shuffle=False)
@@ -76,6 +96,8 @@ class modelHelper:
             self.accuracy_scores.append(accuracy_score(y_test, predictions))
             self.pred_and_lab.append((test_ids, y_test, predictions))
 
+
+
     def get_accuracy(self):
         s = len(self.conf_matrices[0])
         sum = np.zeros(shape=[s, s])
@@ -83,14 +105,14 @@ class modelHelper:
             sum += c
         conf_mat_av = sum / len(self.conf_matrices)
         # neg, neut, pos
-        '''
+  
         clas_reps_sum = {'negative': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                          'neutral': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                          'positive': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0}}
         clas_reps_av = {'negative': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                         'neutral': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                         'positive': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0}}
-        '''
+   
         # -1, 1
         clas_reps_sum = {'-1': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0},
                          '1': {'precision': 0, 'recall': 0, 'f1-score': 0, 'support': 0}}
@@ -113,6 +135,8 @@ class modelHelper:
         acc_av /= 6
         return conf_mat_av, clas_reps_av, acc_av
 
+
+
     def pred_vs_ytest_comp(self):
         res = pd.DataFrame(columns=['tweet', 'label', 'prediction', 'correct_prediction'])
         tweets = []
@@ -127,6 +151,6 @@ class modelHelper:
         res.prediction = preds
         res.correct_prediction = res.label == res.prediction
         return res
-
+    '''
     # need to create a function that creates a table that each row is a tweet, and each column is a model,
     # 1 being the model was correct for that tweet, 0 it was incorrect
