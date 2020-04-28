@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
-
+import model_utils as mUtils
 from modelHelper import *
 import random
 import json
@@ -19,17 +19,10 @@ airline_features = airline_tweets.iloc[:, 10].values
 airline_labels = airline_tweets.iloc[:, 1].values
 '''
 
-positive_tweets = []
-for line in open("twitter_samples/positive_tweets.json"):
-    tweet = json.loads(line)
-    tweet["label"] = 1
-    positive_tweets.append(tweet)
-
-negative_tweets = []
-for line in open("twitter_samples/negative_tweets.json"):
-    tweet = json.loads(line)
-    tweet["label"] = -1
-    negative_tweets.append(tweet)
+fPos = "twitter_samples/translated_result negative_tweets.json"
+fNeg = "twitter_samples/translated_result positive_tweets.json"
+is_trans = True
+positive_tweets, negative_tweets = mUtils.get_tweets(fPos, fNeg)
 
 neg_pos_tweets = positive_tweets + negative_tweets
 random.shuffle(neg_pos_tweets)
@@ -58,7 +51,8 @@ print(accuracy[2])
 results = nBModel.pred_vs_ytest_comp()
 print(results)
 '''
-df.to_csv("random_forest_results.csv")
-df.to_excel("random_forest_results.xlsx")
+
+
+mUtils.save_results(df, "randF", is_trans)
 
 a = 1
