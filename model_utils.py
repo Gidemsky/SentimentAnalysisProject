@@ -38,3 +38,4 @@ def get_tweets(pos_f, neg_f):
         itemN.update({"label": -1})
 
     return positive_tweets, negative_tweets
+
