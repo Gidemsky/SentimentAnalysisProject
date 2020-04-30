@@ -1,11 +1,12 @@
 import json
 from datetime import datetime
 
+
 def save_results(df, nm, is_trans):
     # get current date
     datetime_object = datetime.now()
     dt = datetime_object.strftime("%d_%m_%H_%M")
-    fname = "results/"+nm+"_results_" + dt
+    fname = "results/" + nm + "_results_" + dt
     if is_trans:
         fname += "_tr"
     df.to_csv(fname + ".csv")
