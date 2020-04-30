@@ -21,12 +21,18 @@ class GoogleTranslateAPI(object):
     def __init__(self):
         self.translate_client = translate.Client()
 
-    def translate(self, source_text, to_language, print_result=False, model=None):
+    def translate(self, source_text, to_language, level=0, debug_print=False, model=None, text_language=None):
         """
         Translates text into the target language.
+        :param level: The final return result level:
+            0 - for only the translation text
+            1 - as dict with translatedText
+            2 - as dict with translatedText and the origin text
+            4 - the full dict
+        :param text_language: is the origin language of the text
         :param source_text: list or strings of strings to translate.
         :param to_language: The language to translate results into.
-        :param print_result: If we want to print the result
+        :param debug_print: If we want to print the result
         :param model: 'base' or 'nmt'. By default it using NMT.
         :return: list. The translated to the destination language
         """
@@ -38,27 +44,44 @@ class GoogleTranslateAPI(object):
             source_text = source_text.decode('utf-8')
 
         # Translates the source text.
-        translated_text = self.translate_client.translate(values=source_text, target_language=to_language, model=model)
+        translated_data_list = self.translate_client.translate(values=source_text, target_language=to_language,
+                                                               source_language=text_language, model=model)
 
         if isinstance(source_text, six.string_types):
-            translated_text = [translated_text]
+            translated_data_list = [translated_data_list]
 
         # for debug purpose
-        if print_result:
+        if debug_print:
             Tool.separate_debug_print_big(title="Start Translation Result")
-            for cur_translated, i in zip(translated_text, range(translated_text.__len__())):
+            for cur_translated, i in zip(translated_data_list, range(translated_data_list.__len__())):
                 Tool.separate_debug_print_small(title='Translate Line Number: ' + i.__str__())
                 print(u'Text to translate: {}'.format(
                     cur_translated['input']))
                 print(u'The translation: {}'.format(
                     cur_translated['translatedText']))
-                print(u'Detected source language: {}'.format(
-                    cur_translated['detectedSourceLanguage']))
-                translated_lines.append(cur_translated['translatedText'])
+                if text_language is None:
+                    print(u'Detected source language: {}'.format(
+                        cur_translated['detectedSourceLanguage']))
+                # translated_lines.append(cur_translated['translatedText'])
                 Tool.separate_debug_print_small(title='Translation result end')
             Tool.separate_debug_print_big(title="Line Translation End")
 
-        return translated_lines  # TODO: We Hve to decide how do we what the return value to be
+        if level == 0:
+            # TODO: We Hve to decide how do we what the return value to be
+            for cur_translated in translated_data_list:
+                translated_lines.append(cur_translated['translatedText'])
+            return translated_lines
+        elif level == 1:
+            for cur_translated in translated_data_list:
+                translated_lines.append({'translatedText': cur_translated['translatedText']})
+            return translated_lines
+        elif level == 2:
+            for cur_translated in translated_data_list:
+                translated_lines.append({'translatedText': cur_translated['translatedText'],
+                                         'input': cur_translated['input']})
+            return translated_lines
+        else:
+            return translated_data_list
 
     def supp_language(self, language=None):
         """
@@ -97,37 +120,11 @@ class GoogleTranslateAPI(object):
 if __name__ == '__main__':
 
     test_text = "Hey, My name is Gidi. I like movies, sex, and Disco-Dancing. This is test for the translation"
-    test_text2 = "היי, שוב בדיקה!"
-    test_text3 = "test"
-
     string_text = list()
 
     string_text.append("this is text number one")
     string_text.append("I can't wait to finish our project")
-    string_text.append("By the way, I am hae every one")
     string_text.append("this is text number two")
-    string_text.append("And what about us?!")
-    string_text.append("We will win this!!!")
 
     google = GoogleTranslateAPI()
-    google.supp_language()
-
-    result = google.translate(test_text, 'ru', True)
-    print(result)
-
-    result = google.translate(test_text, 'iw', True)
-    print(result)
-
-    result = google.translate(test_text, 'ar', True)
-    print(result)
-
-    google.supp_language('iw')
-
-    result = google.translate(test_text2, 'ar', True)
-    print(result)
-
-    result = google.translate(string_text, 'iw', True)
-    print(result)
-
-    google.language_detection(test_text2, True)
-    google.language_detection(test_text3, True)
+    # google.supp_language()
