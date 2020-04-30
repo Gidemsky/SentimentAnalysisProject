@@ -6,6 +6,10 @@ from Utils import send_report_by_email, get_json_list
 
 EMAIL_MAIL_MSG = "The number of the tweets we have been accumulating so far is: "
 
+# constants
+SAVING_CONSTANT = 100
+EMAIL_CONSTANT = 1000
+
 
 # # # # TWITTER STREAM LISTENER # # # #
 
@@ -30,12 +34,20 @@ class TwitterListener(StreamListener):
         return True
 
     def report_and_modify(self):
+        """
+        this method for reporting and tracking the result.
+        the results it send via email
+        :return:
+        """
         self.c = self.c + 1
+        # prints the tweets was download bu now
         print(str(self.c))
-        if self.c % 50 == 0:
+        # save new file every 'SAVING_CONSTANT' as new file in the archive
+        if self.c % SAVING_CONSTANT == 0:
             dst = 'archive/tweets_' + str(self.c) + '.json'
             copyfile('tweets.json', dst)
-        if self.c % 1000 == 0:
+        # sends email with the tweets by now every 'EMAIL_CONSTANT'
+        if self.c % EMAIL_CONSTANT == 0:
             send_report_by_email(mail_subject="Tweets Download Status", body_text=EMAIL_MAIL_MSG+str(self.c))
 
     def write_json(self, data):

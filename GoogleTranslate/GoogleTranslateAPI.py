@@ -66,6 +66,11 @@ class GoogleTranslateAPI(object):
                 Tool.separate_debug_print_small(title='Translation result end')
             Tool.separate_debug_print_big(title="Line Translation End")
 
+        """
+        The final returns if for the relevant
+        result structure:
+        just translation / translatedText / translatedText + input / all fields
+        """
         if level == 0:
             # TODO: We Hve to decide how do we what the return value to be
             for cur_translated in translated_data_list:
@@ -119,6 +124,7 @@ class GoogleTranslateAPI(object):
 
 if __name__ == '__main__':
 
+    # the c
     test_text = "Hey, My name is Gidi. I like movies, sex, and Disco-Dancing. This is test for the translation"
     string_text = list()
 
@@ -126,5 +132,5 @@ if __name__ == '__main__':
     string_text.append("I can't wait to finish our project")
     string_text.append("this is text number two")
 
-    google = GoogleTranslateAPI()
+    # google = GoogleTranslateAPI()
     # google.supp_language()

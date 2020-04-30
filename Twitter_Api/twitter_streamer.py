@@ -19,6 +19,7 @@ class TwitterStreamer():
 
     def stream_tweets(self, fetched_tweets_filename, hash_tag_list):
         tweets_number = 0
+        # checks the correct tweets by now if the file exits
         if os.path.isfile('tweets.json'):
             tweets_number = check_tweets_number('tweets.json')
         # This handles Twitter authentication and the connection to Twitter Streaming API

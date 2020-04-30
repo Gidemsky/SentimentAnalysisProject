@@ -9,9 +9,11 @@ TWEETS_LIMIT = 75
 JSON_NAME1 = 'negative_tweets.json'
 JSON_NAME2 = 'positive_tweets.json'
 
+# creates the google access API
 google = GoogleTranslateAPI()
 
 
+# convert list of json to list
 def temp_convert_json_to_list(json_name):
     tweets = []
     for line in open(json_name):
@@ -22,22 +24,39 @@ def temp_convert_json_to_list(json_name):
 
 
 def json_translation(json_list):
+    """
+    Json's fields translation function.
+    This function translates the following fields (if there are exist):
+    + "text"
+    + "user" -> "description"
+    + "retweeted_status" -> "text"
+    + "retweeted_status" -> "extended_tweet" -> "full_text"
+    + "extended_tweet" -> "full_text"
+    :param json_list: list we want to translate
+    :return:
+    """
     i = 0
     for single in enumerate(json_list):
+        # in case we want to print the results
         if LOGGING:
             i += 1
             Tool.separate_debug_print_small('The ' + str(i) + ' translation')
+        # "text
         single[1]['text'] = google.translate(single[1]['text'], 'iw', text_language='en')
         if single[1]['user']['description'] is not None:
+            # "user" -> "description"
             single[1]['user']['description'] = google.translate(single[1]['user']['description'], 'iw',
                                                                 text_language='en')
         if 'retweeted_status' in single[1]:
+            # "retweeted_status" -> "text"
             single[1]['retweeted_status']['text'] = google.translate(single[1]['retweeted_status']['text'], 'iw',
                                                                      text_language='en')
             if 'extended_tweet' in single[1]['retweeted_status']:
+                # "retweeted_status" -> "extended_tweet" -> "full_text"
                 single[1]['retweeted_status']['extended_tweet']['full_text'] = google.translate(
                     single[1]['retweeted_status']['extended_tweet']['full_text'], 'iw', text_language='en')
         if 'extended_tweet' in single[1]:
+            # "extended_tweet" -> "full_text"
             single[1]['extended_tweet']['full_text'] = google.translate(single[1]['extended_tweet']['full_text'], 'iw',
                                                                         text_language='en')
 
