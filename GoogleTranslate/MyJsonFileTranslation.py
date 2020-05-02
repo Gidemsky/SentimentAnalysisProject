@@ -1,13 +1,12 @@
 import json
-import Utils as Tool
 
 from GoogleTranslate.GoogleTranslateAPI import GoogleTranslateAPI
+from Utils import separate_debug_print_small, send_report_by_email, create_json_dict_file, get_json_list
 
-LOGGING = True
-TWEETS_LIMIT = 75
+LOGGING = False
+TWEETS_LIMIT = 5000
 
-JSON_NAME1 = 'negative_tweets.json'
-JSON_NAME2 = 'positive_tweets.json'
+MAIN_JSON_FILE = 'tweets.json'
 
 # creates the google access API
 google = GoogleTranslateAPI()
@@ -36,50 +35,51 @@ def json_translation(json_list):
     :return:
     """
     i = 0
-    for single in enumerate(json_list):
-        # in case we want to print the results
-        if LOGGING:
+    try:
+        for tweet in enumerate(json_list):
+            # in case we want to print the results
             i += 1
-            Tool.separate_debug_print_small('The ' + str(i) + ' translation')
-        # "text
-        single[1]['text'] = google.translate(single[1]['text'], 'iw', text_language='en')
-        if single[1]['user']['description'] is not None:
-            # "user" -> "description"
-            single[1]['user']['description'] = google.translate(single[1]['user']['description'], 'iw',
-                                                                text_language='en')
-        if 'retweeted_status' in single[1]:
-            # "retweeted_status" -> "text"
-            single[1]['retweeted_status']['text'] = google.translate(single[1]['retweeted_status']['text'], 'iw',
-                                                                     text_language='en')
-            if 'extended_tweet' in single[1]['retweeted_status']:
-                # "retweeted_status" -> "extended_tweet" -> "full_text"
-                single[1]['retweeted_status']['extended_tweet']['full_text'] = google.translate(
-                    single[1]['retweeted_status']['extended_tweet']['full_text'], 'iw', text_language='en')
-        if 'extended_tweet' in single[1]:
-            # "extended_tweet" -> "full_text"
-            single[1]['extended_tweet']['full_text'] = google.translate(single[1]['extended_tweet']['full_text'], 'iw',
-                                                                        text_language='en')
-
-
-# json_all_list = json_all_list[:20]
-# for tweet in enumerate(json_all_list):
-#     for value in tweet[1].values():
-#         if isinstance(value, str) or isinstance(value, list):
-#             result = google.language_detection(value)
+            if LOGGING:
+                separate_debug_print_small('The ' + str(i) + ' translation')
+            # "text"
+            tweet[1]['text'] = google.translate(tweet[1]['text'], 'en', text_language='iw', level=2)
+            if tweet[1]['user']['description'] is not None:
+                # "user" -> "description"
+                tweet[1]['user']['description'] = google.translate(tweet[1]['user']['description'], 'en',
+                                                                   text_language='iw', level=2)
+            if 'retweeted_status' in tweet[1]:
+                # "retweeted_status" -> "text"
+                tweet[1]['retweeted_status']['text'] = google.translate(tweet[1]['retweeted_status']['text'], 'en',
+                                                                        text_language='iw', level=2)
+                if 'extended_tweet' in tweet[1]['retweeted_status']:
+                    # "retweeted_status" -> "extended_tweet" -> "full_text"
+                    tweet[1]['retweeted_status']['extended_tweet']['full_text'] = google.translate(
+                        tweet[1]['retweeted_status']['extended_tweet']['full_text'], 'en', text_language='iw', level=2)
+            if 'extended_tweet' in tweet[1]:
+                # "extended_tweet" -> "full_text"
+                tweet[1]['extended_tweet']['full_text'] = google.translate(tweet[1]['extended_tweet']['full_text'],
+                                                                           'en',
+                                                                           text_language='iw', level=2)
+            if i % 2500 == 0:
+                send_report_by_email(mail_subject="Translated Tweets",
+                                     body_text=str(i) + ' tweets has successfully translated!')
+        send_report_by_email(mail_subject="Translated Tweets",
+                             body_text=str(i) + ' tweets has successfully translated!')
+    except Exception:
+        temp_result_json = 'translated_' + MAIN_JSON_FILE
+        print(str(i))
+        create_json_dict_file(json_list, temp_result_json)
 
 
 if __name__ == '__main__':
-
     # json_all_list = Tool.get_json_list('negative_tweets.json')
-    list_to_translate = temp_convert_json_to_list(JSON_NAME2)
-    list_to_translate = list_to_translate[:TWEETS_LIMIT]
+    # list_to_translate = temp_convert_json_to_list(JSON_NAME2)
+    # list_to_translate = list_to_translate[:TWEETS_LIMIT]
+    list_to_translate = get_json_list('../Twitter_Api/' + MAIN_JSON_FILE)
+    # list_to_translate = list_to_translate[TWEETS_LIMIT:]
 
     json_translation(list_to_translate)
 
-    result_json_name = 'translated_result ' + JSON_NAME2
+    result_json_name = 'translated_' + MAIN_JSON_FILE
 
-    Tool.create_json_dict_file(list_to_translate, result_json_name)
-
-    email_msg = "There is translated limited json file for now"
-    Tool.send_report_by_email(mail_subject="Translated JSON test file", body_text=email_msg,
-                              file_path=result_json_name)
+    create_json_dict_file(list_to_translate, result_json_name)

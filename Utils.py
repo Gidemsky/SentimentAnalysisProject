@@ -26,14 +26,21 @@ PROJECT_GROUP = {
 
 
 def separate_debug_print_big(title):
+    # long line separator for debug line console print
     print('\n------------------------------' + title + '------------------------------\n')
 
 
 def separate_debug_print_small(title):
+    # short line separator for debug line console print
     print('\n---------------' + title + '---------------')
 
 
 def all_group_emails(key=None):
+    """
+    Gets the asked member email
+    :param key: member name
+    :return: the email of the person or of all the group
+    """
     if key is None:
         return PROJECT_GROUP.values()
     else:
@@ -59,6 +66,8 @@ def create_json_dict_file(json_list, json_file_name):
     :return: json file
     """
     json_all_list = {'tweets': json_list}
+    if not json_file_name.endswith('.json'):
+        json_file_name = json_file_name + '.json'
     with open(json_file_name, 'w', encoding='UTF-8') as fp:
         json.dump(json_all_list, fp, ensure_ascii=False, indent=3)
 
