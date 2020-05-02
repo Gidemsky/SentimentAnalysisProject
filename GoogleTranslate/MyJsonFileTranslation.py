@@ -72,9 +72,6 @@ def json_translation(json_list):
 
 
 if __name__ == '__main__':
-    # json_all_list = Tool.get_json_list('negative_tweets.json')
-    # list_to_translate = temp_convert_json_to_list(JSON_NAME2)
-    # list_to_translate = list_to_translate[:TWEETS_LIMIT]
     list_to_translate = get_json_list('../Twitter_Api/' + MAIN_JSON_FILE)
     # list_to_translate = list_to_translate[TWEETS_LIMIT:]
 
