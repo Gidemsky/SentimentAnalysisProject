@@ -12,16 +12,6 @@ MAIN_JSON_FILE = 'tweets.json'
 google = GoogleTranslateAPI()
 
 
-# convert list of json to list
-def temp_convert_json_to_list(json_name):
-    tweets = []
-    for line in open(json_name):
-        tweet = json.loads(line)
-        tweet["label"] = 1
-        tweets.append(tweet)
-    return tweets
-
-
 def json_translation(json_list):
     """
     Json's fields translation function.

@@ -118,3 +118,13 @@ def send_report_by_email(mail_subject="No subject", body_text=None, file_path=No
 
     # close user and SMTP connection
     server.quit()
+
+
+# convert list of json to list - temporary function
+def temp_convert_json_to_list(json_name):
+    tweets = []
+    for line in open(json_name):
+        tweet = json.loads(line)
+        tweet["label"] = 1
+        tweets.append(tweet)
+    return tweets
