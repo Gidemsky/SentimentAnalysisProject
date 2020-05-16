@@ -1,0 +1,238 @@
+{
+   "tweets": [
+      {
+         "created_at": "Sat Apr 25 18:57:37 +0000 2020",
+         "id": 1254122411332702213,
+         "id_str": "1254122411332702213",
+         "text": [
+            {
+               "translatedText": "RT @Mot_Tal: @LiberalRiWo Recall that Lieberman said: &quot;There will be no third elections&quot; - and there were! &quot;I support the law of cameras&quot; - and resist! &quot;Opposes the establishment of a committee to discuss the ...",
+               "input": "RT @Mot_Tal: @LiberalRiWo נזכיר שליברמן אמר: \n\"שלא יהיו בחירות שלישיות\" - והיו!\n\"שאתמוך בחוק המצלמות\" - והתנגד!\n\"מתנגד להקמת ועדה שתדון בחס…"
+            }
+         ],
+         "source": "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>",
+         "truncated": false,
+         "in_reply_to_status_id": null,
+         "in_reply_to_status_id_str": null,
+         "in_reply_to_user_id": null,
+         "in_reply_to_user_id_str": null,
+         "in_reply_to_screen_name": null,
+         "user": {
+            "id": 820722920255275010,
+            "id_str": "820722920255275010",
+            "name": "חיים חורב",
+            "screen_name": "M1TWIwLo3Xu3RtD",
+            "location": null,
+            "url": null,
+            "description": null,
+            "translator_type": "none",
+            "protected": false,
+            "verified": false,
+            "followers_count": 151,
+            "friends_count": 210,
+            "listed_count": 0,
+            "favourites_count": 32906,
+            "statuses_count": 27211,
+            "created_at": "Sun Jan 15 20:02:47 +0000 2017",
+            "utc_offset": null,
+            "time_zone": null,
+            "geo_enabled": false,
+            "lang": null,
+            "contributors_enabled": false,
+            "is_translator": false,
+            "profile_background_color": "F5F8FA",
+            "profile_background_image_url": "",
+            "profile_background_image_url_https": "",
+            "profile_background_tile": false,
+            "profile_link_color": "1DA1F2",
+            "profile_sidebar_border_color": "C0DEED",
+            "profile_sidebar_fill_color": "DDEEF6",
+            "profile_text_color": "333333",
+            "profile_use_background_image": true,
+            "profile_image_url": "http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+            "profile_image_url_https": "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+            "default_profile": true,
+            "default_profile_image": false,
+            "following": null,
+            "follow_request_sent": null,
+            "notifications": null
+         },
+         "geo": null,
+         "coordinates": null,
+         "place": null,
+         "contributors": null,
+         "retweeted_status": {
+            "created_at": "Sat Apr 25 15:45:55 +0000 2020",
+            "id": 1254074165151358981,
+            "id_str": "1254074165151358981",
+            "text": [
+               {
+                  "translatedText": "@LiberalRiWo Recall that Lieberman said: &quot;There will be no third elections&quot; - and there were! &quot;I support the law of cameras&quot; - and resist! &quot;Resists establishing a committee ... https://t.co/mvrAszv8W6",
+                  "input": "@LiberalRiWo נזכיר שליברמן אמר: \n\"שלא יהיו בחירות שלישיות\" - והיו!\n\"שאתמוך בחוק המצלמות\" - והתנגד!\n\"מתנגד להקמת ועד… https://t.co/mvrAszv8W6"
+               }
+            ],
+            "display_text_range": [
+               13,
+               140
+            ],
+            "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+            "truncated": true,
+            "in_reply_to_status_id": 1254071703455633409,
+            "in_reply_to_status_id_str": "1254071703455633409",
+            "in_reply_to_user_id": 1187040143703711753,
+            "in_reply_to_user_id_str": "1187040143703711753",
+            "in_reply_to_screen_name": "LiberalRiWo",
+            "user": {
+               "id": 1167475544755200001,
+               "id_str": "1167475544755200001",
+               "name": "Moti Tal",
+               "screen_name": "Mot_Tal",
+               "location": null,
+               "url": null,
+               "description": "ליכודניק, מציב מראה לשמאל ולתשקורת, חושף צביעות ואת האמת.\nמפרסם את מה שהתשקורת מנסה להסתיר!\nרוצה לעצבן ימני-תגיד לו שקר, רוצה לעצבן שמאלני-תגיד לו אמת",
+               "translator_type": "none",
+               "protected": false,
+               "verified": false,
+               "followers_count": 1415,
+               "friends_count": 248,
+               "listed_count": 0,
+               "favourites_count": 76337,
+               "statuses_count": 8499,
+               "created_at": "Fri Aug 30 16:34:05 +0000 2019",
+               "utc_offset": null,
+               "time_zone": null,
+               "geo_enabled": false,
+               "lang": null,
+               "contributors_enabled": false,
+               "is_translator": false,
+               "profile_background_color": "F5F8FA",
+               "profile_background_image_url": "",
+               "profile_background_image_url_https": "",
+               "profile_background_tile": false,
+               "profile_link_color": "1DA1F2",
+               "profile_sidebar_border_color": "C0DEED",
+               "profile_sidebar_fill_color": "DDEEF6",
+               "profile_text_color": "333333",
+               "profile_use_background_image": true,
+               "profile_image_url": "http://pbs.twimg.com/profile_images/1167502682850045954/gLBaZApa_normal.jpg",
+               "profile_image_url_https": "https://pbs.twimg.com/profile_images/1167502682850045954/gLBaZApa_normal.jpg",
+               "default_profile": true,
+               "default_profile_image": false,
+               "following": null,
+               "follow_request_sent": null,
+               "notifications": null
+            },
+            "geo": null,
+            "coordinates": null,
+            "place": null,
+            "contributors": null,
+            "is_quote_status": false,
+            "extended_tweet": {
+               "full_text": [
+                  {
+                     "translatedText": "@LiberalRiWo Recall that Lieberman said: &quot;There will be no third elections&quot; - and there were! &quot;I support the law of cameras&quot; - and resist! &quot;Opposes the establishment of a committee to discuss Netanyahu&#39;s immunity&quot; - and support! &quot;Put Netanyahu&#39;s Age&quot; - 🤣 &quot;Netanyahu Will Not Sign the Agreement&quot; - and Sign! And more and more .... because Lieberman&#39;s word - this is a fucking !!!",
+                     "input": "@LiberalRiWo נזכיר שליברמן אמר: \n\"שלא יהיו בחירות שלישיות\" - והיו!\n\"שאתמוך בחוק המצלמות\" - והתנגד!\n\"מתנגד להקמת ועדה שתדון בחסינות נתניהו\" - ותמך!\n\"שתם עידן נתניהו\" - 🤣\n\"שנתניהו לא יחתום על ההסכם\" - וחתם!\nועוד ועוד ועוד....\n\nכי מילה של ליברמן - זו הזייה!!!"
+                  }
+               ],
+               "display_text_range": [
+                  13,
+                  256
+               ],
+               "entities": {
+                  "hashtags": [],
+                  "urls": [],
+                  "user_mentions": [
+                     {
+                        "screen_name": "LiberalRiWo",
+                        "name": "ימנית ליברלית 🗽",
+                        "id": 1187040143703711753,
+                        "id_str": "1187040143703711753",
+                        "indices": [
+                           0,
+                           12
+                        ]
+                     }
+                  ],
+                  "symbols": []
+               }
+            },
+            "quote_count": 0,
+            "reply_count": 0,
+            "retweet_count": 2,
+            "favorite_count": 15,
+            "entities": {
+               "hashtags": [],
+               "urls": [
+                  {
+                     "url": "https://t.co/mvrAszv8W6",
+                     "expanded_url": "https://twitter.com/i/web/status/1254074165151358981",
+                     "display_url": "twitter.com/i/web/status/1…",
+                     "indices": [
+                        117,
+                        140
+                     ]
+                  }
+               ],
+               "user_mentions": [
+                  {
+                     "screen_name": "LiberalRiWo",
+                     "name": "ימנית ליברלית 🗽",
+                     "id": 1187040143703711753,
+                     "id_str": "1187040143703711753",
+                     "indices": [
+                        0,
+                        12
+                     ]
+                  }
+               ],
+               "symbols": []
+            },
+            "favorited": false,
+            "retweeted": false,
+            "filter_level": "low",
+            "lang": "iw"
+         },
+         "is_quote_status": false,
+         "quote_count": 0,
+         "reply_count": 0,
+         "retweet_count": 0,
+         "favorite_count": 0,
+         "entities": {
+            "hashtags": [],
+            "urls": [],
+            "user_mentions": [
+               {
+                  "screen_name": "Mot_Tal",
+                  "name": "Moti Tal",
+                  "id": 1167475544755200001,
+                  "id_str": "1167475544755200001",
+                  "indices": [
+                     3,
+                     11
+                  ]
+               },
+               {
+                  "screen_name": "LiberalRiWo",
+                  "name": "ימנית ליברלית 🗽",
+                  "id": 1187040143703711753,
+                  "id_str": "1187040143703711753",
+                  "indices": [
+                     13,
+                     25
+                  ]
+               }
+            ],
+            "symbols": []
+         },
+         "favorited": false,
+         "retweeted": false,
+         "filter_level": "low",
+         "lang": "iw",
+         "timestamp_ms": "1587841057986",
+         "label": {
+            "positivity": "5",
+            "relative subject": "topic"
+         }
+      }
+   ]
+}
