@@ -124,13 +124,9 @@ class GoogleTranslateAPI(object):
 
 if __name__ == '__main__':
 
-    # the c
     test_text = "Hey, My name is Gidi. I like movies, sex, and Disco-Dancing. This is test for the translation"
     string_text = list()
 
     string_text.append("this is text number one")
     string_text.append("I can't wait to finish our project")
     string_text.append("this is text number two")
-
-    # google = GoogleTranslateAPI()
-    # google.supp_language()
