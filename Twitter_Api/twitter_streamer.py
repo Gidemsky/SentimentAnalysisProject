@@ -5,7 +5,7 @@ from tweepy import Stream
 from Twitter_Api.FileExtracor import FileExtracor
 from Twitter_Api.TwitterAuthenticator import TwitterAuthenticator
 from Twitter_Api.TwitterListener import TwitterListener
-from Utils import check_tweets_number
+from support.Utils import check_tweets_number
 
 
 # # # # TWITTER STREAMER # # # #

@@ -1,7 +1,5 @@
-import json
-
 from GoogleTranslate.GoogleTranslateAPI import GoogleTranslateAPI
-from Utils import separate_debug_print_small, send_report_by_email, create_json_dict_file, get_json_list
+from support.Utils import separate_debug_print_small, send_report_by_email, create_json_dict_file, get_json_list
 
 LOGGING = False
 TWEETS_LIMIT = 5000

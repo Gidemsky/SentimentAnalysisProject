@@ -12,7 +12,7 @@ Class abilities:
 """
 
 import six
-import Utils as Tool
+from support import Utils as Tool
 from google.cloud import translate_v2 as translate
 
 

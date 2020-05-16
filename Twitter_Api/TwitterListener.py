@@ -2,7 +2,7 @@ import json
 
 from tweepy.streaming import StreamListener
 from shutil import copyfile
-from Utils import send_report_by_email, get_json_list
+from support.Utils import send_report_by_email
 
 EMAIL_MAIL_MSG = "The number of the tweets we have been accumulating so far is: "
 
