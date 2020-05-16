@@ -1,4 +1,4 @@
-
+import os
 import smtplib
 import json
 
@@ -47,15 +47,21 @@ def all_group_emails(key=None):
         return PROJECT_GROUP[key]
 
 
-def get_json_list(src_json_file):
+def get_json_tweet_list(src_json_file):
     """
     Converts json file with the following structure: (Dict) tweets : list
     :param src_json_file: json file with the correct structure
     :return: list of the tweets
     """
-    with open(src_json_file, 'r', encoding="utf-8") as json_file:
-        json_all_dict_data = json.load(json_file)
-    return json_all_dict_data['tweets']
+    # in case the is no json file yet - open with empty list
+    if not os.path.isfile(src_json_file):
+        create_json_dict_file([], src_json_file)
+    try:
+        with open(src_json_file, 'r', encoding="utf-8") as json_file:
+            json_all_dict_data = json.load(json_file)
+        return json_all_dict_data['tweets']
+    except IOError:
+        print("File not accessible - please the the file")
 
 
 def create_json_dict_file(json_list, json_file_name):
@@ -78,7 +84,7 @@ def check_tweets_number(src_json_file):
     :param src_json_file:
     :return: number of tweets
     """
-    return len(get_json_list(src_json_file))
+    return len(get_json_tweet_list(src_json_file))
 
 
 def send_report_by_email(mail_subject="No subject", body_text=None, file_path=None):

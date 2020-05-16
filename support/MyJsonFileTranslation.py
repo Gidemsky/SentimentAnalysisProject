@@ -1,5 +1,5 @@
 from GoogleTranslate.GoogleTranslateAPI import GoogleTranslateAPI
-from support.Utils import separate_debug_print_small, send_report_by_email, create_json_dict_file, get_json_list
+from support.Utils import separate_debug_print_small, send_report_by_email, create_json_dict_file, get_json_tweet_list
 
 LOGGING = False
 TWEETS_LIMIT = 5000
@@ -60,7 +60,7 @@ def json_translation(json_list):
 
 
 if __name__ == '__main__':
-    list_to_translate = get_json_list('../Twitter_Api/' + MAIN_JSON_FILE)
+    list_to_translate = get_json_tweet_list('../Twitter_Api/' + MAIN_JSON_FILE)
     # list_to_translate = list_to_translate[TWEETS_LIMIT:]
 
     json_translation(list_to_translate)
