@@ -9,9 +9,9 @@ def initialize_data():
     the user couldn't label
     :return: the 3 list mentioned above
     """
-    return get_json_tweet_list('translated_tweets_5000.json'),\
-           get_json_tweet_list('dani_labled.json'),\
-           get_json_tweet_list('dani_problem.json')
+    return get_json_tweet_list('Temp files/translated_tweets_5000.json'),\
+           get_json_tweet_list('Temp files/labled_tweets.json'),\
+           get_json_tweet_list('Temp files/problem_tweets.json')
 
 
 def print_tweet_data(cur_tweet):
@@ -37,8 +37,8 @@ if __name__ == '__main__':
     for i in range(len(unlabeled)):
 
         if i % 25 == 0 and not i == 0:
-            dst = 'Temp files/labeled_tweets_until_' + str(i) + '.json'
-            copyfile('dani_labled.json', dst)
+            dst = 'Temp files/backup/labeled_tweets_until_' + str(i) + '.json'
+            copyfile('Temp files/labled_tweets.json', dst)
 
         if input("Do you want to label a tweet?\nPlease press 0 - for no, 1 - for yes\n") == '1':
             separate_debug_print_big("label number " + str(i + 1))
@@ -61,9 +61,9 @@ if __name__ == '__main__':
         else:
             print("Saving data...\n")
             unlabeled = unlabeled[i:]
-            create_json_dict_file(unlabeled, 'translated_tweets_5000.json')
-            create_json_dict_file(labeled, 'dani_labled.json')
-            create_json_dict_file(problematic_tweets, 'dani_problem.json')
+            create_json_dict_file(unlabeled, 'Temp files/translated_tweets_5000.json')
+            create_json_dict_file(labeled, 'Temp files/labled_tweets.json')
+            create_json_dict_file(problematic_tweets, 'Temp files/problem_tweets.json')
             print("data saved!\ngoodbye")
             exit(0)
     print("here will be email")
