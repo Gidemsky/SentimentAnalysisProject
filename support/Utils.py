@@ -25,9 +25,21 @@ PROJECT_GROUP = {
 }
 
 
+def script_opener(script_title):
+    # this is a script console opener.
+    print("################################################ Welcome ##################################################")
+    print("#")
+    print("#")
+    print("#")
+    print("#")
+    print("#")
+    print("############################################# " + script_title +
+          " ###############################################\n")
+
+
 def separate_debug_print_big(title):
     # long line separator for debug line console print
-    print('\n------------------------------' + title + '------------------------------\n')
+    print('\n-------------------------------------------' + title + '-------------------------------------------\n')
 
 
 def separate_debug_print_small(title):
