@@ -158,4 +158,5 @@ if __name__ == '__main__':
             i -= 1
         i += 1
     # in case the translated file ended
-    labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets))
+    if i != 0:
+        labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets))
