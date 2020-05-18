@@ -47,16 +47,21 @@ def separate_debug_print_small(title):
     print('\n---------------' + title + '---------------')
 
 
-def all_group_emails(key=None):
+def get_group_emails(key=None):
     """
-    Gets the asked member emails according to the keys
-    :param key: member name
+    Gets the asked member e-mail
+    :param key: member name or list of names
     :return: the email of the person or of all the group
     """
     if key is None:
         return PROJECT_GROUP.values()
-    else:
-        return PROJECT_GROUP[key]
+    try:
+        # return the list of key's emails
+        return [PROJECT_GROUP[i] for i in key]
+    except KeyError:
+        print("You entered wrong key name for email")
+        print("return Gidi's email instead of the name you entered")
+        return PROJECT_GROUP['Gidi']
 
 
 def get_json_tweet_list(src_json_file):
