@@ -49,7 +49,7 @@ def separate_debug_print_small(title):
 
 def all_group_emails(key=None):
     """
-    Gets the asked member email
+    Gets the asked member emails according to the keys
     :param key: member name
     :return: the email of the person or of all the group
     """
