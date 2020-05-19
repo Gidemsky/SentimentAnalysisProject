@@ -1,11 +1,11 @@
 import re
 
 from support.Utils import get_json_tweet_list, create_json_dict_file, separate_debug_print_big, send_report_by_email, \
-    script_opener, separate_debug_print_small
+    script_opener, separate_debug_print_small, dir_checker_creator
 
-TRANSLATED_JSON = 'translated_tweets_5000.json'
+TRANSLATED_JSON = ''
 BACKUP_RATIO = 25
-NAME = 'Gidi'
+NAME = ''
 
 
 def initialize_data():
@@ -15,9 +15,19 @@ def initialize_data():
     :return: the 3 list mentioned above
     """
     print("Loading json's data...\n")
-    return get_json_tweet_list('Temp files/' + TRANSLATED_JSON), \
-           get_json_tweet_list('Temp files/labeled_tweets.json'), \
-           get_json_tweet_list('Temp files/problem_tweets.json')
+    # create the directories for the program
+    dir_checker_creator("Temp files/Backup")
+
+    main_json_list = get_json_tweet_list('Temp files/' + TRANSLATED_JSON)
+    labeled_list = get_json_tweet_list('Temp files/labeled_tweets.json')
+    problems_list = get_json_tweet_list('Temp files/problem_tweets.json')
+
+    print("Loading completed!\nTotal tweets you has labeled: " + str(len(labeled_list)) +
+          "\nTotal tweets you mark as problematic: " + str(len(problems_list)) +
+          "\nTotal tweets you left the label: " + str(len(main_json_list)) +
+          "\nPlease follow the instruction and good luck\n")
+
+    return main_json_list, labeled_list, problems_list
 
 
 def print_tweet_data(cur_tweet):
@@ -27,16 +37,20 @@ def print_tweet_data(cur_tweet):
     :return:
     """
     data = []
+    text_type = ""
     if 'extended_tweet' in cur_tweet:
         data.append(cur_tweet['extended_tweet']['full_text'][0])
+        text_type = "Full text - \n"
     else:
         data.append(cur_tweet['text'][0])
-    print("The tweet data:\n")
+        text_type = "Short text - "
+    # prints the tweet's text
+    print(text_type)
     for d in data[0]:
         print(d, ':', data[0][d])  # TODO: check about more fields
 
 
-def finalize_json_data(src_json, tweet_number_reached, labeled_final_data, problem_tweet):
+def finalize_json_data():
     """
     Summarize all the data that collected to JSONs files
     :param src_json: the main json list we want to label
@@ -47,10 +61,10 @@ def finalize_json_data(src_json, tweet_number_reached, labeled_final_data, probl
     """
     print("Saving data...")
     # saves the tweets we didn't passed yet
-    src_json = src_json[tweet_number_reached:]
-    create_json_dict_file(src_json, 'Temp files/' + TRANSLATED_JSON)
-    create_json_dict_file(labeled_final_data, 'Temp files/labeled_tweets.json')
-    create_json_dict_file(problem_tweet, 'Temp files/problem_tweets.json')
+    new_unlabeled_list = unlabeled[i:]
+    create_json_dict_file(new_unlabeled_list, 'Temp files/' + TRANSLATED_JSON)
+    create_json_dict_file(labeled, 'Temp files/labeled_tweets.json')
+    create_json_dict_file(problematic_tweets, 'Temp files/problem_tweets.json')
     print("data saved!\n")
 
 
@@ -103,52 +117,70 @@ def tweet_pos_neg_labeler():
         return tweet_pos_neg_labeler()
 
 
-if __name__ == '__main__':
+def backup_files():
+    """
+    backup the file we writing
+    :return:
+    """
+    separate_debug_print_small("Backup the files now")
+    labeled_backup_dst = 'Temp files/backup/labeled_tweets_until_' + str(len(labeled)) + '.json'
+    problem_backup_dst = 'Temp files/backup/problem_tweets_until_' + str(len(problematic_tweets)) + '.json'
+    unlabeled_backup_dst = 'Temp files/backup/unlabeled_tweets_until_' + str(len(unlabeled) - i) + '.json'
+    create_json_dict_file(labeled, labeled_backup_dst)
+    create_json_dict_file(problematic_tweets, problem_backup_dst)
+    create_json_dict_file(unlabeled[i:], unlabeled_backup_dst)
+    separate_debug_print_small("Backup done")
 
+
+def main_labeler(t):
+    labeler_status = True
+    separate_debug_print_small("starting tweet's labeler")
+    print_tweet_data(t)
+    while labeler_status:
+        user_action = input("\nDo you want to label this tweet or skip to consult with the teammates?\n"
+                            "Please press:\n0 - for collect to teammates\n"
+                            "1 - for continue labeling\n2 - see the text again\n")
+        if user_action == '0':
+            problematic_tweets.append(t)
+            labeler_status = False
+        elif user_action == '1':
+            # creating the label dictionary we want to append to the translated json
+            t["label"] = {'positivity': tweet_pos_neg_labeler(),
+                          'relative subject': relative_subject_labeler()}
+            labeled.append(t)
+            labeler_status = False
+        elif user_action == '2':
+            print_tweet_data(t)
+        else:
+            print("You entered wrong input!\nYou should enter 0, 1 or 2\nPlease try again\n")
+
+
+if __name__ == '__main__':
     script_opener("Tweet Labeler")
     unlabeled, labeled, problematic_tweets = initialize_data()
-    print("Loading completed!\nTotal tweets you has labeled: " + str(len(labeled)) +
-          "\nTotal tweets you mark as problematic: " + str(len(problematic_tweets)) +
-          "\nTotal tweets you left the label: " + str(len(unlabeled)) +
-          "\nPlease follow the instruction and good luck\n")
+
+    if len(unlabeled) == 0:
+        print("You have empty json!")
 
     i = 0
     # run main while loop as far as the is unlabeled tweets
     while i < len(unlabeled):
-
         # the backup staging every BACKUP_RATIO constant
         if i % BACKUP_RATIO == 0 and not i == 0:
-            separate_debug_print_small("Backuping the files now")
-            labeled_backup_dst = 'Temp files/backup/labeled_tweets_until_' + str(len(labeled)) + '.json'
-            problem_backup_dst = 'Temp files/backup/problem_tweets_until_' + str(len(problematic_tweets)) + '.json'
-            create_json_dict_file(labeled, labeled_backup_dst)
-            create_json_dict_file(problematic_tweets, problem_backup_dst)
-            separate_debug_print_small("Backup done")
+            backup_files()
 
-        user_main_choose = input("\nDo you want to label a tweet?\nPlease press 0 - for no, 1 - for yes\n")
+        user_main_choose = input("\nDo you want to label a tweet?\nPlease press:\n0 - for no\n1 - for yes\n")
+
         if user_main_choose == '1':
             separate_debug_print_big("label number " + str(i + 1))
-            t = unlabeled[i]
-            print_tweet_data(t)
+            main_labeler(unlabeled[i])
 
-            label_user_action = input("Do you want to label this tweet or skip to consult with the teammates?\n"
-                                      "Please press 0 - for collect to teammates, 1 - for continue labeling\n")
-            if label_user_action == '0':
-                problematic_tweets.append(t)
-            elif label_user_action == '1':
-                # creating the label dictionary we want to append to the translated json
-                t["label"] = {'positivity': tweet_pos_neg_labeler(),
-                              'relative subject': relative_subject_labeler()}
-                labeled.append(t)
-            else:
-                # subs the i in order to run the same tweet again
-                print("You entered wrong input!\nStarting the labeling again\nPlease run again\n")
-                i -= 1
         elif user_main_choose == '0':
             # sends report in order the user want
-            if input("Do you want to share your progress?\nPlease press 0 - for no, 1 - for yes\n") == '1':
+            if input("Do you want to share your progress?\n"
+                     "Please press 1 - for yes, or anything else - for no\n") == '1':
                 labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets))
-            finalize_json_data(unlabeled, i, labeled, problematic_tweets)
+            finalize_json_data()
             print("Goodbye Chiquititas!!!")
             exit(0)
 
@@ -156,7 +188,9 @@ if __name__ == '__main__':
             print("You entered wrong input!\nPlease run again\n")
             # sub the i in order to run the same tweet again
             i -= 1
+
         i += 1
+
     # in case the translated file ended
     if i != 0:
         labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets))

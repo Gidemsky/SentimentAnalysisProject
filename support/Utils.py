@@ -137,7 +137,7 @@ def send_report_by_email(mail_subject="No subject", body_text=None, file_path=No
 
     # log-in to the gmail account and sends the mail
     server.login(ADMIN_SERVER, ADMIN_PASSWORD)
-    server.sendmail(ADMIN_SERVER, all_group_emails(), cur_mail)
+    server.sendmail(ADMIN_SERVER, get_group_emails(), cur_mail)
 
     # close user and SMTP connection
     server.quit()
@@ -151,3 +151,21 @@ def temp_convert_json_to_list(json_name):
         tweet["label"] = 1
         tweets.append(tweet)
     return tweets
+
+
+def dir_checker_creator(path):
+    """
+    check a directory existence and create it in case it doesn't
+    :param path: the path to create
+    :return:
+    """
+    # create the full path from the place the src file is placed
+    path = "./" + path
+    if not os.path.isdir(path):
+        try:
+            os.makedirs(path)
+        except OSError:
+            print("couldn't create %s folder\nPlease check it or create it manually\nExit the program for now!" % path)
+            exit(1)
+        else:
+            print("Successfully created the directory %s \n" % path)
