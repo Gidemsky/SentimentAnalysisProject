@@ -72,6 +72,8 @@ def get_json_tweet_list(src_json_file):
     """
     # in case the is no json file yet - open with empty list
     if not os.path.isfile(src_json_file):
+        if not src_json_file.endswith('.json'):
+            src_json_file = src_json_file + '.json'
         create_json_dict_file([], src_json_file)
     try:
         with open(src_json_file, 'r', encoding="utf-8") as json_file:
