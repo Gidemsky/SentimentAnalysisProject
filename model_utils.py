@@ -10,7 +10,7 @@ def save_results(df, nm, is_trans):
     if is_trans:
         fname += "_tr"
     df.to_csv(fname + ".csv")
-    df.to_excel(fname + ".xlsx")
+    #df.to_excel(fname + ".xlsx")
 
 
 def get_tweets(pos_f, neg_f):
@@ -27,8 +27,10 @@ def get_tweets(pos_f, neg_f):
         tweet["label"] = -1
         negative_tweets.append(tweet)
     '''
-    pos_d = json.load(open(pos_f))
-    neg_d = json.load(open(neg_f))
+    with open(pos_f, 'r', encoding="utf-8") as pos_json_file:
+        pos_d = json.load(pos_json_file)
+    with open(neg_f, 'r', encoding="utf-8") as neg_json_file:
+        neg_d = json.load(neg_json_file)
     positive_tweets = pos_d['tweets']
     negative_tweets = neg_d['tweets']
     for itemP in positive_tweets:
@@ -38,3 +40,10 @@ def get_tweets(pos_f, neg_f):
         itemN.update({"label": -1})
 
     return positive_tweets, negative_tweets
+
+def get_vocabulary():
+    with open("positive-words.txt", 'r') as file:
+        vocabulary = file.read().split('\n')[:1000]
+    with open("negative-words.txt", 'r') as file:
+        vocabulary += file.read().split('\n')[:1000]
+    return list(set(dict.fromkeys(vocabulary)))

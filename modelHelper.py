@@ -7,7 +7,8 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, cross_val_predict
 import pandas as pd
-
+import model_utils as mUtils
+#sklearn.confusionMetrics - classificationReport
 
 class modelHelper:
     def __init__(self, model, k, labels, ids):
@@ -44,6 +45,12 @@ class modelHelper:
             processed_feature = processed_feature.lower()
 
             processed_features.append(processed_feature)
+        vectorizer.fit_transform(processed_features).toarray()
+        vectorizer_features = vectorizer.get_feature_names()
+        vocabulary = mUtils.get_vocabulary()
+        vocabulary += vectorizer_features
+        vocabulary = list(set(dict.fromkeys(vocabulary)))
+        vectorizer.set_params(vocabulary=vocabulary)
         processed_features = vectorizer.fit_transform(processed_features).toarray()
         s = int(len(processed_features)*0.8)
 
@@ -59,19 +66,25 @@ class modelHelper:
         if self.modelName == 'naive bayes':
             return GaussianNB()
         elif self.modelName == 'svm':
-            return SVC(gamma='auto')
+            return SVC(kernel="linear", class_weight="balanced")
         elif self.modelName == 'random forest':
-            return RandomForestClassifier(n_estimators=200, random_state=0)
+            # does't stop with 1000, but should be 1000
+            return RandomForestClassifier(n_estimators=100, random_state=0, class_weight="balanced")
         else:
             raise Exception('unknown model')
 
     def train_and_test_model(self):
         self.scores = (self.fet_ids, cross_val_score(self.model, self.processed_features, self.labels, cv=5))
-        p = cross_val_predict(self.model, self.test, self.test_labels, cv=3)
-        self.preds = (self.test_ids, p, self.test_labels)
+        self.model.fit(self.processed_features, self.labels)
+        y_predicted = self.model.predict(self.test)
+        self.accuracy_score = accuracy_score(self.test_labels, y_predicted)
+        self.preds = (self.test_ids, y_predicted, self.test_labels)
 
     def get_accuracy(self):
         return self.scores
+
+    def get_real_accuracy(self):
+        return self.accuracy_score
 
     def get_predictions(self):
         return self.preds

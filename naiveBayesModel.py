@@ -19,8 +19,8 @@ airline_features = airline_tweets.iloc[:, 10].values
 airline_labels = airline_tweets.iloc[:, 1].values
 '''
 
-fPos = "twitter_samples/positive_tweets.json"
-fNeg = "twitter_samples/negative_tweets.json"
+fPos = "twitter_samples/negative_tweets1.json"
+fNeg = "twitter_samples/positive_tweets1.json"
 is_trans = False
 positive_tweets, negative_tweets = mUtils.get_tweets(fPos, fNeg)
 
@@ -34,14 +34,17 @@ labels = neg_pos_tweets.iloc[:, 24].values
 # j_features = neg_pos_tweets.iloc[:, neg_pos_tweets.columns != 'label'].values
 features = neg_pos_tweets.iloc[:, 2].values
 ids = neg_pos_tweets.iloc[:, 23].values
+#vocabulary = mUtils.get_vocabulary()
 
 nBModel = modelHelper("naive bayes", 5, labels, ids)
 vectorizer = TfidfVectorizer(max_features=2500, min_df=7, max_df=0.8, stop_words=stopwords.words('english'))
 processed_features = nBModel.create_features(features, vectorizer)
 nBModel.train_and_test_model()
 accuracy = nBModel.get_accuracy()
-print('naive bayes results:')
-print(accuracy)
+
+print('Naive Bayes results:')
+print("Cross Validation Accuracy: ", accuracy)
+print("Accuracy: ", nBModel.accuracy_score)
 results = nBModel.get_predictions()
 df = pd.DataFrame(data={"id": results[0], "prediction": results[1], "label": results[2]})
 df['correct_prediction'] = df.prediction == df.label
