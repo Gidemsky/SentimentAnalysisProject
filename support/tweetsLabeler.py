@@ -59,10 +59,6 @@ def print_tweet_data(cur_tweet):
 def finalize_json_data():
     """
     Summarize all the data that collected to JSONs files
-    :param src_json: the main json list we want to label
-    :param tweet_number_reached: the iteration number of the loop
-    :param labeled_final_data: the tweet's list I labeled
-    :param problem_tweet: the tweet's list I hasn't labeled and signed as problematic
     :return:
     """
     print("Saving data...")
