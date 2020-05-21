@@ -23,9 +23,9 @@ def initialize_data():
     problems_list = get_json_tweet_list('Temp files/problem_tweets.json')
 
     print("Loading completed!\nTotal tweets you has labeled: " + str(len(labeled_list)) +
-              "\nTotal tweets you mark as problematic: " + str(len(problems_list)) +
-              "\nTotal tweets you left the label: " + str(len(main_json_list)) +
-              "\nPlease follow the instruction and good luck\n")
+          "\nTotal tweets you mark as problematic: " + str(len(problems_list)) +
+          "\nTotal tweets you left the label: " + str(len(main_json_list)) +
+          "\nPlease follow the instruction and good luck\n")
 
     return main_json_list, labeled_list, problems_list
 
