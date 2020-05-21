@@ -43,11 +43,17 @@ def print_tweet_data(cur_tweet):
         text_type = "Full text - \n"
     else:
         data.append(cur_tweet['text'][0])
-        text_type = "Short text - "
+        text_type = "Short text - \n"
     # prints the tweet's text
     print(text_type)
-    for d in data[0]:
-        print(d, ':', data[0][d])  # TODO: check about more fields
+    try:
+        for d in data[0]:
+            print(d, ':', data[0][d])  # TODO: check about more fields
+    except TypeError:
+        print("It seems like you have json format issue\n"
+              "Please write down the iteration number {0}.\nExit the program now!\n".format(i))
+        finalize_json_data()
+        exit(1)
 
 
 def finalize_json_data():
