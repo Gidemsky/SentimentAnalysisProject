@@ -19,6 +19,7 @@ class TwitterListener(StreamListener):
     This is a basic listener that just prints received tweets to stdout.
     """
 
+
     def __init__(self, fetched_tweets_filename, tweets_number):
         self.fetched_tweets_filename = fetched_tweets_filename
         self.c = tweets_number
@@ -29,6 +30,7 @@ class TwitterListener(StreamListener):
             self.append_json(all_data)
             return True
         except BaseException as e:
+
             send_report_by_email(mail_subject="Lite Error Accrued!!!", body_text='Lite error, not big deal\nFYI')
             print("Error on_data %s" % str(e))
         return True
@@ -55,6 +57,7 @@ class TwitterListener(StreamListener):
             json.dump(data, tf, ensure_ascii=False, indent=3)
         self.report_and_modify()
 
+
     def append_json(self, data):
         with open(self.fetched_tweets_filename, 'r', encoding="utf-8") as json_file:
             old_json = json.load(json_file)
@@ -65,6 +68,8 @@ class TwitterListener(StreamListener):
     def on_error(self, status):
         if status == 420:
             # Returning False on_data method in case rate limit occurs.
+
             send_report_by_email(mail_subject="Error Accrued!!!", body_text='ERROR,\nCall Gidi now!!!')
+
             return False
         print(status)
