@@ -15,7 +15,7 @@ class Bootstrapper(object):
     def execute(self):
         while self.none_labeled_tweets:  # TODO: add prints and parameter for debuging
             my_model_test_tweets = self.get_test_tweets(self.none_labeled_tweets)
-            model_results = self.my_model.run(my_model_test_tweets, self.model_data_set)
+            model_results = self.my_model.run(my_model_test_tweets, self.model_data_set)  # TODO:
             self.validate_model_solution(model_results)
             #  TODO: add prints and more stuff to trace the progress
 

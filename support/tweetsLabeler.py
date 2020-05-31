@@ -4,7 +4,7 @@ from support.Utils import get_json_tweet_list, create_json_dict_file, separate_d
     script_opener, separate_debug_print_small, dir_checker_creator
 
 TRANSLATED_JSON = ''
-BACKUP_RATIO = 25
+BACKUP_RATIO = 10
 NAME = ''
 
 
@@ -141,7 +141,7 @@ def main_labeler(t):
     while labeler_status:
         user_action = input("\nDo you want to label this tweet or skip to consult with the teammates?\n"
                             "Please press:\n0 - for collect to teammates\n"
-                            "1 - for continue labeling\n2 - see the text again\n")
+                            "1 - for continue labeling\n2 - see the text again\n3 - skip this tweet")
         if user_action == '0':
             problematic_tweets.append(t)
             labeler_status = False
@@ -153,6 +153,9 @@ def main_labeler(t):
             labeler_status = False
         elif user_action == '2':
             print_tweet_data(t)
+        elif user_action == '3':
+            print("Bye bye, you unuseful tweet, TFIEE!\n")
+            labeler_status = False
         else:
             print("You entered wrong input!\nYou should enter 0, 1 or 2\nPlease try again\n")
 
