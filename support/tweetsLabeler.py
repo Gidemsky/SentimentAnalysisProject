@@ -5,7 +5,33 @@ from support.Utils import get_json_tweet_list, create_json_dict_file, separate_d
 
 TRANSLATED_JSON = 'gidi_trans.json'
 BACKUP_RATIO = 20
-NAME = ''
+NAME = 'Gidi'
+
+
+def retweet_checker(json_list_to_check):
+    """
+    This function runs all over the source list and deletes all the retweets
+    The deleted tweets will be saved as new file
+    :param json_list_to_check: the source list t check
+    :return: new list without retweets at all
+    """
+    print("Please wait, checking if there are retweets to delete...")
+    deleted_tweets = 0
+    deleted_list_tweets = list()
+    new_tweets_list = list()
+    for t in json_list_to_check:
+        if 'retweeted_status' not in t:
+            new_tweets_list.append(t)
+        else:
+            deleted_list_tweets.append(t)
+            deleted_tweets += 1
+    print("All tweets are checked!")
+    if deleted_tweets > 0:
+        create_json_dict_file(deleted_list_tweets, 'Temp files/temp_deleted_retweets.json')
+        print("{0} retweeted tweets has been removed from your tweet list\n".format(str(deleted_tweets)))
+    else:
+        print("No tweets hs been removed. The list is OK!\n")
+    return new_tweets_list
 
 
 def initialize_data():
@@ -18,7 +44,7 @@ def initialize_data():
     # create the directories for the program
     dir_checker_creator("Temp files/Backup")
 
-    main_json_list = get_json_tweet_list('Temp files/' + TRANSLATED_JSON)
+    main_json_list = retweet_checker(get_json_tweet_list('Temp files/' + TRANSLATED_JSON))
     labeled_list = get_json_tweet_list('Temp files/labeled_tweets.json')
     problems_list = get_json_tweet_list('Temp files/problem_tweets.json')
 
