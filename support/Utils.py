@@ -80,7 +80,7 @@ def get_json_tweet_list(src_json_file):
             json_all_dict_data = json.load(json_file)
         return json_all_dict_data['tweets']
     except IOError:
-        print("File not accessible - please the the file")
+        print("File not accessible - please create or place the file")
 
 
 def create_json_dict_file(json_list, json_file_name):

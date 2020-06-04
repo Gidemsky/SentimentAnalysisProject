@@ -5,7 +5,7 @@ from support.Utils import get_json_tweet_list, create_json_dict_file, separate_d
 
 TRANSLATED_JSON = 'gidi_trans.json'
 BACKUP_RATIO = 20
-NAME = 'Gidi'
+NAME = ''
 
 
 def retweet_checker(json_list_to_check):
