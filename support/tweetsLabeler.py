@@ -105,16 +105,20 @@ def finalize_json_data():
     print("data saved!\n")
 
 
-def labeling_report(total_signed_tweets):
+def labeling_report(total_signed_tweets, is_finish_labeling=False):
     """
     The report stage to the group
     :param total_signed_tweets: the number of the all tweets we passed and signed
+    :param is_finish_labeling: the case of sending the mail in order to know the mail's subject
     :return:
     """
     mail_body = "{0} tweets total\n{1} labeled tweets and {2} problematic tweet. :-)".format(
         str(total_signed_tweets), str(len(labeled)), str(len(problematic_tweets)))
     print("Sending email to the teammates...\n")
-    send_report_by_email(mail_subject=NAME + "'s label progress", body_text=mail_body)
+    if not is_finish_labeling:
+        send_report_by_email(mail_subject=NAME + "'s label progress", body_text=mail_body)
+    else:
+        send_report_by_email(mail_subject=NAME + "'s label progress - DONE!", body_text=mail_body)
 
 
 def relative_subject_labeler():
@@ -236,4 +240,6 @@ if __name__ == '__main__':
 
     # in case the translated file ended
     if i != 0:
+        if NAME == "":
+            NAME = input("\nYou didn't entered your name. Please enter your name now:\n")
         labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets))
