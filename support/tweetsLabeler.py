@@ -65,12 +65,7 @@ def print_tweet_data(cur_tweet):
     data = []
     text_type = ""
 
-    if 'retweeted_status' in cur_tweet:
-        print("\nThis is s simple tweet\nThe following user has just retweeted the text!\n")
-        data.append(cur_tweet['text'][0])
-        text_type = "Short text - \n"
-
-    elif 'retweeted_status' not in cur_tweet or 'retweeted_status' not in cur_tweet:
+    if 'retweeted_status' not in cur_tweet or 'quoted_status' not in cur_tweet:
         # a simple tweet
         if 'extended_tweet' in cur_tweet:
             data.append(cur_tweet['extended_tweet']['full_text'][0])
@@ -206,7 +201,7 @@ if __name__ == '__main__':
     unlabeled, labeled, problematic_tweets = initialize_data()
 
     if len(unlabeled) == 0:
-        print("You have empty json!")
+        print("You have empty json!\nPlease Check your tweet's file")
 
     i = 0
     # run main while loop as far as the is unlabeled tweets
