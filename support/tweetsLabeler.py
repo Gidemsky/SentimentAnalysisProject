@@ -3,8 +3,8 @@ import re
 from support.Utils import get_json_tweet_list, create_json_dict_file, separate_debug_print_big, send_report_by_email, \
     script_opener, separate_debug_print_small, dir_checker_creator
 
-TRANSLATED_JSON = ''
-BACKUP_RATIO = 10
+TRANSLATED_JSON = 'gidi_trans.json'
+BACKUP_RATIO = 20
 NAME = ''
 
 
@@ -38,12 +38,26 @@ def print_tweet_data(cur_tweet):
     """
     data = []
     text_type = ""
-    if 'extended_tweet' in cur_tweet:
-        data.append(cur_tweet['extended_tweet']['full_text'][0])
-        text_type = "Full text - \n"
-    else:
+
+    if 'retweeted_status' in cur_tweet:
+        print("\nThis is s simple tweet\nThe following user has just retweeted the text!\n")
         data.append(cur_tweet['text'][0])
         text_type = "Short text - \n"
+
+    elif 'retweeted_status' not in cur_tweet or 'retweeted_status' not in cur_tweet:
+        # a simple tweet
+        if 'extended_tweet' in cur_tweet:
+            data.append(cur_tweet['extended_tweet']['full_text'][0])
+            text_type = "Full text - \n"
+        else:
+            data.append(cur_tweet['text'][0])
+            text_type = "Short text - \n"
+
+    else:
+        # a complicated tweet
+        data.append(cur_tweet['text'][0])
+        text_type = "Short text - \n"
+
     # prints the tweet's text
     print(text_type)
     try:
@@ -78,6 +92,7 @@ def labeling_report(total_signed_tweets):
     """
     mail_body = "{0} tweets total\n{1} labeled tweets and {2} problematic tweet. :-)".format(
         str(total_signed_tweets), str(len(labeled)), str(len(problematic_tweets)))
+    print("Sending email to the teammates...\n")
     send_report_by_email(mail_subject=NAME + "'s label progress", body_text=mail_body)
 
 
@@ -184,6 +199,8 @@ if __name__ == '__main__':
             # sends report in order the user want
             if input("Do you want to share your progress?\n"
                      "Please press 1 - for yes, or anything else - for no\n") == '1':
+                if NAME == "":
+                    NAME = input("\nYou didn't entered your name. Please enter your name now:\n")
                 labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets))
             finalize_json_data()
             print("Goodbye Chiquititas!!!")
