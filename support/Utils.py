@@ -70,7 +70,9 @@ def get_json_tweet_list(src_json_file):
     :param src_json_file: json file with the correct structure
     :return: list of the tweets
     """
-    # in case the is no json file yet - open with empty list
+    if type(src_json_file) is list:
+        return src_json_file
+    # in case there is no json file yet - open with empty list
     if not os.path.isfile(src_json_file):
         if not src_json_file.endswith('.json'):
             src_json_file = src_json_file + '.json'
