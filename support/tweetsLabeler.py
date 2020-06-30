@@ -4,7 +4,7 @@ from support.JsonManager import JsonManager
 from support.Utils import get_json_tweet_list, create_json_dict_file, separate_debug_print_big, send_report_by_email, \
     script_opener, separate_debug_print_small, dir_checker_creator
 
-TRANSLATED_JSON = 'gidi_trans.json'
+TRANSLATED_JSON = 'gidi_trans_check.json'
 BACKUP_RATIO = 20
 NAME = 'Gidi'
 
@@ -77,6 +77,9 @@ def print_tweet_data(cur_tweet, quoted=False):
     """
     data = []
 
+    if not isinstance(cur_tweet["text"], list):
+        quoted = True
+
     if not quoted:
         # a simple tweet
         data, text_type = tweet_print(data, cur_tweet)
@@ -87,7 +90,8 @@ def print_tweet_data(cur_tweet, quoted=False):
                 print(d, ':', data[0][d])  # TODO: check about more fields
         except TypeError:
             print("It seems like you have json format issues\n"
-                  "Please write down the iteration number {0}.\nExit the program now!\n".format(i))
+                  "Please write down the tweet number -> {0}.\n"
+                  "Exit the program now!\n".format(str(cur_tweet["id"])))
             finalize_json_data()
             exit(1)
     else:
@@ -224,12 +228,16 @@ def main_labeler(t):
                       "Please label the previous tweet relatively to the following tweet:")
                 print_tweet_data(t['quoted_status'], quoted=True)
                 t["label"].update({'origin_relative_positivity': tweet_pos_neg_labeler(),
-                              'origin_relative_relative subject': relative_subject_labeler()})
+                                   'origin_relative_relative subject': relative_subject_labeler()})
             labeled.append(t)
             labeler_status = False
         elif user_action == '2':
             print_tweet_data(t)
         elif user_action == '3':
+            # doesn't let the user to skip this tweet in case JsonManger created it
+            if 'JsonManager' in t:
+                print("This is an important tweet. You can't skip it")
+                continue
             print("Bye bye, you unuseful tweet, TFIEE!\n")
             labeler_status = False
         else:
@@ -282,3 +290,4 @@ if __name__ == '__main__':
         if NAME == "":
             NAME = input("\nYou didn't entered your name. Please enter your name now:\n")
         labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets), is_finish_labeling=True)
+        finalize_json_data()
