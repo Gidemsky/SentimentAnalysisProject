@@ -42,8 +42,8 @@ def get_tweets(pos_f, neg_f):
     return positive_tweets, negative_tweets
 
 def get_vocabulary():
-    with open("positive-words.txt", 'r') as file:
+    with open("positive_words.txt", 'r') as file:
         vocabulary = file.read().split('\n')[:1000]
-    with open("negative-words.txt", 'r') as file:
+    with open("negative_words.txt", 'r') as file:
         vocabulary += file.read().split('\n')[:1000]
     return list(set(dict.fromkeys(vocabulary)))
