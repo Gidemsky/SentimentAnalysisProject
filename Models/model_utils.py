@@ -2,6 +2,7 @@ import json
 from support.Utils import get_json_tweet_list
 from datetime import datetime
 import pandas as pd
+import numpy as np
 
 TRAIN_FILE = "C:\\Users\\t-orahar\PycharmProjects\SentimentAnalysis\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
 TEST_FILE = "C:\\Users\\t-orahar\PycharmProjects\SentimentAnalysis\SentimentAnalysisProject\support\Temp files\oriya_trans.json"
@@ -73,20 +74,25 @@ def separate_data(data):
     polarity = None
     subjectivity = None
     features = []
-    df_data = pd.DataFrame(data)
-    if 'label' in df_data.columns:
-        df_data['label'] = df_data['label'].astype(str)
-        df_data['polarity'] = df_data['label'].str.slice(16, 17)
-        df_data.polarity = df_data.polarity.astype(int)
-        df_data['subjectivity'] = df_data['label'].str.slice(41, -2)
-        df_data['is_topic'] = df_data['subjectivity'] == 'topic'
-        df_data.is_topic = df_data.is_topic.astype(int)
-        polarity = list(df_data.polarity)
-        subjectivity = list(df_data.is_topic)
-    ids = df_data.iloc[:, 2].values
-    for _, item in df_data.iterrows():
-        if type(item['extended_tweet']) is not float:
-            features.append(item['extended_tweet']['full_text'][0]['input'])
-        else:
-            features.append(item['text'][0]['input'])
-    return ids, features, polarity, subjectivity
+    try:
+        df_data = pd.DataFrame(data)
+        if 'label' in df_data.columns:
+            df_data['label'] = df_data['label'].astype(str)
+            df_data['polarity'] = df_data['label'].str.slice(15, 17)
+            df_data.polarity = np.where(df_data['polarity'].str.contains('\''),
+                                        df_data['polarity'].str.slice(1, 2), df_data['polarity'].str.slice(0, 1))
+            df_data.polarity = df_data.polarity.astype(int)
+            df_data['subjectivity'] = df_data['label'].str.slice(41, -2)
+            df_data['is_topic'] = df_data['subjectivity'] == 'topic'
+            df_data.is_topic = df_data.is_topic.astype(int)
+            polarity = list(df_data.polarity)
+            subjectivity = list(df_data.is_topic)
+        ids = df_data.iloc[:, 2].values
+        for _, item in df_data.iterrows():
+            if type(item['extended_tweet']) is not float:
+                features.append(item['extended_tweet']['full_text'][0]['input'])
+            else:
+                features.append(item['text'][0]['input'])
+        return ids, features, polarity, subjectivity
+    except:
+        print("can't separate data")

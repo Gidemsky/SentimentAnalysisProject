@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 
 MODEL_NAME = "svm"
-SUBJECTIVITY_MODEL_NAME = "random forest"
+SUBJECTIVITY_MODEL_NAME = "svm"
 
 
 class Model:
@@ -29,7 +29,7 @@ class Model:
 
         return (train_ids, filtered_data_train, polarity_Y, subjectivity_Y), (test_ids, filtered_data_test)
 
-    def run_model(self, model_name, train_set_labels):
+    def run_model(self, model_name, train_set, train_set_labels, test_set):
         """
         runs a specific model and gets prediction for test set
         :param model_name: name of current model
@@ -37,10 +37,10 @@ class Model:
         :return: prediction and confidence of current model
         """
         self.model_helper.create_model(model_name)
-        self.model_helper.train_model(model_name, self.filtered_train_set[0], self.filtered_train_set[1], train_set_labels)
-        predictions = self.model_helper.test_model(model_name, self.filtered_test_set[0], self.filtered_test_set[1])
+        self.model_helper.train_model(model_name, self.filtered_train_set[0], train_set, train_set_labels)
+        predictions = self.model_helper.test_model(model_name, self.filtered_test_set[0], test_set)
         accuracy = self.model_helper.get_accuracy()
-        confidence = self.model_helper.get_confidence(model_name, self.filtered_test_set[1])
+        confidence = self.model_helper.get_confidence(model_name, test_set)
         print(model_name + 'Results:')
         print(" Cross Validation Accuracy: ", accuracy[1])
 
@@ -55,10 +55,20 @@ class Model:
         """
         self.filtered_train_set, self.filtered_test_set = self.from_words_to_vector(train_set, test_set)
 
-        # Train and test model for polarity results.
-        p_predictions, p_confidence = self.run_model(MODEL_NAME, self.filtered_train_set[2])
         # Train and test model for subjectivity results.
-        s_predictions, s_confidence = self.run_model(SUBJECTIVITY_MODEL_NAME, self.filtered_train_set[3])
+        s_predictions, s_confidence = self.run_model(SUBJECTIVITY_MODEL_NAME, self.filtered_train_set[1],
+                                                     self.filtered_train_set[3], self.filtered_test_set[1])
+
+        regressed_train_set, regressed_test_set = self.get_regressed_features()
+
+        # Train and test model for polarity results.
+        p_predictions, p_confidence = self.run_model(MODEL_NAME, regressed_train_set,
+                                                     self.filtered_train_set[2], regressed_test_set)
 
         return p_predictions, p_confidence, s_predictions, s_confidence
 
+    def get_regressed_features(self):
+        model = self.model_helper.get_params(SUBJECTIVITY_MODEL_NAME)
+        train_set = self.model_helper.resize_data(model, self.filtered_train_set[1])
+        test_set = self.model_helper.resize_data(model, self.filtered_test_set[1])
+        return train_set, test_set

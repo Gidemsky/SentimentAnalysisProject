@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
+from sklearn.feature_selection import SelectFromModel
 
 
 class modelHelperBase:
@@ -108,3 +109,11 @@ class modelHelperBase:
         :return: confidence for predictions
         """
         return self.models[model_name].predict_proba(data)
+
+    def get_params(self, model_name):
+        model = SelectFromModel(self.models[model_name], prefit=True)
+        coef = self.models[model_name].coef_
+        return model
+
+    def resize_data(self, model, data):
+        return model.transform(data)
