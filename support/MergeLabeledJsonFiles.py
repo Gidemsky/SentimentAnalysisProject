@@ -99,4 +99,3 @@ if __name__ == '__main__':
 
     print(check_tweets_number(new_fixed_json))
     new_fixed_json = refactor_labels_back(new_fixed_json)
-    print(json_files_list)
