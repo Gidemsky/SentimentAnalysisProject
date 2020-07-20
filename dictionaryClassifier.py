@@ -85,10 +85,10 @@ def create_df_and_vocab_ls(p_wrds_fname, n_wrds_fname):
     pos_wrds_fname = f'vocab_classifier/vocabularies/{p_wrds_fname}'
     neg_wrds_fname = f'vocab_classifier/vocabularies/{n_wrds_fname}'
 
-    with open(pos_wrds_fname) as f:
+    with open(pos_wrds_fname, encoding="utf8") as f:
         pos_words = f.read().split('\n')
 
-    with open(neg_wrds_fname) as f1:
+    with open(neg_wrds_fname, encoding="utf8") as f1:
         neg_words = f1.read().split('\n')
 
     tweet_text = neg_pos_tweets.iloc[:, 2].values
@@ -369,13 +369,13 @@ if __name__ == "__main__":
     neg_vocab = neg_vocab[:10]
     '''
     len = len(tweets_df.index)
-    '''
+
     t_size = int(0.8 * len)
     train = tweets_df.iloc[:t_size]
     test = tweets_df.iloc[t_size:]
-    '''
-    train = tweets_df
-    test = tweets_df
+
+    # train = tweets_df
+    # test = tweets_df
     tweets_neg_v_df = create_tweet_vocab_df(train, neg_vocab)
     neg_pearson_cor = calc_pearson_corrolation(tweets_neg_v_df)
     tweets_pos_v_df = create_tweet_vocab_df(train, pos_vocab)
