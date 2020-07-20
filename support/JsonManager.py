@@ -38,3 +38,5 @@ class JsonManager(object):
             print("No tweets has been removed. The JSON list is OK!\n")
 
         return new_tweets_list + new_quoted_list
+
+    

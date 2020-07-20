@@ -5,7 +5,7 @@ from support.Utils import get_json_tweet_list, create_json_dict_file, separate_d
     script_opener, separate_debug_print_small, dir_checker_creator
 
 TRANSLATED_JSON = 'gidi_trans_check.json'
-BACKUP_RATIO = 20
+BACKUP_RATIO = 2
 NAME = 'Gidi'
 
 
