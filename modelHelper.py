@@ -23,11 +23,11 @@ class modelHelper:
         self.pred_and_lab = []
         self.tweet_ids = ids
 
-    def create_features(self, features, vectorizer):
+    def process_tweets(self, tweets):
         processed_features = []
-        for sentence in range(0, len(features)):
+        for sentence in range(0, len(tweets)):
             # Remove all the special characters
-            processed_feature = re.sub(r'\W', ' ', str(features[sentence]))
+            processed_feature = re.sub(r'\W', ' ', str(tweets[sentence]))
 
             # remove all single characters
             processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
@@ -45,13 +45,11 @@ class modelHelper:
             processed_feature = processed_feature.lower()
 
             processed_features.append(processed_feature)
-        vectorizer.fit_transform(processed_features).toarray()
-        vectorizer_features = vectorizer.get_feature_names()
-        vocabulary = mUtils.get_vocabulary()
-        vocabulary += vectorizer_features
-        vocabulary = list(set(dict.fromkeys(vocabulary)))
-        vectorizer.set_params(vocabulary=vocabulary)
-        processed_features = vectorizer.fit_transform(processed_features).toarray()
+        return processed_features
+
+    def create_features(self, processed_tweets, vectorizer):
+
+        processed_features = vectorizer.fit_transform(processed_tweets).toarray()
         s = int(len(processed_features)*0.8)
 
         self.processed_features = processed_features[:s]

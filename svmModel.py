@@ -33,13 +33,14 @@ neg_pos_tweets = pd.DataFrame(neg_pos_tweets)
 # labels = airline_tweets.columns.values.tolist().index['label']
 labels = neg_pos_tweets.iloc[:, 24].values
 # j_features = neg_pos_tweets.iloc[:, neg_pos_tweets.columns != 'label'].values
-features = neg_pos_tweets.iloc[:, 2].values
+tweets = neg_pos_tweets.iloc[:, 2].values
 ids = neg_pos_tweets.iloc[:, 23].values
 #vocabulary = mUtils.get_vocabulary()
 
 nBModel = modelHelper("svm", 5, labels, ids)
 vectorizer = TfidfVectorizer(max_features=2500, min_df=7, max_df=0.8, stop_words=stopwords.words('english'))
-processed_features = nBModel.create_features(features, vectorizer)
+processed_tweets = nBModel.process_tweets(tweets)
+nBModel.create_features(processed_tweets, vectorizer)
 nBModel.train_and_test_model()
 accuracy = nBModel.get_accuracy()
 print('Svm Results:')

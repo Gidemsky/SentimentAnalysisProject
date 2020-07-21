@@ -361,27 +361,20 @@ def run_weighted_classification(fout_name, df, pos_words_weights, neg_words_weig
 
 if __name__ == "__main__":
     tweets_df, pos_vocab, neg_vocab = create_df_and_vocab_ls('positive_words_clean.txt', 'negative_words_clean.txt')
-    # neet to remove - test
-    '''
-    tweets_df = tweets_df.iloc[:300]
-    pos_vocab = pos_vocab[:10]
-    pos_vocab.append('thank')
-    neg_vocab = neg_vocab[:10]
-    '''
     len = len(tweets_df.index)
 
     t_size = int(0.8 * len)
     train = tweets_df.iloc[:t_size]
     test = tweets_df.iloc[t_size:]
 
-    # train = tweets_df
-    # test = tweets_df
     tweets_neg_v_df = create_tweet_vocab_df(train, neg_vocab)
     neg_pearson_cor = calc_pearson_corrolation(tweets_neg_v_df)
+    neg_pearson_cor.drop(neg_pearson_cor.tail(1).index, inplace=True)
     tweets_pos_v_df = create_tweet_vocab_df(train, pos_vocab)
-    pos_pearsons_cor = calc_pearson_corrolation(tweets_pos_v_df)
+    pos_pearson_cor = calc_pearson_corrolation(tweets_pos_v_df)
+    pos_pearson_cor.drop(pos_pearson_cor.tail(1).index, inplace=True)
     # train = train.iloc[:, :3]
-    run_weighted_classification("weighted_pearson_vocab_test", test, pos_pearsons_cor, neg_pearson_cor)
+    run_weighted_classification("weighted_pearson_vocab_test", test, pos_pearson_cor, neg_pearson_cor)
 
     # new_pos_fname, new_neg_fname = remove_bad_words('positive-words.txt', 'negative-words.txt')
     # run_classification(f'vocab_classifier/results/vocab_classifier_res_after_clean_{dt}',
