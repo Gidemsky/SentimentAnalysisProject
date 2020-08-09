@@ -364,10 +364,14 @@ if __name__ == "__main__":
     tweets_df, pos_vocab, neg_vocab = create_df_and_vocab_ls('positive_words_clean.txt', 'negative_words_clean.txt')
 
     len = len(tweets_df.index)
+    '''
     t_size = int(0.8 * len)
     train = tweets_df.iloc[:t_size]
     test = tweets_df.iloc[t_size:]
-
+    '''
+    # for running on full list
+    train = tweets_df
+    test = tweets_df
     tweets_neg_v_df = create_tweet_vocab_df(train, neg_vocab)
     neg_pearson_cor = calc_pearson_corrolation(tweets_neg_v_df)
     # removing last row - empty
