@@ -1,11 +1,12 @@
 import re
 
+from support.JsonManager import JsonManager
 from support.Utils import get_json_tweet_list, create_json_dict_file, separate_debug_print_big, send_report_by_email, \
     script_opener, separate_debug_print_small, dir_checker_creator
 
-TRANSLATED_JSON = 'gidi_trans.json'
-BACKUP_RATIO = 20
-NAME = ''
+TRANSLATED_JSON = 'gidi_trans_check.json'
+BACKUP_RATIO = 2
+NAME = 'Gidi'
 
 
 def retweet_checker(json_list_to_check):
@@ -25,12 +26,12 @@ def retweet_checker(json_list_to_check):
         else:
             deleted_list_tweets.append(t)
             deleted_tweets += 1
-    print("All tweets are checked!")
+    print("Retweet status checked!")
     if deleted_tweets > 0:
         create_json_dict_file(deleted_list_tweets, 'Temp files/temp_deleted_retweets.json')
         print("{0} retweeted tweets has been removed from your tweet list\n".format(str(deleted_tweets)))
     else:
-        print("No tweets hs been removed. The list is OK!\n")
+        print("No tweets has been removed. The JSON list is OK!\n")
     return new_tweets_list
 
 
@@ -44,6 +45,7 @@ def initialize_data():
     # create the directories for the program
     dir_checker_creator("Temp files/Backup")
 
+    # creates the 3 main tweet list and checks them.
     main_json_list = retweet_checker(get_json_tweet_list('Temp files/' + TRANSLATED_JSON))
     labeled_list = get_json_tweet_list('Temp files/labeled_tweets.json')
     problems_list = get_json_tweet_list('Temp files/problem_tweets.json')
@@ -56,39 +58,52 @@ def initialize_data():
     return main_json_list, labeled_list, problems_list
 
 
-def print_tweet_data(cur_tweet):
+def tweet_print(data_to_print, tweet_from_json):
+    if 'extended_tweet' in tweet_from_json:
+        data_to_print.append(tweet_from_json['extended_tweet']['full_text'][0])
+        type_to_print = "Full text"
+    else:
+        data_to_print.append(tweet_from_json['text'][0])
+        type_to_print = "Short text"
+    return data_to_print, type_to_print
+
+
+def print_tweet_data(cur_tweet, quoted=False):
     """
     print the data line by line
+    :param quoted:
     :param cur_tweet: a single data tweet
     :return:
     """
     data = []
-    text_type = ""
 
-    if 'retweeted_status' not in cur_tweet or 'quoted_status' not in cur_tweet:
+    if not isinstance(cur_tweet["text"], list):
+        quoted = True
+
+    if not quoted:
         # a simple tweet
-        if 'extended_tweet' in cur_tweet:
-            data.append(cur_tweet['extended_tweet']['full_text'][0])
-            text_type = "Full text - \n"
-        else:
-            data.append(cur_tweet['text'][0])
-            text_type = "Short text - \n"
-
+        data, text_type = tweet_print(data, cur_tweet)
+        print("This is simple tweet(" + text_type + "):")
+        # prints the tweet's text
+        try:
+            for d in data[0]:
+                print(d, ':', data[0][d])  # TODO: check about more fields
+        except TypeError:
+            print("It seems like you have json format issues\n"
+                  "Please write down the tweet number -> {0}.\n"
+                  "Exit the program now!\n".format(str(cur_tweet["id"])))
+            finalize_json_data()
+            exit(1)
     else:
         # a complicated tweet
-        data.append(cur_tweet['text'][0])
-        text_type = "Short text - \n"
-
-    # prints the tweet's text
-    print(text_type)
-    try:
-        for d in data[0]:
-            print(d, ':', data[0][d])  # TODO: check about more fields
-    except TypeError:
-        print("It seems like you have json format issue\n"
-              "Please write down the iteration number {0}.\nExit the program now!\n".format(i))
-        finalize_json_data()
-        exit(1)
+        if 'extended_tweet' in cur_tweet:
+            origin_text = cur_tweet['extended_tweet']['full_text']
+            text_type = "Full text -"
+        else:
+            origin_text = cur_tweet['text']
+            text_type = "Short text -"
+        print("This is a complex tweet. It contains tweet and comment\nThe origin tweet(" + text_type + "):")
+        print(origin_text)
 
 
 def finalize_json_data():
@@ -141,7 +156,7 @@ def relative_subject_labeler():
         return relative_subject_labeler()
 
 
-def tweet_pos_neg_labeler():
+def tweet_pos_neg_labeler(number_of_labelers=0, previous_label=0):
     """
     The positive or negative labeling stage.
     we choose here the sign of the tweet from 1 up to 5
@@ -152,11 +167,12 @@ def tweet_pos_neg_labeler():
     # checks if the input is legal
     if re.search('^[1-5]', neg_pos) and neg_pos.__len__() == 1:
         if int(neg_pos) >= 1 or int(neg_pos) <= 5:
-            return neg_pos
+            prev_val = float(previous_label * number_of_labelers)
+            return (prev_val + int(neg_pos)) / (number_of_labelers + 1)
     # run the input function again until the input is legal
     else:
         print("you typed wrong input, please try again")
-        return tweet_pos_neg_labeler()
+        return tweet_pos_neg_labeler(number_of_labelers, previous_label)
 
 
 def backup_files():
@@ -174,6 +190,23 @@ def backup_files():
     separate_debug_print_small("Backup done")
 
 
+# This function not in use -> the average calculation will be calculated from different design
+def cur_tweet_labeler(cur_t):
+    if 'label' not in cur_t:
+        cur_t["label"] = {'positivity': tweet_pos_neg_labeler(),
+                          'relative subject': relative_subject_labeler(),
+                          'labelers': 1}
+    elif 'labelers' not in cur_t['label']:
+        cur_t["label"]['labelers'] = 1
+        cur_t["label"] = {'positivity': tweet_pos_neg_labeler(number_of_labelers=cur_t["label"]['labelers'],
+                                                              previous_label=cur_t["label"]['positivity']),
+                          'relative subject': relative_subject_labeler(),
+                          'labelers': cur_t["label"]['labelers'] + 1}
+    else:
+        pass
+    labeled.append(cur_t)
+
+
 def main_labeler(t):
     labeler_status = True
     separate_debug_print_small("starting tweet's labeler")
@@ -181,19 +214,30 @@ def main_labeler(t):
     while labeler_status:
         user_action = input("\nDo you want to label this tweet or skip to consult with the teammates?\n"
                             "Please press:\n0 - for collect to teammates\n"
-                            "1 - for continue labeling\n2 - see the text again\n3 - skip this tweet")
+                            "1 - for continue labeling\n2 - see the text again\n3 - skip this tweet\n")
         if user_action == '0':
             problematic_tweets.append(t)
             labeler_status = False
         elif user_action == '1':
+            # cur_tweet_labeler(t) - Not in use
             # creating the label dictionary we want to append to the translated json
             t["label"] = {'positivity': tweet_pos_neg_labeler(),
                           'relative subject': relative_subject_labeler()}
+            if 'quoted_status' in t:
+                print("This tweet is a comment for the following tweet.\n"
+                      "Please label the previous tweet relatively to the following tweet:")
+                print_tweet_data(t['quoted_status'], quoted=True)
+                t["label"].update({'origin_relative_positivity': tweet_pos_neg_labeler(),
+                                   'origin_relative_relative subject': relative_subject_labeler()})
             labeled.append(t)
             labeler_status = False
         elif user_action == '2':
             print_tweet_data(t)
         elif user_action == '3':
+            # doesn't let the user to skip this tweet in case JsonManger created it
+            if 'JsonManager' in t:
+                print("This is an important tweet. You can't skip it")
+                continue
             print("Bye bye, you unuseful tweet, TFIEE!\n")
             labeler_status = False
         else:
@@ -203,6 +247,9 @@ def main_labeler(t):
 if __name__ == '__main__':
     script_opener("Tweet Labeler")
     unlabeled, labeled, problematic_tweets = initialize_data()
+
+    json_manager = JsonManager(unlabeled)
+    unlabeled = json_manager.create_json_with_quotes()
 
     if len(unlabeled) == 0:
         print("You have empty json!\nPlease Check your tweet's file")
@@ -242,4 +289,5 @@ if __name__ == '__main__':
     if i != 0:
         if NAME == "":
             NAME = input("\nYou didn't entered your name. Please enter your name now:\n")
-        labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets))
+        labeling_report(total_signed_tweets=len(labeled) + len(problematic_tweets), is_finish_labeling=True)
+        finalize_json_data()
