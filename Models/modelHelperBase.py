@@ -1,4 +1,6 @@
 import re
+
+from pandas import np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import GaussianNB
@@ -112,8 +114,14 @@ class modelHelperBase:
 
     def get_params(self, model_name):
         model = SelectFromModel(self.models[model_name], prefit=True)
-        coef = self.models[model_name].coef_
         return model
 
     def resize_data(self, model, data):
         return model.transform(data)
+
+    def get_bad_indices(self, model_name):
+        importance = np.abs(self.models[model_name].coef_)
+        treshold = np.mean(importance)
+        bad_indices = np.where(importance < treshold)
+        return bad_indices[1]
+

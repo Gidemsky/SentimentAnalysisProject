@@ -2,9 +2,11 @@ from Models.modelHelperBase import *
 from Models.model_utils import separate_data
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
+import pandas as pd
 
 MODEL_NAME = "svm"
 SUBJECTIVITY_MODEL_NAME = "svm"
+TRESHOLD = 0.5
 
 
 class Model:
@@ -67,8 +69,20 @@ class Model:
 
         return p_predictions, p_confidence, s_predictions, s_confidence
 
+    # def get_regressed_features(self):
+    #     model = self.model_helper.get_params(SUBJECTIVITY_MODEL_NAME)
+    #     train_set = self.model_helper.resize_data(model, self.filtered_train_set[1])
+    #     test_set = self.model_helper.resize_data(model, self.filtered_test_set[1])
+    #     return train_set, test_set
+
     def get_regressed_features(self):
-        model = self.model_helper.get_params(SUBJECTIVITY_MODEL_NAME)
-        train_set = self.model_helper.resize_data(model, self.filtered_train_set[1])
-        test_set = self.model_helper.resize_data(model, self.filtered_test_set[1])
+        bad_indices = self.model_helper.get_bad_indices(SUBJECTIVITY_MODEL_NAME)
+        train_set, test_set = self.reduce_weight(bad_indices)
         return train_set, test_set
+
+    def reduce_weight(self, bad_indices):
+        train_df = pd.DataFrame(self.filtered_train_set[1])
+        train_df[bad_indices] = train_df[bad_indices] * TRESHOLD
+        test_df = pd.DataFrame(self.filtered_test_set[1])
+        test_df[bad_indices] = test_df[bad_indices] * TRESHOLD
+        return train_df, test_df
