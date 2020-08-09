@@ -320,6 +320,7 @@ def create_tweet_vocab_df(tweets_data, vocab):
     labels = tweets_data.loc[:, 'label']
     tweet_vocab_df = pd.DataFrame(data={'id': ids, 'tweet_words': tweets, 'label': labels})
     tweet_vocab_df['tweet_words'] = ['|'.join(map(str, l)) for l in tweet_vocab_df['tweet_words']]
+    # checking appearance of each word in every tweet
     for w in vocab:
         tweet_vocab_df[w] = tweet_vocab_df['tweet_words'].str.contains(w).astype(int)
     return tweet_vocab_df
@@ -361,17 +362,19 @@ def run_weighted_classification(fout_name, df, pos_words_weights, neg_words_weig
 
 if __name__ == "__main__":
     tweets_df, pos_vocab, neg_vocab = create_df_and_vocab_ls('positive_words_clean.txt', 'negative_words_clean.txt')
-    len = len(tweets_df.index)
 
+    len = len(tweets_df.index)
     t_size = int(0.8 * len)
     train = tweets_df.iloc[:t_size]
     test = tweets_df.iloc[t_size:]
 
     tweets_neg_v_df = create_tweet_vocab_df(train, neg_vocab)
     neg_pearson_cor = calc_pearson_corrolation(tweets_neg_v_df)
+    # removing last row - empty
     neg_pearson_cor.drop(neg_pearson_cor.tail(1).index, inplace=True)
     tweets_pos_v_df = create_tweet_vocab_df(train, pos_vocab)
     pos_pearson_cor = calc_pearson_corrolation(tweets_pos_v_df)
+    # removing last row - empty
     pos_pearson_cor.drop(pos_pearson_cor.tail(1).index, inplace=True)
     # train = train.iloc[:, :3]
     run_weighted_classification("weighted_pearson_vocab_test", test, pos_pearson_cor, neg_pearson_cor)
