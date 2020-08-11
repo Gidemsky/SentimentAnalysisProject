@@ -360,39 +360,68 @@ def run_weighted_classification(fout_name, df, pos_words_weights, neg_words_weig
     clas_df.to_csv(f'vocab_classifier/results/{fout_name}_{dt}.csv')
 
 
-if __name__ == "__main__":
+def create_pearson_cor_files(pos_fname, neg_fname):
     tweets_df, pos_vocab, neg_vocab = create_df_and_vocab_ls('positive_words_clean.txt', 'negative_words_clean.txt')
 
-    len = len(tweets_df.index)
-    '''
-    t_size = int(0.8 * len)
+    ln = len(tweets_df.index)
+
+    t_size = int(0.8 * ln)
     train = tweets_df.iloc[:t_size]
     test = tweets_df.iloc[t_size:]
-    '''
+
+    # for running on full list
+    # train = tweets_df
+    # test = tweets_df
+    tweets_neg_vocab_df = create_tweet_vocab_df(train, neg_vocab)
+    tweets_pos_vocab_df = create_tweet_vocab_df(train, pos_vocab)
+    neg_pearson_cor = calc_pearson_corrolation(tweets_neg_vocab_df)
+    # removing last row - empty
+    neg_pearson_cor.drop(neg_pearson_cor.tail(1).index, inplace=True)
+    pos_pearson_cor = calc_pearson_corrolation(tweets_pos_vocab_df)
+    # removing last row - empty
+    pos_pearson_cor.drop(pos_pearson_cor.tail(1).index, inplace=True)
+    pos_pearson_cor.to_csv(f'vocab_classifier/results/{pos_fname}.csv')
+    neg_pearson_cor.to_csv(f'vocab_classifier/results/{neg_fname}.csv')
+
+    return pos_pearson_cor, neg_pearson_cor
+
+
+def clean_and_basic_update_vocab():
+    new_pos_fname, new_neg_fname = remove_bad_words('positive-words.txt', 'negative-words.txt')
+
+    new_pos_fname = 'positive_words_clean.txt'
+    new_neg_fname = 'negative_words_clean.txt'
+    pos_words_df, neg_words_df, pos_words, neg_words = create_tweets_w_vocab_df(new_pos_fname, new_neg_fname)
+    new_pos_words = get_most_frequent(pos_words_df, pos_words, neg_words)
+    new_neg_words = get_most_frequent(neg_words_df, neg_words, pos_words)
+    new_pos_words, new_neg_words = make_special_words(new_pos_words, new_neg_words)
+    new_pos_words.to_csv(f'vocab_classifier/vocabularies/new_pos_words_{dt}.csv')
+    new_neg_words.to_csv(f'vocab_classifier/vocabularies/new_neg_words_{dt}.csv')
+
+
+def run_weighted_clas_on_test(test_fname, pos_p_cor_fname, neg_p_cor_fname):
+    test = pd.read_csv(f'vocab_classifier/{test_fname}.csv').drop(columns=['Unnamed: 0'])
+    test.replace({'\'': '', '\[': '', '\]': ''}, regex=True, inplace=True)
+    test['tweet_words'] = test['tweet_words'].str.split(', ')
+    pos_cors = pd.read_csv(f'vocab_classifier/results/{pos_p_cor_fname}.csv').drop(
+        columns=['Unnamed: 0', 'Unnamed: 0.1'])
+    neg_cors = pd.read_csv(f'vocab_classifier/results/{neg_p_cor_fname}.csv').drop(
+        columns=['Unnamed: 0'])
+    run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
+
+
+if __name__ == "__main__":
+    tweets_df, pos_vocab, neg_vocab = create_df_and_vocab_ls('positive_words_clean.txt', 'negative_words_clean.txt')
     # for running on full list
     train = tweets_df
     test = tweets_df
-    tweets_neg_v_df = create_tweet_vocab_df(train, neg_vocab)
-    neg_pearson_cor = calc_pearson_corrolation(tweets_neg_v_df)
-    # removing last row - empty
-    neg_pearson_cor.drop(neg_pearson_cor.tail(1).index, inplace=True)
-    tweets_pos_v_df = create_tweet_vocab_df(train, pos_vocab)
-    pos_pearson_cor = calc_pearson_corrolation(tweets_pos_v_df)
-    # removing last row - empty
-    pos_pearson_cor.drop(pos_pearson_cor.tail(1).index, inplace=True)
-    # train = train.iloc[:, :3]
-    run_weighted_classification("weighted_pearson_vocab_test", test, pos_pearson_cor, neg_pearson_cor)
 
-    # new_pos_fname, new_neg_fname = remove_bad_words('positive-words.txt', 'negative-words.txt')
+    pos_cors = pd.read_csv('vocab_classifier/results/aug_11_train/pos_train_new_weights.csv').drop(
+        columns=['Unnamed: 0', 'Unnamed: 0.1'])
+    neg_cors = pd.read_csv('vocab_classifier/results/aug_11_train/neg_train_new_weights.csv').drop(
+        columns=['Unnamed: 0'])
+    run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
+
     # run_classification(f'vocab_classifier/results/vocab_classifier_res_after_clean_{dt}',
     #                    'positive_words_clean.txt', 'negative_words_clean.txt')
-    # new_pos_fname = 'positive_words_clean.txt'
-    # new_neg_fname = 'negative_words_clean.txt'
-    # pos_words_df, neg_words_df, pos_words, neg_words = create_tweets_w_vocab_df(new_pos_fname, new_neg_fname)
-    # new_pos_words = get_most_frequent(pos_words_df, pos_words, neg_words)
-    # new_neg_words = get_most_frequent(neg_words_df, neg_words, pos_words)
-    # new_pos_words, new_neg_words = make_special_words(new_pos_words, new_neg_words)
-    # new_pos_words.to_csv(f'vocab_classifier/vocabularies/new_pos_words_{dt}.csv')
-    # new_neg_words.to_csv(f'vocab_classifier/vocabularies/new_neg_words_{dt}.csv')
-
 a = 1

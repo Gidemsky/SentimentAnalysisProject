@@ -108,10 +108,10 @@ def expand_vocab_w_syns(fname):
     zero_p_cor = shorten_word(zero_p_cor)
     # in comment because i already saved restults of short_words_synonyms
     # z_short_words = short_words_synonyms(zero_p_cor)
-    # z_short_words = pd.read_csv('vocab_classifier/results/neg_only_short_words_synonyms.csv')
+    # z_short_words = pd.read_csv('vocab_classifier/results/aug_11_train/pos_short_syns.csv')
     # in comment because i already saved results of full_z_df_syns
     # full_z_df_syns = get_other_synonyms(zero_p_cor, z_short_words)
-    full_z_df_syns = pd.read_csv('vocab_classifier/results/neg_full_df_synonyms.csv')
+    full_z_df_syns = pd.read_csv('vocab_classifier/results/aug_11_train/neg_all_train_syns.csv')
     # fixing string representation of list in order to convert to list later
     full_z_df_syns.replace({'\'': '', '\[': '', '\]': ''}, regex=True, inplace=True)
     have_weight = vocab_words.loc[vocab_words['p_cor'] > 0]
@@ -128,7 +128,7 @@ def expand_vocab_w_syns(fname):
 
 
 if __name__ == '__main__':
-    # pos_words = expand_vocab_w_syns('vocab_classifier/results/pos_words_pearson_train.csv')
-    neg_words = expand_vocab_w_syns('vocab_classifier/results/neg_words_pearson_train.csv')
+    # pos_words = expand_vocab_w_syns('vocab_classifier/results/aug_11_train/pos_train_p_cor.csv')
+    neg_words = expand_vocab_w_syns('vocab_classifier/results/aug_11_train/neg_train_p_cor.csv')
 
     a = 1
