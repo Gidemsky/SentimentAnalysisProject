@@ -190,23 +190,6 @@ def backup_files():
     separate_debug_print_small("Backup done")
 
 
-# This function not in use -> the average calculation will be calculated from different design
-def cur_tweet_labeler(cur_t):
-    if 'label' not in cur_t:
-        cur_t["label"] = {'positivity': tweet_pos_neg_labeler(),
-                          'relative subject': relative_subject_labeler(),
-                          'labelers': 1}
-    elif 'labelers' not in cur_t['label']:
-        cur_t["label"]['labelers'] = 1
-        cur_t["label"] = {'positivity': tweet_pos_neg_labeler(number_of_labelers=cur_t["label"]['labelers'],
-                                                              previous_label=cur_t["label"]['positivity']),
-                          'relative subject': relative_subject_labeler(),
-                          'labelers': cur_t["label"]['labelers'] + 1}
-    else:
-        pass
-    labeled.append(cur_t)
-
-
 def main_labeler(t):
     labeler_status = True
     separate_debug_print_small("starting tweet's labeler")
@@ -248,6 +231,7 @@ if __name__ == '__main__':
     script_opener("Tweet Labeler")
     unlabeled, labeled, problematic_tweets = initialize_data()
 
+    # added temporary JSON checker in order to modify the unlabeled data with quotes
     json_manager = JsonManager(unlabeled)
     unlabeled = json_manager.create_json_with_quotes()
 
