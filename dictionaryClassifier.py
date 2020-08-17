@@ -403,25 +403,15 @@ def run_weighted_clas_on_test(test_fname, pos_p_cor_fname, neg_p_cor_fname):
     test = pd.read_csv(f'vocab_classifier/{test_fname}.csv').drop(columns=['Unnamed: 0'])
     test.replace({'\'': '', '\[': '', '\]': ''}, regex=True, inplace=True)
     test['tweet_words'] = test['tweet_words'].str.split(', ')
-    pos_cors = pd.read_csv(f'vocab_classifier/results/{pos_p_cor_fname}.csv').drop(
-        columns=['Unnamed: 0', 'Unnamed: 0.1'])
-    neg_cors = pd.read_csv(f'vocab_classifier/results/{neg_p_cor_fname}.csv').drop(
-        columns=['Unnamed: 0'])
+    pos_cors = pd.read_csv(f'vocab_classifier/results/{pos_p_cor_fname}.csv')
+    neg_cors = pd.read_csv(f'vocab_classifier/results/{neg_p_cor_fname}.csv')
     run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
 
 
 if __name__ == "__main__":
-    tweets_df, pos_vocab, neg_vocab = create_df_and_vocab_ls('positive_words_clean.txt', 'negative_words_clean.txt')
-    # for running on full list
-    train = tweets_df
-    test = tweets_df
-
-    pos_cors = pd.read_csv('vocab_classifier/results/aug_11_train/pos_train_new_weights.csv').drop(
-        columns=['Unnamed: 0', 'Unnamed: 0.1'])
-    neg_cors = pd.read_csv('vocab_classifier/results/aug_11_train/neg_train_new_weights.csv').drop(
-        columns=['Unnamed: 0'])
-    run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
-
+    run_weighted_clas_on_test("helper/test_aug_11_14_36", 'aug_11_train/pos_w2v_new_weights',
+                              'aug_11_train/neg_w2v_new_weights')
+    # run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
     # run_classification(f'vocab_classifier/results/vocab_classifier_res_after_clean_{dt}',
     #                    'positive_words_clean.txt', 'negative_words_clean.txt')
 a = 1

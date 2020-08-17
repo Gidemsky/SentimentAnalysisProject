@@ -2,6 +2,7 @@ from PyDictionary import PyDictionary
 from nltk.corpus import wordnet as wn
 import pandas as pd
 import numpy as np
+import gensim.downloader as api
 
 
 def get_word_weights(fname):
@@ -127,8 +128,60 @@ def expand_vocab_w_syns(fname):
     return vocab_words
 
 
+def cal_vec_dif(word, other_words, word_vectors):
+    sim_word = ''
+    similarity = 0
+    sim = 0
+    for w in other_words:
+        if w == word:
+            continue
+        try:
+            sim = word_vectors.similarity(word, w)
+            # saving word with max similarity to current word
+            if sim > similarity:
+                sim_word = w
+                similarity = sim
+        except:
+            continue
+    return sim_word, similarity
+
+
+def get_p_cor_from_sim(word, sim_word_vals_df):
+    if str(word) == 'nan':
+        return 0
+    new_val = sim_word_vals_df.loc[sim_word_vals_df['word'] == word]['p_cor']
+    return float(new_val)
+
+
+def calc_word_to_vec(words_df):
+    words_df['word_2'] = words_df['word']
+    # in comment if already saved df in previous run
+    # only want similarities to words with weight greater than 0
+    word_vectors = api.load("glove-wiki-gigaword-100")  # load pre-trained word-vectors from gensim-data
+    words_df['similarity'] = words_df['word'].apply(
+        lambda x: cal_vec_dif(x, words_df.loc[words_df['p_cor'] > 0]['word_2'], word_vectors))
+    words_df[['word_sim', 'similarity']] = pd.DataFrame(words_df['similarity'].tolist(), index=words_df.index)
+    # words_df = pd.read_csv('vocab_classifier/results/aug_11_train/neg_train_after_word_vec_func.csv')
+    words_df.drop(columns=['word_2'], inplace=True)
+    # need to save words df for some reason as csv and then read and the can run next line
+    words_df['new_p_cor'] = words_df['word_sim'].apply(lambda x: get_p_cor_from_sim(x, words_df[['word', 'p_cor']]))
+    words_df['p_cor'] = np.where(words_df['p_cor'] == 0, words_df['new_p_cor'], words_df['p_cor'])
+    words_df.drop(columns=['new_p_cor'], inplace=True)
+
+    return words_df
+
+
+def add_w2v_p_cors(pos_fname, neg_fname):
+    pos_words_df = get_word_weights(pos_fname)
+    pos_words_df = calc_word_to_vec(pos_words_df)
+    neg_words_df = get_word_weights(neg_fname)
+    neg_words_df = calc_word_to_vec(neg_words_df)
+    # save weights!
+    return pos_words_df, neg_words_df
+
+
 if __name__ == '__main__':
     # pos_words = expand_vocab_w_syns('vocab_classifier/results/aug_11_train/pos_train_p_cor.csv')
-    neg_words = expand_vocab_w_syns('vocab_classifier/results/aug_11_train/neg_train_p_cor.csv')
+    # neg_words = expand_vocab_w_syns('vocab_classifier/results/aug_11_train/neg_train_p_cor.csv')
 
     a = 1
