@@ -2,36 +2,13 @@
 This script is charge for calculate and create new JSON with the final and average numbers
 This takes all the JSONs stored and checks the average of the labels
 """
+from support.JsonManager import JsonManager
+from support.Utils import script_opener, json_files_collector, marge_all_json_file, check_duplicate_tweet, \
+    dir_checker_creator
 
-import os
-
-from support.Utils import script_opener, get_json_tweet_list, check_tweets_number
-
-LABELED_JSONS = 'Temp files/backup/old_labelers_action'
-
-
-def json_files_collector():
-    """
-    accumulates all labeled files stored in LABELED_JSONS
-    :return: list of all the file names
-    """
-    files = []
-    # r=root, d=directories, f = files
-    for r, d, f in os.walk(LABELED_JSONS):
-        for file in f:
-            if '.json' in file:
-                files.append(os.path.join(r, file))
-    return files
-
-
-def marge_all_json_file():
-    """
-    for every file extend all the tweets it has
-    :return: big all the tweets one after the other
-    """
-    for f in json_files_list:
-        cur_json = get_json_tweet_list(f)
-        initial_merged_json.extend(cur_json)
+LABELED_JSONS_TEMP = 'Temp files/backup/old_labelers_action'
+LABELED_JSONS = 'Temp files/labeled files'
+UNLABELED_JSON = 'Temp files/unlabeled JSON'
 
 
 def average_tweet_calc(tweet, positivity, relativity):
@@ -74,7 +51,7 @@ def change_tweet_relative_label(tweet_to_refactor):
                                              "relative-number": 0.0}
         return tweet_to_refactor
     except:
-        print("this is unlabeled tweet")
+        # print("this is unlabeled tweet") TODO: change the exception to condition
         return None
 
 
@@ -93,16 +70,9 @@ def refactor_labels_back(new_fixed_tweets):
     return new_fixed_tweets
 
 
-if __name__ == '__main__':
-    script_opener("Labeled JSON merger")
+def main_json_merger():
 
-    initial_merged_json = list()
     new_fixed_json = list()
-
-    # gathering all the tweets together
-    json_files_list = json_files_collector()
-    marge_all_json_file()
-
     # for every tweet check by the id the sum of all the next tweets
     for tweet in initial_merged_json:
         checking_id = tweet["id"]
@@ -132,3 +102,46 @@ if __name__ == '__main__':
         new_fixed_json.append(fixed_tweet)
 
     new_fixed_json = refactor_labels_back(new_fixed_json)
+    return new_fixed_json
+
+
+def labeled_and_unlabeled_json_creator():
+
+    # creates the main labeled list
+    json_files_list = json_files_collector(path=LABELED_JSONS)
+    initial_merged_json = marge_all_json_file(file_list=json_files_list)
+    labeled_total_list = check_duplicate_tweet(initial_merged_json)
+
+    # creates the main unlabeled list
+    json_files_list = json_files_collector(path=UNLABELED_JSON)
+    initial_merged_json = marge_all_json_file(file_list=json_files_list)
+    unlabeled_total_list = check_duplicate_tweet(initial_merged_json)
+
+    manager = JsonManager(unlabeled_total_list)
+    manager.remove_double_tweets(labeled_total_list)
+    manager.save_new_json_file(list_to_be_saved=labeled_total_list, name='new total labeled')
+
+
+if __name__ == '__main__':
+    script_opener("JSON merger")
+
+    new_json = list()
+
+    user_choose = input("\nPlease choose your action:\nFor regular file merge - press 1\n"
+                        "For creating new labeled and unlabeled JSONs - press 2\n\n")
+
+    if user_choose == '1':
+        # gathering all the tweets together
+        json_files_list = json_files_collector(path=LABELED_JSONS_TEMP)
+        initial_merged_json = marge_all_json_file(file_list=json_files_list)
+        new_json = main_json_merger()
+
+    elif user_choose == '2':
+        labeled_and_unlabeled_json_creator()
+        print("New unlabeled and labeled file has been created\n")
+
+    else:
+        print("bad input")
+
+    print('DONE - bye')
+
