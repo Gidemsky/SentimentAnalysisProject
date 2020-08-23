@@ -1,5 +1,7 @@
 
 import os
+import sys
+sys.path.append(r'C:\Users\User\PycharmProjects\SentimentAnalysisProject')
 
 from tweepy import Stream
 
@@ -7,7 +9,7 @@ from Twitter_Api.FileExtracor import FileExtracor
 from Twitter_Api.TwitterAuthenticator import TwitterAuthenticator
 from Twitter_Api.TwitterListener import TwitterListener
 
-from support.Utils import check_tweets_number
+from support.Utils import check_tweets_number, script_opener
 
 
 # # # # TWITTER STREAMER # # # #
@@ -36,7 +38,7 @@ class TwitterStreamer():
 if __name__ == '__main__':
     # Authenticate using config.py and connect to Twitter Streaming API.
 
-
+    script_opener("Tweets Downloading")
     file_extractor = FileExtracor()
     hash_tag_list = file_extractor.extract_file("key_words.txt")
     fetched_tweets_filename = "tweets.json"
