@@ -195,7 +195,6 @@ def marge_all_json_file(file_list):
     for every file extend all the tweets it has
     :return: big all the tweets one after the other
     """
-
     list_content = list()
     for f in file_list:
         list_content.extend(get_json_tweet_list(f))
@@ -206,8 +205,6 @@ def marge_all_json_file(file_list):
 def check_duplicate_tweet(json_with_duplicate):
 
     new_fixed_list = json_with_duplicate
-    print(str(new_fixed_list.__len__()))
-
     deleted = 0
 
     for tweet, i in zip(json_with_duplicate, range(json_with_duplicate.__len__())):
@@ -221,8 +218,7 @@ def check_duplicate_tweet(json_with_duplicate):
                 j -= 1
             j += 1
 
-    print("Number of deleted tweets: " + str(deleted))
-
+    print("Number of deleted double labeled tweets: " + str(deleted))
     return new_fixed_list
 
 
@@ -233,7 +229,7 @@ def retweet_checker(json_list_to_check):
     :param json_list_to_check: the source list t check
     :return: new list without retweets at all
     """
-    print("Please wait, checking if there are retweets to delete...")
+    print("\nPlease wait, checking if there are retweets to delete...")
     deleted_tweets = 0
     deleted_list_tweets = list()
     new_tweets_list = list()

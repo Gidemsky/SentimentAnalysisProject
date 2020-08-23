@@ -4,7 +4,7 @@ This takes all the JSONs stored and checks the average of the labels
 """
 from support.JsonManager import JsonManager
 from support.Utils import script_opener, json_files_collector, marge_all_json_file, check_duplicate_tweet, \
-    dir_checker_creator
+    dir_checker_creator, retweet_checker
 
 LABELED_JSONS_TEMP = 'Temp files/backup/old_labelers_action'
 LABELED_JSONS = 'Temp files/labeled files'
@@ -108,14 +108,17 @@ def main_json_merger():
 def labeled_and_unlabeled_json_creator():
 
     # creates the main labeled list
+    print("\nCollecting labeled tweets...")
     json_files_list = json_files_collector(path=LABELED_JSONS)
     initial_merged_json = marge_all_json_file(file_list=json_files_list)
     labeled_total_list = check_duplicate_tweet(initial_merged_json)
 
     # creates the main unlabeled list
+    print("\nCollecting labeled tweets...")
     json_files_list = json_files_collector(path=UNLABELED_JSON)
     initial_merged_json = marge_all_json_file(file_list=json_files_list)
-    unlabeled_total_list = check_duplicate_tweet(initial_merged_json)
+    unlabeled_total_list = retweet_checker(check_duplicate_tweet(initial_merged_json))
+    # unlabeled_total_list = manager.create_json_with_quotes()
 
     manager = JsonManager(unlabeled_total_list)
     manager.remove_double_tweets(labeled_total_list)
@@ -128,7 +131,7 @@ if __name__ == '__main__':
     new_json = list()
 
     user_choose = input("\nPlease choose your action:\nFor regular file merge - press 1\n"
-                        "For creating new labeled and unlabeled JSONs - press 2\n\n")
+                        "For creating new labeled and unlabeled JSONs - press 2\n")
 
     if user_choose == '1':
         # gathering all the tweets together
