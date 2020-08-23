@@ -70,7 +70,9 @@ def get_json_tweet_list(src_json_file):
     :param src_json_file: json file with the correct structure
     :return: list of the tweets
     """
-    # in case the is no json file yet - open with empty list
+    if type(src_json_file) is list:
+        return src_json_file
+    # in case there is no json file yet - open with empty list
     if not os.path.isfile(src_json_file):
         if not src_json_file.endswith('.json'):
             src_json_file = src_json_file + '.json'
@@ -171,3 +173,54 @@ def dir_checker_creator(path):
             exit(1)
         else:
             print("Successfully created the directory %s \n" % path)
+
+
+def json_files_collector(path):
+    """
+    accumulates all labeled files stored in LABELED_JSONS
+    :return: list of all the file names
+    """
+    files = []
+    # r=root, d=directories, f = files
+    for r, d, f in os.walk(path):
+        for file in f:
+            if '.json' in file:
+                files.append(os.path.join(r, file))
+    print('the number of files is ' + str(files.__len__()))
+    return files
+
+
+def marge_all_json_file(file_list):
+    """
+    for every file extend all the tweets it has
+    :return: big all the tweets one after the other
+    """
+
+    list_content = list()
+    for f in file_list:
+        list_content.extend(get_json_tweet_list(f))
+    print("the total number of tweets in this the final list is: " + str(list_content.__len__()))
+    return list_content
+
+
+def check_duplicate_tweet(json_with_duplicate):
+
+    new_fixed_list = json_with_duplicate
+    print(str(new_fixed_list.__len__()))
+
+    deleted = 0
+
+    for tweet, i in zip(json_with_duplicate, range(json_with_duplicate.__len__())):
+        id_to_check = tweet['id']
+        j = 0
+
+        for t in json_with_duplicate[i+1:]:
+            if t['id'] == id_to_check:
+                del new_fixed_list[i+1+j]
+                deleted += 1
+                j -= 1
+            j += 1
+
+    print("Number of deleted tweets: " + str(deleted))
+
+    return new_fixed_list

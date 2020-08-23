@@ -130,4 +130,3 @@ if __name__ == '__main__':
 
     string_text.append("this is text number one")
     string_text.append("I can't wait to finish our project")
-    string_text.append("this is text number two")
