@@ -79,7 +79,6 @@ class JsonManager(object):
 
         # adds the quotes to the final list and returns it
         self.new_tweet_list += new_quoted_list
-
         return self.new_tweet_list
 
     def remove_double_tweets(self, comparison_json):
@@ -97,7 +96,7 @@ class JsonManager(object):
                     continue
 
         print(str(removed_counter) + " labeled tweets has been removed")
-        self.save_new_json_manager_file(self.json_list, name='no-labeled-tweets')
+        # self.save_new_json_manager_file(self.json_list, name='no-labeled-tweets')
 
     @staticmethod
     def save_new_json_manager_file(list_to_be_saved=None, name='', general_file_to_save=None):

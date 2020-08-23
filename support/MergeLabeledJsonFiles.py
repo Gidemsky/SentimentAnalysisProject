@@ -114,15 +114,16 @@ def labeled_and_unlabeled_json_creator():
     labeled_total_list = check_duplicate_tweet(initial_merged_json)
 
     # creates the main unlabeled list
-    print("\nCollecting labeled tweets...")
+    print("\nCollecting unlabeled tweets...")
     json_files_list = json_files_collector(path=UNLABELED_JSON)
     initial_merged_json = marge_all_json_file(file_list=json_files_list)
     unlabeled_total_list = retweet_checker(check_duplicate_tweet(initial_merged_json))
-    # unlabeled_total_list = manager.create_json_with_quotes()
 
     manager = JsonManager(unlabeled_total_list)
     manager.remove_double_tweets(labeled_total_list)
     manager.save_new_json_manager_file(list_to_be_saved=labeled_total_list, name='new total labeled')
+    # saves new no labeled tweets
+    manager.save_new_json_manager_file(list_to_be_saved=manager.create_json_with_quotes(), name='no-labeled-tweets')
     manager.summarize_labeled_tweets(json_to_summarize=labeled_total_list)
 
 
