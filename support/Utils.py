@@ -224,3 +224,29 @@ def check_duplicate_tweet(json_with_duplicate):
     print("Number of deleted tweets: " + str(deleted))
 
     return new_fixed_list
+
+
+def retweet_checker(json_list_to_check):
+    """
+    This function runs all over the source list and deletes all the retweets
+    The deleted tweets will be saved as new file
+    :param json_list_to_check: the source list t check
+    :return: new list without retweets at all
+    """
+    print("Please wait, checking if there are retweets to delete...")
+    deleted_tweets = 0
+    deleted_list_tweets = list()
+    new_tweets_list = list()
+    for t in json_list_to_check:
+        if 'retweeted_status' not in t:
+            new_tweets_list.append(t)
+        else:
+            deleted_list_tweets.append(t)
+            deleted_tweets += 1
+    print("Retweet status checked!")
+    if deleted_tweets > 0:
+        create_json_dict_file(deleted_list_tweets, 'Temp files/temp_deleted_retweets.json')
+        print("{0} retweeted tweets has been removed from your tweet list\n".format(str(deleted_tweets)))
+    else:
+        print("No tweets has been removed. The JSON list is OK!\n")
+    return new_tweets_list

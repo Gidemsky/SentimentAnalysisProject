@@ -119,12 +119,12 @@ def labeled_and_unlabeled_json_creator():
 
     manager = JsonManager(unlabeled_total_list)
     manager.remove_double_tweets(labeled_total_list)
-    manager.save_new_json_file(list_to_be_saved=labeled_total_list, name='new total labeled')
+    manager.save_new_json_manager_file(list_to_be_saved=labeled_total_list, name='new total labeled')
+    manager.summarize_labeled_tweets(json_to_summarize=labeled_total_list)
 
 
 if __name__ == '__main__':
     script_opener("JSON merger")
-
     new_json = list()
 
     user_choose = input("\nPlease choose your action:\nFor regular file merge - press 1\n"

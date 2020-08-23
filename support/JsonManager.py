@@ -2,7 +2,8 @@
 A support class for future expanding to manage and control the tweets
 """
 
-from support.Utils import get_json_tweet_list, create_json_dict_file, check_tweets_number, dir_checker_creator
+from support.Utils import get_json_tweet_list, create_json_dict_file, check_tweets_number, dir_checker_creator, \
+    send_report_by_email
 
 TOTAL_LABELS_VALUE = {
     1: 0,
@@ -11,7 +12,7 @@ TOTAL_LABELS_VALUE = {
     4: 0,
     5: 0,
     'person': 0,
-    'subject': 0
+    'topic': 0
 }
 
 JSON_MANAGER_RESULTS = 'Temp files/Json manager results/'
@@ -83,9 +84,6 @@ class JsonManager(object):
 
     def remove_double_tweets(self, comparison_json):
         removed_counter = 0
-        # print("the length list")
-        # print(len(self.json_list))
-
         comparison_json = get_json_tweet_list(comparison_json)
 
         for comp_tweet in comparison_json:
@@ -99,11 +97,24 @@ class JsonManager(object):
                     continue
 
         print(str(removed_counter) + " labeled tweets has been removed")
-        self.save_new_json_file(self.json_list, name='no-labeled-tweets')
-        # print("the new length list")
-        # print(len(self.json_list))
+        self.save_new_json_manager_file(self.json_list, name='no-labeled-tweets')
 
     @staticmethod
-    def save_new_json_file(list_to_be_saved, name):
+    def save_new_json_manager_file(list_to_be_saved=None, name='', general_file_to_save=None):
         dir_checker_creator(path=JSON_MANAGER_RESULTS)
-        create_json_dict_file(list_to_be_saved, JSON_MANAGER_RESULTS + name)
+        if general_file_to_save is None:
+            create_json_dict_file(list_to_be_saved, JSON_MANAGER_RESULTS + name)
+        else:
+            with open(JSON_MANAGER_RESULTS + name, 'w') as file:
+                print(TOTAL_LABELS_VALUE, file=file)
+
+    def summarize_labeled_tweets(self, json_to_summarize):
+        print("The total number of labeled tweets is: " + str(check_tweets_number(json_to_summarize)))
+        for t in json_to_summarize:
+            try:
+                t_val = int(t["label"]["positivity"])
+                TOTAL_LABELS_VALUE[t_val] += 1
+                TOTAL_LABELS_VALUE[t["label"]["relative subject"]] += 1
+            except:
+                print("tweet id number is not in the right format: " + str(t['id']))
+        self.save_new_json_manager_file(name='labels summarize.txt', general_file_to_save=TOTAL_LABELS_VALUE)
