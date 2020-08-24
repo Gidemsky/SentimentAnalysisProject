@@ -97,6 +97,8 @@ def create_json_dict_file(json_list, json_file_name):
         json_file_name = json_file_name + '.json'
     with open(json_file_name, 'w', encoding='UTF-8') as fp:
         json.dump(json_all_list, fp, ensure_ascii=False, indent=3)
+    print("The file " + str(json_file_name) + " has been created with "
+          + str(check_tweets_number(json_list)) + " tweets.")
 
 
 def check_tweets_number(src_json_file):
