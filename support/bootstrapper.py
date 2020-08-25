@@ -1,12 +1,13 @@
 from Models.Model import *
 from support.Utils import create_json_dict_file, get_json_tweet_list
 from Models import model_utils as mUtils
+import nltk
 
 TEST_RATIO = 5
 VALIDATION_CONST = 0.7  # TODO: decide the constant
-TRAIN_FILE = "C:\\Users\\t-orahar\PycharmProjects\SentimentAnalysis\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
-MANUAL_LABELING_FILE = "C:\\Users\\t-orahar\PycharmProjects\SentimentAnalysis\SentimentAnalysisProject\Models\Data\\manual_labeling.json"
-
+#TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
+MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
+TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets.json"
 
 class Bootstrapper(object):
     """
@@ -45,7 +46,7 @@ class Bootstrapper(object):
         ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
         if len(test_tweets) > ratio:
             test_tweets = test_tweets[: ratio]
-            self.none_labeled_tweets = self.none_labeled_tweets[ratio - 1:-1]
+            self.none_labeled_tweets = self.none_labeled_tweets[ratio: -1]
         else:
             test_tweets = test_tweets[: -1]
             self.none_labeled_tweets = None
@@ -60,7 +61,7 @@ class Bootstrapper(object):
         :param sub_confidence: probability of subjectivity predictions
         """
         for id, conf, res, sub_conf, sub_res in zip(results[0], confidence, results[1], sub_confidence, sub_results[1]):
-            if conf[res-1] >= VALIDATION_CONST and sub_conf[sub_res] >= VALIDATION_CONST:
+            if conf[res-1] >= VALIDATION_CONST/5 and sub_conf[sub_res] >= VALIDATION_CONST:
                 self.append_to_train_set(id, res, sub_res)
             else:
                 self.manual_labeling.append(self.find_by_id(id))

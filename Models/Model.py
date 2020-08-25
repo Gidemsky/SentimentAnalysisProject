@@ -4,9 +4,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import pandas as pd
 
-MODEL_NAME = "svm"
+MODEL_NAME = "random forest"
 SUBJECTIVITY_MODEL_NAME = "svm"
-TRESHOLD = 0.5
+POLARITY_MODEL_FILE = "polarity_model.joblib"
+SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
+TRESHOLD = 0.6
 
 
 class Model:
@@ -26,7 +28,7 @@ class Model:
         """
         train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set)
         test_ids, test_X, _, _ = separate_data(test_set)
-        vectorizer = TfidfVectorizer(max_features=2500, min_df=7, max_df=0.8, stop_words=stopwords.words('english'))
+        vectorizer = TfidfVectorizer(max_features=2500, min_df=0.05, max_df=0.85, stop_words=stopwords.words('english'))
         filtered_data_train, filtered_data_test = self.model_helper.filter_data(train_X, test_X, vectorizer)
 
         return (train_ids, filtered_data_train, polarity_Y, subjectivity_Y), (test_ids, filtered_data_test)
@@ -39,11 +41,12 @@ class Model:
         :return: prediction and confidence of current model
         """
         self.model_helper.create_model(model_name)
+        # self.model_helper.load_model(model_name)
         self.model_helper.train_model(model_name, self.filtered_train_set[0], train_set, train_set_labels)
         predictions = self.model_helper.test_model(model_name, self.filtered_test_set[0], test_set)
         accuracy = self.model_helper.get_accuracy()
         confidence = self.model_helper.get_confidence(model_name, test_set)
-        print(model_name + 'Results:')
+        print(model_name + ' Results:')
         print(" Cross Validation Accuracy: ", accuracy[1])
 
         return predictions, confidence
@@ -61,11 +64,11 @@ class Model:
         s_predictions, s_confidence = self.run_model(SUBJECTIVITY_MODEL_NAME, self.filtered_train_set[1],
                                                      self.filtered_train_set[3], self.filtered_test_set[1])
 
-        regressed_train_set, regressed_test_set = self.get_regressed_features()
+        regressed_train_set = self.get_regressed_features()
 
         # Train and test model for polarity results.
         p_predictions, p_confidence = self.run_model(MODEL_NAME, regressed_train_set,
-                                                     self.filtered_train_set[2], regressed_test_set)
+                                                     self.filtered_train_set[2], self.filtered_test_set[1])
 
         return p_predictions, p_confidence, s_predictions, s_confidence
 
@@ -76,13 +79,13 @@ class Model:
     #     return train_set, test_set
 
     def get_regressed_features(self):
-        bad_indices = self.model_helper.get_bad_indices(SUBJECTIVITY_MODEL_NAME)
-        train_set, test_set = self.reduce_weight(bad_indices)
-        return train_set, test_set
+        bad_indices = self.model_helper.get_bad_indices(SUBJECTIVITY_MODEL_NAME)[0]
+        train_set = self.reduce_weight(bad_indices)
+        return train_set.values
 
     def reduce_weight(self, bad_indices):
         train_df = pd.DataFrame(self.filtered_train_set[1])
         train_df[bad_indices] = train_df[bad_indices] * TRESHOLD
-        test_df = pd.DataFrame(self.filtered_test_set[1])
-        test_df[bad_indices] = test_df[bad_indices] * TRESHOLD
-        return train_df, test_df
+        # test_df = pd.DataFrame(self.filtered_test_set[1])
+        # test_df[bad_indices] = test_df[bad_indices] * TRESHOLD
+        return train_df

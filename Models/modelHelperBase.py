@@ -6,7 +6,9 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.feature_selection import SelectFromModel
+from joblib import dump, load
 
+TRESHHOLD = 0.5
 
 class modelHelperBase:
     def __init__(self):
@@ -66,7 +68,7 @@ class modelHelperBase:
             model = SVC(kernel="linear", class_weight="balanced", probability=True)
         elif modelName == 'random forest':
             # does't stop with 1000, but should be 1000
-            model = RandomForestClassifier(n_estimators=100, random_state=0, class_weight="balanced")
+            model = RandomForestClassifier(n_estimators=1000, random_state=0, class_weight="balanced")
         else:
             raise Exception('unknown model')
         self.models[modelName] = model
@@ -120,8 +122,24 @@ class modelHelperBase:
         return model.transform(data)
 
     def get_bad_indices(self, model_name):
-        importance = np.abs(self.models[model_name].coef_)
-        treshold = np.mean(importance)
+        importance = np.abs(self.get_features_importances(model_name))
+        treshold = np.mean(importance) * TRESHHOLD
         bad_indices = np.where(importance < treshold)
-        return bad_indices[1]
+        return bad_indices
 
+    def get_features_importances(self, model_name):
+        if model_name == 'random forest':
+            return self.models[model_name].feature_importances_
+        elif model_name == 'svm':
+            return self.models[model_name].coef_.flatten()
+        else:
+            raise Exception('unknown model')
+
+    def save_model(self, model_name, file_name):
+        model = self.models[model_name]
+        if model is None:
+            raise Exception('unknown model')
+        dump(model, file_name)
+
+    def load_model(self, file_name):
+        return load(file_name)

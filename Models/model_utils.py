@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-TRAIN_FILE = "C:\\Users\\t-orahar\PycharmProjects\SentimentAnalysis\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
-TEST_FILE = "C:\\Users\\t-orahar\PycharmProjects\SentimentAnalysis\SentimentAnalysisProject\support\Temp files\oriya_trans.json"
+TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets.json"
+TEST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\oria_pos.json"
 
 
 def save_results(df, nm, is_trans):
@@ -89,10 +89,17 @@ def separate_data(data):
             subjectivity = list(df_data.is_topic)
         ids = df_data.iloc[:, 2].values
         for _, item in df_data.iterrows():
+            #TODO change to [0][input]
             if type(item['extended_tweet']) is not float:
-                features.append(item['extended_tweet']['full_text'][0]['input'])
+                if type(item['extended_tweet']['full_text']) is list:
+                    features.append(item['extended_tweet']['full_text'][0]['input'])
+                else:
+                    features.append(item['extended_tweet']['full_text'])
             else:
-                features.append(item['text'][0]['input'])
+                if type(item['text']) is list:
+                    features.append(item['text'][0]['input'])
+                else:
+                    features.append(item['text'])
         return ids, features, polarity, subjectivity
     except:
         print("can't separate data")
