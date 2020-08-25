@@ -2,9 +2,13 @@
 This script is charge for calculate and create new JSON with the final and average numbers
 This takes all the JSONs stored and checks the average of the labels
 """
+import sys
+
 from support.JsonManager import JsonManager
 from support.Utils import script_opener, json_files_collector, marge_all_json_file, check_duplicate_tweet, \
     dir_checker_creator, retweet_checker
+
+sys.path.append(r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project')
 
 LABELED_JSONS_TEMP = 'Temp files/backup/old_labelers_action'
 LABELED_JSONS = 'Temp files/labeled files'

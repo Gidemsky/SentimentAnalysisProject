@@ -1,6 +1,6 @@
-
 import os
 import sys
+
 sys.path.append(r'C:\Users\User\PycharmProjects\SentimentAnalysisProject')
 
 from tweepy import Stream
@@ -8,7 +8,6 @@ from tweepy import Stream
 from Twitter_Api.FileExtracor import FileExtracor
 from Twitter_Api.TwitterAuthenticator import TwitterAuthenticator
 from Twitter_Api.TwitterListener import TwitterListener
-
 from support.Utils import check_tweets_number, script_opener
 
 
@@ -22,7 +21,6 @@ class TwitterStreamer():
         self.twitter_autenticator = TwitterAuthenticator()
 
     def stream_tweets(self, fetched_tweets_filename, hash_tag_list):
-
         tweets_number = 0
         # checks the correct tweets by now if the file exits
         if os.path.isfile('tweets.json'):
@@ -45,4 +43,3 @@ if __name__ == '__main__':
 
     twitter_streamer = TwitterStreamer()
     twitter_streamer.stream_tweets(fetched_tweets_filename, hash_tag_list)
-
