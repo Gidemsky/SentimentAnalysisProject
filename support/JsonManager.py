@@ -3,7 +3,7 @@ A support class for future expanding to manage and control the tweets
 """
 
 from support.Utils import get_json_tweet_list, create_json_dict_file, check_tweets_number, dir_checker_creator, \
-    send_report_by_email
+    create_sub_json, create_sub_json_by_label
 
 TOTAL_LABELS_VALUE = {
     1: 0,
@@ -90,7 +90,6 @@ class JsonManager(object):
             for tweet, i in zip(self.json_list, range(self.json_list.__len__())):
 
                 if tweet['id'] == comp_tweet['id']:
-                    # TODO: add label value counter
                     del self.json_list[i]
                     removed_counter += 1
                     continue
@@ -117,3 +116,11 @@ class JsonManager(object):
             except:
                 print("tweet id number is not in the right format: " + str(t['id']))
         self.save_new_json_manager_file(name='labels summarize.txt', general_file_to_save=TOTAL_LABELS_VALUE)
+
+
+if __name__ == '__main__':
+    create_sub_json(
+        src_json='Temp files/Json manager results/no-labeled-tweets.json', destination_json_size=1000,
+        destination_file_number=2)
+
+    create_sub_json_by_label(src_json="Temp files/Json manager results/new total labeled.json", label_to_save=3)
