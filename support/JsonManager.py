@@ -1,9 +1,9 @@
 """
 A support class for future expanding to manage and control the tweets
 """
+import os
 
-from support.Utils import get_json_tweet_list, create_json_dict_file, check_tweets_number, dir_checker_creator, \
-    create_sub_json, create_sub_json_by_label
+from support.Utils import get_json_tweet_list, create_json_dict_file, check_tweets_number, dir_checker_creator
 
 TOTAL_LABELS_VALUE = {
     1: 0,
@@ -97,6 +97,11 @@ class JsonManager(object):
         print(str(removed_counter) + " labeled tweets has been removed")
         # self.save_new_json_manager_file(self.json_list, name='no-labeled-tweets')
 
+    # def create_json_for_model_run(self):
+    #     if os.path.isfile('support/Temp files/Json manager results/labels summarize.txt'):
+    #
+    #         self.json_list
+
     @staticmethod
     def save_new_json_manager_file(list_to_be_saved=None, name='', general_file_to_save=None):
         dir_checker_creator(path=JSON_MANAGER_RESULTS)
@@ -119,8 +124,23 @@ class JsonManager(object):
 
 
 if __name__ == '__main__':
-    create_sub_json(
-        src_json='Temp files/Json manager results/no-labeled-tweets.json', destination_json_size=1000,
-        destination_file_number=2)
-
-    create_sub_json_by_label(src_json="Temp files/Json manager results/new total labeled.json", label_to_save=3)
+    #     create_sub_json(
+    #         src_json='Temp files/Json manager results/no-labeled-tweets.json', destination_json_size=1000,
+    #         destination_file_number=2)
+    #
+    #     create_sub_json_by_label(src_json="Temp files/Json manager results/new total labeled.json", label_to_save=3)
+    no_label_list = get_json_tweet_list(src_json_file=
+                                        'Temp files/Json manager results/new total labeled.json')
+    TOTAL_LABELS_VALUE = {1: 250, 2: 529, 3: 100, 4: 529, 5: 250}
+    labeled_json_for_model = list()
+    for t in no_label_list:
+        if TOTAL_LABELS_VALUE[1] == 0 and TOTAL_LABELS_VALUE[2] == 0 and TOTAL_LABELS_VALUE[4] == 0 and \
+                TOTAL_LABELS_VALUE[5] == 0:
+            break
+        tweet_label = t['label']['positivity']
+        if TOTAL_LABELS_VALUE[int(tweet_label)] == 0:
+            continue
+        TOTAL_LABELS_VALUE[int(tweet_label)] = TOTAL_LABELS_VALUE[int(tweet_label)] - 1
+        labeled_json_for_model.append(t)
+        print(TOTAL_LABELS_VALUE)
+    create_json_dict_file(json_list=labeled_json_for_model, json_file_name=JSON_MANAGER_RESULTS + 'labeled json for model')
