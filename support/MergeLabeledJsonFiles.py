@@ -6,7 +6,7 @@ import sys
 
 from support.JsonManager import JsonManager
 from support.Utils import script_opener, json_files_collector, marge_all_json_file, check_duplicate_tweet, \
-    dir_checker_creator, retweet_checker
+    dir_checker_creator, retweet_checker, get_json_tweet_list, create_json_dict_file, check_json_format
 
 sys.path.append(r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project')
 
@@ -116,6 +116,7 @@ def labeled_and_unlabeled_json_creator():
     json_files_list = json_files_collector(path=LABELED_JSONS)
     initial_merged_json = marge_all_json_file(file_list=json_files_list)
     labeled_total_list = check_duplicate_tweet(initial_merged_json)
+    labeled_total_list = check_json_format(json_list=labeled_total_list)
 
     # creates the main unlabeled list
     print("\nCollecting unlabeled tweets...")
@@ -131,12 +132,30 @@ def labeled_and_unlabeled_json_creator():
     manager.summarize_labeled_tweets(json_to_summarize=labeled_total_list)
 
 
+def change_labels_value(new_tweet_label_values):
+    counter = 0
+    change_to = get_json_tweet_list(src_json_file=new_tweet_label_values)
+    candidate_files = json_files_collector(path=LABELED_JSONS)
+    for f in candidate_files:
+        json_file_to_change = get_json_tweet_list(f)
+        for t in json_file_to_change:
+            for change_t in change_to:
+                if change_t['id'] == t['id'] and t["label"]["positivity"] != change_t["label"]["positivity"]:
+                    old = t["label"]["positivity"]
+                    t["label"]["positivity"] = change_t["label"]["positivity"]
+                    print(str(old) + " changed to -> " + str(change_t["label"]["positivity"]))
+                    counter += 1
+        create_json_dict_file(json_list=json_file_to_change, json_file_name=f)
+    print(str(counter) + " tweets changed\n")
+
+
 if __name__ == '__main__':
     script_opener("JSON merger")
     new_json = list()
 
     user_choose = input("\nPlease choose your action:\nFor regular file merge - press 1\n"
-                        "For creating new labeled and unlabeled JSONs - press 2\n")
+                        "For creating new labeled and unlabeled JSONs - press 2\n"
+                        "For revalue the labeled tweets - press 3\n")
 
     if user_choose == '1':
         # gathering all the tweets together
@@ -147,6 +166,9 @@ if __name__ == '__main__':
     elif user_choose == '2':
         labeled_and_unlabeled_json_creator()
         print("New unlabeled and labeled file has been created\n")
+
+    elif user_choose == '3':
+        change_labels_value(new_tweet_label_values="3_labeled_tweets.json")
 
     else:
         print("bad input")

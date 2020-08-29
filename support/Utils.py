@@ -277,3 +277,23 @@ def create_sub_json_by_label(src_json, label_to_save):
         if int(t['label']['positivity']) == label_to_save:
             destination_list.append(t)
     create_json_dict_file(json_list=destination_list, json_file_name='label3-to label to 4 or 5')
+
+
+def check_json_format(json_list):
+    checked_json_list = list()
+    temp_text = list()
+    for t in json_list:
+        if not isinstance(t['text'], list):
+            temp_text.append({'translatedText': None, 'input': t['text']})
+            t['text'] = temp_text
+            temp_text.clear()
+        if 'extended_tweet' in t:
+            if not isinstance(t['extended_tweet']['full_text'], list):
+                temp_text.append({'translatedText': None, 'input': t['extended_tweet']['full_text']})
+                t['extended_tweet']['full_text'] = temp_text
+                temp_text.clear()
+        if not isinstance((t['label']), list):
+            t['label']['positivity'] = str(int(t['label']['positivity']))
+        checked_json_list.append(t)
+    print("The labeled json format checked")
+    return checked_json_list
