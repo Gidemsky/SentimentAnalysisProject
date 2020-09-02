@@ -294,6 +294,8 @@ def check_json_format(json_list):
                 temp_text.clear()
         if not isinstance((t['label']), list):
             t['label']['positivity'] = str(int(t['label']['positivity']))
+        if t['label']["relative subject"] == 'subject':
+            t['label']["relative subject"] = 'person'
         checked_json_list.append(t)
     print("The labeled json format checked")
     return checked_json_list

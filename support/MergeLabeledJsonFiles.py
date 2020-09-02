@@ -167,6 +167,7 @@ if __name__ == '__main__':
         labeled_and_unlabeled_json_creator()
         print("New unlabeled and labeled file has been created\n")
 
+    # this option for changing the value of labels
     elif user_choose == '3':
         change_labels_value(new_tweet_label_values="3_labeled_tweets.json")
 

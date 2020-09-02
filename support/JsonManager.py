@@ -1,7 +1,6 @@
 """
 A support class for future expanding to manage and control the tweets
 """
-import os
 
 from support.Utils import get_json_tweet_list, create_json_dict_file, check_tweets_number, dir_checker_creator
 
@@ -129,6 +128,8 @@ if __name__ == '__main__':
     #         destination_file_number=2)
     #
     #     create_sub_json_by_label(src_json="Temp files/Json manager results/new total labeled.json", label_to_save=3)
+
+    # the new total labeled list creation by number I want
     no_label_list = get_json_tweet_list(src_json_file=
                                         'Temp files/Json manager results/new total labeled.json')
     TOTAL_LABELS_VALUE = {1: 250, 2: 529, 3: 100, 4: 529, 5: 250}
