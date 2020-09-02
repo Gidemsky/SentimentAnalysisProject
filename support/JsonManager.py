@@ -132,7 +132,7 @@ if __name__ == '__main__':
     # the new total labeled list creation by number I want
     no_label_list = get_json_tweet_list(src_json_file=
                                         'Temp files/Json manager results/new total labeled.json')
-    TOTAL_LABELS_VALUE = {1: 250, 2: 529, 3: 100, 4: 529, 5: 250}
+    TOTAL_LABELS_VALUE = {1: 200, 2: 200, 3: 100, 4: 200, 5: 200}
     labeled_json_for_model = list()
     for t in no_label_list:
         if TOTAL_LABELS_VALUE[1] == 0 and TOTAL_LABELS_VALUE[2] == 0 and TOTAL_LABELS_VALUE[4] == 0 and \
