@@ -1,5 +1,5 @@
 from Models.Model import *
-from support.Utils import create_json_dict_file, get_json_tweet_list
+from support.Utils import create_json_dict_file, get_json_tweet_list, script_opener
 from Models import model_utils as mUtils
 import nltk
 nltk.download('stopwords')
@@ -98,6 +98,7 @@ class Bootstrapper(object):
 
 
 if __name__ == '__main__':
+    script_opener(script_title="Bootstrapper")
     model = Model()
     get_json_tweet_list(MANUAL_LABELING_FILE)
     train, test = mUtils.get_train_test_tweets()

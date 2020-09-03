@@ -39,12 +39,12 @@ def script_opener(script_title):
 
 def separate_debug_print_big(title):
     # long line separator for debug line console print
-    print('\n-------------------------------------------' + title + '-------------------------------------------\n')
+    print('\n-------------------------------------------' + title + '-------------------------------------------')
 
 
 def separate_debug_print_small(title):
     # short line separator for debug line console print
-    print('\n---------------' + title + '---------------')
+    print('---------------' + title + '---------------')
 
 
 def get_group_emails(key=None):

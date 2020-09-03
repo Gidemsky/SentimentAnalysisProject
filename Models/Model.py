@@ -4,11 +4,35 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import pandas as pd
 
+from support.Utils import separate_debug_print_big, separate_debug_print_small
+
 MODEL_NAME = "random forest"
 SUBJECTIVITY_MODEL_NAME = "svm"
 POLARITY_MODEL_FILE = "polarity_model.joblib"
 SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
 TRESHOLD = 0.7
+
+
+def calc_avg(param):
+    return str(((param[0] + param[1] + param[2] + param[3] + param[4])/5)*100)
+
+
+def check_values_acc(predictions, filtered_test_set, polarity):
+    right = 0
+    almost_right = 0
+    if polarity is True:
+        for real_pol, predict_pol in zip(filtered_test_set[2], predictions[1]):
+            if real_pol == predict_pol:
+                right += 1
+            if real_pol == predict_pol + 1 or real_pol == predict_pol - 1 or real_pol == predict_pol:
+                almost_right += 1
+        print("Polarity: The real accuracy in this iteration -> " + str(right/len(predictions[1])))
+        print("Polarity: The almost real accuracy in this iteration -> " + str(almost_right / len(predictions[1])))
+    else:
+        for real_subject, predict_subject in zip(filtered_test_set[3], predictions[1]):
+            if real_subject == predict_subject:
+                right += 1
+        print("Subjectivity: The real Subjectivity in this iteration -> " + str(right / len(predictions[1])))
 
 
 class Model:
@@ -27,13 +51,13 @@ class Model:
         :return: a numeric vector representation for the features sentences
         """
         train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set)
-        test_ids, test_X, _, _ = separate_data(test_set)
+        test_ids, test_X, test_polarity, test_subjectivity = separate_data(test_set)
         vectorizer = TfidfVectorizer(max_features=2500, min_df=0.05, max_df=0.85, stop_words=stopwords.words('english'))
         filtered_data_train, filtered_data_test = self.model_helper.filter_data(train_X, test_X, vectorizer)
 
-        return (train_ids, filtered_data_train, polarity_Y, subjectivity_Y), (test_ids, filtered_data_test)
+        return (train_ids, filtered_data_train, polarity_Y, subjectivity_Y), (test_ids, filtered_data_test, test_polarity, test_subjectivity)
 
-    def run_model(self, model_name, train_set, train_set_labels, test_set):
+    def run_model(self, model_name, train_set, train_set_labels, test_set, polarity=False):
         """
         runs a specific model and gets prediction for test set
         :param model_name: name of current model
@@ -46,8 +70,11 @@ class Model:
         predictions = self.model_helper.test_model(model_name, self.filtered_test_set[0], test_set)
         accuracy = self.model_helper.get_accuracy()
         confidence = self.model_helper.get_confidence(model_name, test_set)
+        separate_debug_print_big(title="start iteration")
         print(model_name + ' Results:')
-        print(" Cross Validation Accuracy: ", accuracy[1])
+        print(" Cross Validation Accuracy: ", accuracy[1], " Average ->", calc_avg(accuracy[1]), "%")
+        check_values_acc(predictions, self.filtered_test_set, polarity)
+        separate_debug_print_big(title="end of iteration")
 
         return predictions, confidence
 
@@ -68,7 +95,7 @@ class Model:
 
         # Train and test model for polarity results.
         p_predictions, p_confidence = self.run_model(MODEL_NAME, regressed_train_set,
-                                                     self.filtered_train_set[2], self.filtered_test_set[1])
+                                                     self.filtered_train_set[2], self.filtered_test_set[1], polarity=True)
 
         return p_predictions, p_confidence, s_predictions, s_confidence
 

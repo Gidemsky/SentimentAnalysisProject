@@ -32,8 +32,11 @@ class modelHelperBase:
         """
         processed_features = []
         for sentence in features + test_X:
+            # Remove all words with @ characters
+            processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
+
             # Remove all the special characters
-            processed_feature = re.sub(r'\W', ' ', str(sentence))
+            processed_feature = re.sub(r'\W', ' ', processed_feature)
 
             # remove all single characters
             processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
