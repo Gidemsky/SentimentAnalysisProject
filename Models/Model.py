@@ -8,7 +8,7 @@ MODEL_NAME = "random forest"
 SUBJECTIVITY_MODEL_NAME = "svm"
 POLARITY_MODEL_FILE = "polarity_model.joblib"
 SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
-TRESHOLD = 0.6
+TRESHOLD = 0.7
 
 
 class Model:

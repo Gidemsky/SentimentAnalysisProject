@@ -2,12 +2,14 @@ from Models.Model import *
 from support.Utils import create_json_dict_file, get_json_tweet_list
 from Models import model_utils as mUtils
 import nltk
+nltk.download('stopwords')
 
 TEST_RATIO = 5
 VALIDATION_CONST = 0.7  # TODO: decide the constant
 #TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
-MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
-TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets.json"
+MANUAL_LABELING_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\manual_labeling.json"
+TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for model small.json"
+
 
 class Bootstrapper(object):
     """
@@ -74,7 +76,7 @@ class Bootstrapper(object):
         :param sub_res: example subjectivity prediction
         """
         tweet = self.find_by_id(id)
-        tweet["label"] = {"positivity": result, "relative subject": sub_res}
+        tweet["label"] = {"positivity": str(result), "relative subject": str(sub_res)} # TODO: why here???
         self.final_data.append(tweet)
         self.model_data_set.append(tweet)
 
@@ -99,5 +101,13 @@ if __name__ == '__main__':
     model = Model()
     get_json_tweet_list(MANUAL_LABELING_FILE)
     train, test = mUtils.get_train_test_tweets()
+    topic = 0
+    subject = 0
+    for t in train:
+        if t['label']['relative subject'] == 'topic':
+            topic += 1
+        else:
+            subject += 1
+    print(" -> topic " + str(topic) + " subject -> " + str(subject))
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()
