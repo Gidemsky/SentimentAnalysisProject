@@ -290,7 +290,7 @@ def check_json_format(json_list):
         if 'extended_tweet' in t:
             if not isinstance(t['extended_tweet']['full_text'], list):
                 temp_text.append({'translatedText': None, 'input': t['extended_tweet']['full_text']})
-                t['extended_tweet']['full_text'] = temp_text
+                t['extended_tweet']['full_text'] = temp_text.copy()
                 temp_text.clear()
         if not isinstance((t['label']), list):
             t['label']['positivity'] = str(int(t['label']['positivity']))
