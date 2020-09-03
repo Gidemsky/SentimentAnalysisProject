@@ -8,9 +8,10 @@ from support.Utils import separate_debug_print_big, separate_debug_print_small
 
 MODEL_NAME = "random forest"
 SUBJECTIVITY_MODEL_NAME = "svm"
+TRESHOLD = 0.6
 POLARITY_MODEL_FILE = "polarity_model.joblib"
 SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
-TRESHOLD = 0.7
+
 
 
 def calc_avg(param):
@@ -43,29 +44,36 @@ class Model:
         self.model_helper = modelHelperBase()
         self.filtered_train_set = None
         self.filtered_test_set = None
+        self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.05, max_df=0.85)
 
-    def from_words_to_vector(self, train_set, test_set):
+    def from_train_to_vector(self, train_set):
         """
         :param train_set: train set sentences
         :param test_set: test set sentences
         :return: a numeric vector representation for the features sentences
         """
         train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set)
+        filtered_data_train = self.model_helper.filter_data(train_X, self.vectorizer, True)
+
+        return (train_ids, filtered_data_train, polarity_Y, subjectivity_Y)
+
+    def from_test_to_vector(self, test_set):
         test_ids, test_X, test_polarity, test_subjectivity = separate_data(test_set)
-        vectorizer = TfidfVectorizer(max_features=2500, min_df=0.05, max_df=0.85, stop_words=stopwords.words('english'))
-        filtered_data_train, filtered_data_test = self.model_helper.filter_data(train_X, test_X, vectorizer)
+        filtered_data_test = self.model_helper.filter_data(test_set, self.vectorizer)
 
-        return (train_ids, filtered_data_train, polarity_Y, subjectivity_Y), (test_ids, filtered_data_test, test_polarity, test_subjectivity)
+        return (test_ids, filtered_data_test, test_polarity, test_subjectivity)
 
-    def run_model(self, model_name, train_set, train_set_labels, test_set, polarity=False):
+    def run_model(self, model_name, train_set, train_set_labels, test_set, is_loaded = True , polarity=False):
         """
         runs a specific model and gets prediction for test set
         :param model_name: name of current model
         :param train_set_labels: labels type for train set (polarity / subjectivity)
         :return: prediction and confidence of current model
         """
-        self.model_helper.create_model(model_name)
-        # self.model_helper.load_model(model_name)
+        if is_loaded:
+            self.model_helper.create_model(model_name)
+        else:
+            self.model_helper.load_model(model_name)
         self.model_helper.train_model(model_name, self.filtered_train_set[0], train_set, train_set_labels)
         predictions = self.model_helper.test_model(model_name, self.filtered_test_set[0], test_set)
         accuracy = self.model_helper.get_accuracy()
@@ -78,24 +86,32 @@ class Model:
 
         return predictions, confidence
 
-    def run(self, train_set, test_set):
+    def run(self, train_set, test_set, is_loaded):
         """
         runs one model for polarity predictions and the second for subjectivity predictions
         :param train_set: train set for training both models - each one with different labels type
         :param test_set: test set
         :return: predictions and confidence of polarity and subjectivity models
         """
-        self.filtered_train_set, self.filtered_test_set = self.from_words_to_vector(train_set, test_set)
+        if train_set is not None:
+            self.filtered_train_set = self.from_train_to_vector(train_set)
+        self.filtered_test_set = self.from_test_to_vector(test_set)
 
         # Train and test model for subjectivity results.
-        s_predictions, s_confidence = self.run_model(SUBJECTIVITY_MODEL_NAME, self.filtered_train_set[1],
-                                                     self.filtered_train_set[3], self.filtered_test_set[1])
+        s_predictions, s_confidence = self.run_model(SUBJECTIVITY_MODEL_NAME,
+                                                     self.filtered_train_set[1],
+                                                     self.filtered_train_set[3],
+                                                     self.filtered_test_set[1]
+                                                     )
 
         regressed_train_set = self.get_regressed_features()
 
         # Train and test model for polarity results.
-        p_predictions, p_confidence = self.run_model(MODEL_NAME, regressed_train_set,
-                                                     self.filtered_train_set[2], self.filtered_test_set[1], polarity=True)
+        p_predictions, p_confidence = self.run_model(MODEL_NAME,
+                                                     regressed_train_set,
+                                                     self.filtered_train_set[2],
+                                                     self.filtered_test_set[1],
+                                                     polarity=True)
 
         return p_predictions, p_confidence, s_predictions, s_confidence
 
@@ -116,3 +132,7 @@ class Model:
         # test_df = pd.DataFrame(self.filtered_test_set[1])
         # test_df[bad_indices] = test_df[bad_indices] * TRESHOLD
         return train_df
+
+    def save_models(self):
+        self.model_helper.save_model(SUBJECTIVITY_MODEL_NAME)
+        self.model_helper.save_model(MODEL_NAME)

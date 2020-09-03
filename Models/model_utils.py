@@ -89,14 +89,17 @@ def separate_data(data):
             subjectivity = list(df_data.is_topic)
         ids = df_data.iloc[:, 2].values
         for _, item in df_data.iterrows():
-            #TODO change to [0][input]
             if type(item['extended_tweet']) is not float:
                 if type(item['extended_tweet']['full_text']) is list:
+                    if item['extended_tweet']['full_text'].__len__() == 0:
+                        ids.Remove(item['id_str'])
                     features.append(item['extended_tweet']['full_text'][0]['input'])
                 else:
                     features.append(item['extended_tweet']['full_text'])
             else:
                 if type(item['text']) is list:
+                    if item['text'].__len__() == 0:
+                        ids.Remove(item['id_str'])
                     features.append(item['text'][0]['input'])
                 else:
                     features.append(item['text'])
