@@ -9,6 +9,8 @@ from sklearn.feature_selection import SelectFromModel
 from joblib import dump, load
 
 TRESHHOLD = 0.5
+RANDOM_FOREST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\polarity_model.joblib"
+SVM_FILE = "C:\\SentimentAnalysisProject\Models\Data\\subjectivity_model.joblib"
 
 class modelHelperBase:
     def __init__(self):
@@ -21,7 +23,7 @@ class modelHelperBase:
         self.pred_and_lab = []
         self.models = {}
 
-    def filter_data(self, features, test_X, vectorizer):
+    def filter_data(self, features, vectorizer, is_train = False):
         """
         filter redundant tokens and returns each feature as a vector v witch represents
         the words the feature contains
@@ -31,7 +33,7 @@ class modelHelperBase:
         :return: filtered and vectorized train and test sets
         """
         processed_features = []
-        for sentence in features + test_X:
+        for sentence in features:
             # Remove all the special characters
             processed_feature = re.sub(r'\W', ' ', str(sentence))
 
@@ -51,10 +53,11 @@ class modelHelperBase:
             processed_feature = processed_feature.lower()
 
             processed_features.append(processed_feature)
-        results = vectorizer.fit_transform(processed_features).toarray()
-        x = results[: len(features)]
-        y = results[len(features)-1: -1]
-        return x, y
+        if is_train:
+            results = vectorizer.fit_transform(processed_features).toarray()
+        else:
+            results = vectorizer.transform(processed_features).toarray()
+        return results
 
     def create_model(self, modelName):
         """
@@ -62,15 +65,17 @@ class modelHelperBase:
         :param modelName: name of wanted model
         :return: the created model
         """
-        if modelName == 'naive bayes':
-            model = GaussianNB()
-        elif modelName == 'svm':
-            model = SVC(kernel="linear", class_weight="balanced", probability=True)
-        elif modelName == 'random forest':
-            # does't stop with 1000, but should be 1000
-            model = RandomForestClassifier(n_estimators=1000, random_state=0, class_weight="balanced")
+        if modelName in self.models:
+            return
         else:
-            raise Exception('unknown model')
+            if modelName == 'naive bayes':
+                model = GaussianNB()
+            elif modelName == 'svm':
+                model = SVC(kernel="linear", class_weight="balanced", probability=True)
+            elif modelName == 'random forest':
+                model = RandomForestClassifier(n_estimators=1000, random_state=0, class_weight="balanced")
+            else:
+                raise Exception('unknown model')
         self.models[modelName] = model
 
     def train_model(self, model_name, fet_ids, train_set, labels):
@@ -135,11 +140,27 @@ class modelHelperBase:
         else:
             raise Exception('unknown model')
 
-    def save_model(self, model_name, file_name):
+    def save_model(self, model_name):
         model = self.models[model_name]
         if model is None:
             raise Exception('unknown model')
+        file_name = self.find_file_name_by_model_name(model_name)
         dump(model, file_name)
 
-    def load_model(self, file_name):
-        return load(file_name)
+    def load_model(self, model_name):
+        file_name = self.find_file_name_by_model_name(model_name)
+        try:
+            model = load(file_name)
+            self.models[model_name] = model
+        except:
+            raise Exception('unknown model')
+
+        return model
+
+    def find_file_name_by_model_name(self, model_name):
+        file_name = ""
+        if model_name == "svm":
+            file_name = SVM_FILE
+        elif model_name == "random forest":
+            file_name = RANDOM_FOREST_FILE
+        return file_name

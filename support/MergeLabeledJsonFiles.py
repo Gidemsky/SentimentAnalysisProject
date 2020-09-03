@@ -1,7 +1,7 @@
 import os
 
 from support.Utils import script_opener, get_json_tweet_list, check_tweets_number
-
+from support.Utils import create_json_dict_file
 
 def json_files_collector():
     files = []
@@ -77,6 +77,7 @@ if __name__ == '__main__':
     marge_all_json_file()
     counter = check_tweets_number(initial_merged_json)
 
+#    create_json_dict_file(initial_merged_json, "C:\\Users\\t-orahar\PycharmProjects\SentimentAnalysis\SentimentAnalysisProject\support\Temp files\\backup.labeled_tweets_collection.json")
     for tweet in initial_merged_json:
         checking_id = tweet["id"]
         fixed_tweet = change_tweet_relative_label(initial_merged_json[0])

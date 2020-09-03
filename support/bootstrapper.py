@@ -1,3 +1,5 @@
+import random
+
 from Models.Model import *
 from support.Utils import create_json_dict_file, get_json_tweet_list
 from Models import model_utils as mUtils
@@ -7,7 +9,7 @@ TEST_RATIO = 5
 VALIDATION_CONST = 0.7  # TODO: decide the constant
 #TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
 MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
-TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets.json"
+TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
 
 class Bootstrapper(object):
     """
@@ -22,6 +24,7 @@ class Bootstrapper(object):
         self.model_data_set = train_set
         self.final_data = list()
         self.manual_labeling = []
+        self.is_loaded = False
 
     def execute(self):
         """
@@ -29,12 +32,15 @@ class Bootstrapper(object):
         (with high probability) to the data_set - for training the model in the future.
         the loop runs until the test_set is empty.
         """
+        self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
         while self.none_labeled_tweets:
             self.my_model_test_tweets = self.get_test_tweets()
             model_results, confidence, sub_results, sub_confidence\
-                = self.my_model.run(self.model_data_set, self.my_model_test_tweets)
+                = self.my_model.run(self.model_data_set, self.my_model_test_tweets, self.is_loaded)
+            self.is_loaded = True
             self.validate_model_solution(model_results, confidence, sub_results, sub_confidence)
         self.save_new_train_set()
+        self.my_model.save_models()
         return
 
     def get_test_tweets(self):
@@ -43,10 +49,10 @@ class Bootstrapper(object):
         :return: test set for current iteration
         """
         test_tweets = self.none_labeled_tweets
-        ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
-        if len(test_tweets) > ratio:
-            test_tweets = test_tweets[: ratio]
-            self.none_labeled_tweets = self.none_labeled_tweets[ratio: -1]
+
+        if len(test_tweets) > self.ratio:
+            test_tweets = test_tweets[: self.ratio]
+            self.none_labeled_tweets = self.none_labeled_tweets[self.ratio: -1]
         else:
             test_tweets = test_tweets[: -1]
             self.none_labeled_tweets = None
@@ -99,5 +105,6 @@ if __name__ == '__main__':
     model = Model()
     get_json_tweet_list(MANUAL_LABELING_FILE)
     train, test = mUtils.get_train_test_tweets()
+    random.shuffle(train)
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()
