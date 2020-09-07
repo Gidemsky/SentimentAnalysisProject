@@ -5,11 +5,11 @@ from support.Utils import create_json_dict_file, get_json_tweet_list, script_ope
 from Models import model_utils as mUtils
 import nltk
 
-TEST_RATIO = 5
-VALIDATION_CONST = 0.7  # TODO: decide the constant
+TEST_RATIO = 100
+VALIDATION_CONST = 0.7
 #TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
-MANUAL_LABELING_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\manual_labeling.json"
-TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for model small.json"
+MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
+TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
 
 
 class Bootstrapper(object):
@@ -34,7 +34,9 @@ class Bootstrapper(object):
         the loop runs until the test_set is empty.
         """
         self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
+        #random.shuffle(self.none_labeled_tweets)
         while self.none_labeled_tweets:
+            random.shuffle(self.model_data_set)
             self.my_model_test_tweets = self.get_test_tweets()
             model_results, confidence, sub_results, sub_confidence\
                 = self.my_model.run(self.model_data_set, self.my_model_test_tweets, self.is_loaded)
@@ -107,6 +109,5 @@ if __name__ == '__main__':
     model = Model()
     get_json_tweet_list(MANUAL_LABELING_FILE)
     train, test = mUtils.get_train_test_tweets()
-    random.shuffle(train)
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()

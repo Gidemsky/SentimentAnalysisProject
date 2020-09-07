@@ -44,7 +44,7 @@ class Model:
         self.model_helper = modelHelperBase()
         self.filtered_train_set = None
         self.filtered_test_set = None
-        self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.05, max_df=0.85)
+        self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.005, max_df=0.9)
 
     def from_train_to_vector(self, train_set):
         """
@@ -81,8 +81,9 @@ class Model:
         separate_debug_print_big(title="start iteration")
         print(model_name + ' Results:')
         print(" Cross Validation Accuracy: ", accuracy[1], " Average ->", calc_avg(accuracy[1]), "%")
-        check_values_acc(predictions, self.filtered_test_set, polarity)
-        separate_debug_print_big(title="end of iteration")
+        if self.filtered_test_set[3] is not None:
+            check_values_acc(predictions, self.filtered_test_set, polarity)
+            separate_debug_print_big(title="end of iteration")
 
         return predictions, confidence
 
@@ -104,7 +105,8 @@ class Model:
                                                      self.filtered_test_set[1]
                                                      )
 
-        regressed_train_set = self.get_regressed_features()
+        #regressed_train_set = self.get_regressed_features()
+        regressed_train_set = self.filtered_train_set[1]
 
         # Train and test model for polarity results.
         p_predictions, p_confidence = self.run_model(MODEL_NAME,
