@@ -35,7 +35,7 @@ def json_translation(json_list):
                 # "user" -> "description"
                 tweet[1]['user']['description'] = google.translate(tweet[1]['user']['description'], 'en',
                                                                    text_language='iw', level=2)
-            if 'retweeted_status' in tweet[1]:
+            if 'retweeted_status' in tweet[1]: # TODO: check if we need this section
                 # "retweeted_status" -> "text"
                 tweet[1]['retweeted_status']['text'] = google.translate(tweet[1]['retweeted_status']['text'], 'en',
                                                                         text_language='iw', level=2)

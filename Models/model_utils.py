@@ -105,3 +105,4 @@ def separate_data(data):
         return ids, features, polarity, subjectivity
     except:
         print("can't separate data")
+        print("can't separate data")

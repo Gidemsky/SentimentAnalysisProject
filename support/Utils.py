@@ -248,3 +248,54 @@ def retweet_checker(json_list_to_check):
     else:
         print("No tweets has been removed. The JSON list is OK!\n")
     return new_tweets_list
+
+
+def create_sub_json(src_json, destination_json_size, destination_file_number):
+    """
+
+    :param src_json:
+    :param destination_json_size:
+    :param destination_file_number:
+    :return:
+    """
+    file_number = 0
+    destination_list = list()
+    src_json = get_json_tweet_list(src_json)
+    max_tweet = destination_file_number * destination_json_size
+    for t, i in zip(src_json[:max_tweet], range(src_json.__len__())):
+        destination_list.append(t)
+        if (i+1) % destination_json_size == 0:
+            create_json_dict_file(json_list=destination_list, json_file_name=str(file_number)+'-tweets to label')
+            file_number += 1
+            destination_list.clear()
+
+
+def create_sub_json_by_label(src_json, label_to_save):
+    destination_list = list()
+    src_json = get_json_tweet_list(src_json)
+    for t in src_json:
+        if int(t['label']['positivity']) == label_to_save:
+            destination_list.append(t)
+    create_json_dict_file(json_list=destination_list, json_file_name='label3-to label to 4 or 5')
+
+
+def check_json_format(json_list):
+    checked_json_list = list()
+    temp_text = list()
+    for t in json_list:
+        if not isinstance(t['text'], list):
+            temp_text.append({'translatedText': None, 'input': t['text']})
+            t['text'] = temp_text.copy()
+            temp_text.clear()
+        if 'extended_tweet' in t:
+            if not isinstance(t['extended_tweet']['full_text'], list):
+                temp_text.append({'translatedText': None, 'input': t['extended_tweet']['full_text']})
+                t['extended_tweet']['full_text'] = temp_text.copy()
+                temp_text.clear()
+        if not isinstance((t['label']), list):
+            t['label']['positivity'] = str(int(t['label']['positivity']))
+        if t['label']["relative subject"] == 'subject':
+            t['label']["relative subject"] = 'person'
+        checked_json_list.append(t)
+    print("The labeled json format checked")
+    return checked_json_list
