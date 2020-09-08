@@ -5,7 +5,7 @@ from support.Utils import create_json_dict_file, get_json_tweet_list, script_ope
 from Models import model_utils as mUtils
 import nltk
 
-TEST_RATIO = 100
+TEST_RATIO = 5
 VALIDATION_CONST = 0.7
 #TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
 MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
@@ -34,7 +34,7 @@ class Bootstrapper(object):
         the loop runs until the test_set is empty.
         """
         self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
-        #random.shuffle(self.none_labeled_tweets)
+        random.shuffle(self.none_labeled_tweets)
         while self.none_labeled_tweets:
             random.shuffle(self.model_data_set)
             self.my_model_test_tweets = self.get_test_tweets()
