@@ -7,9 +7,8 @@ import nltk
 
 TEST_RATIO = 5
 VALIDATION_CONST = 0.7  # TODO: decide the constant
-#TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
 MANUAL_LABELING_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\manual_labeling.json"
-TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for model small.json"
+TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for bootstraper.json"
 
 
 class Bootstrapper(object):
@@ -34,6 +33,7 @@ class Bootstrapper(object):
         the loop runs until the test_set is empty.
         """
         self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
+        random.shuffle(self.none_labeled_tweets)
         while self.none_labeled_tweets:
             self.my_model_test_tweets = self.get_test_tweets()
             model_results, confidence, sub_results, sub_confidence\

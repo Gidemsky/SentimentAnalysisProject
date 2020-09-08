@@ -1,6 +1,7 @@
 """
 A support class for future expanding to manage and control the tweets
 """
+import random
 
 from support.Utils import get_json_tweet_list, create_json_dict_file, check_tweets_number, dir_checker_creator
 
@@ -132,7 +133,7 @@ if __name__ == '__main__':
     # the new total labeled list creation by number I want
     no_label_list = get_json_tweet_list(src_json_file=
                                         'Temp files/Json manager results/new total labeled.json')
-    TOTAL_LABELS_VALUE = {1: 225, 2: 225, 3: 100, 4: 225, 5: 225}
+    TOTAL_LABELS_VALUE = {1: 454, 2: 744, 3: 106, 4: 744, 5: 454}
     labeled_json_for_model = list()
     for t in no_label_list:
         if TOTAL_LABELS_VALUE[1] == 0 and TOTAL_LABELS_VALUE[2] == 0 and TOTAL_LABELS_VALUE[4] == 0 and \
@@ -144,4 +145,13 @@ if __name__ == '__main__':
         TOTAL_LABELS_VALUE[int(tweet_label)] = TOTAL_LABELS_VALUE[int(tweet_label)] - 1
         labeled_json_for_model.append(t)
         print(TOTAL_LABELS_VALUE)
-    create_json_dict_file(json_list=labeled_json_for_model, json_file_name=JSON_MANAGER_RESULTS + 'labeled json for model small')
+
+    test_for_boot = list()
+
+    random.shuffle(labeled_json_for_model)
+
+    for i in range(400):
+        test_for_boot.append(labeled_json_for_model.pop(i))
+
+    create_json_dict_file(json_list=labeled_json_for_model, json_file_name=JSON_MANAGER_RESULTS + 'labeled json for bootstraper')
+    create_json_dict_file(json_list=test_for_boot, json_file_name=JSON_MANAGER_RESULTS + 'test json for bootstraper')

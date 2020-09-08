@@ -12,6 +12,7 @@ TRESHHOLD = 0.5
 RANDOM_FOREST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\polarity_model.joblib"
 SVM_FILE = "C:\\SentimentAnalysisProject\Models\Data\\subjectivity_model.joblib"
 
+
 class modelHelperBase:
     def __init__(self):
         """
@@ -60,7 +61,19 @@ class modelHelperBase:
             results = vectorizer.fit_transform(processed_features).toarray()
         else:
             results = vectorizer.transform(processed_features).toarray()
-        return results
+
+        # this is part for checking the zeros array list
+        all_zero_array_list = list()
+        for i_array, index in zip(results, range(len(results))):
+            all_zero = True
+            for nunber in i_array:
+                if nunber != 0:
+                    all_zero = False
+                    break
+            if all_zero:
+                all_zero_array_list.append(index)
+
+        return results, all_zero_array_list
 
     def create_model(self, modelName):
         """

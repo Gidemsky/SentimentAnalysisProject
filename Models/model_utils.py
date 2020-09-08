@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for model small.json"
-TEST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled_tweets_test.json"
+TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for bootstraper.json"
+TEST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\test json for bootstraper.json"
 
 
 def save_results(df, nm, is_trans):

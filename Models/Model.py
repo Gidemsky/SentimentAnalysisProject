@@ -1,3 +1,5 @@
+import numpy
+
 from Models.modelHelperBase import *
 from Models.model_utils import separate_data
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -11,7 +13,6 @@ SUBJECTIVITY_MODEL_NAME = "svm"
 TRESHOLD = 0.6
 POLARITY_MODEL_FILE = "polarity_model.joblib"
 SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
-
 
 
 def calc_avg(param):
@@ -36,6 +37,24 @@ def check_values_acc(predictions, filtered_test_set, polarity):
         print("Subjectivity: The real Subjectivity in this iteration -> " + str(right / len(predictions[1])))
 
 
+def remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zero_index_list):
+    objects_to_convert = list()
+    objects_to_convert.extend([train_ids, filtered_data_train, polarity_Y, subjectivity_Y])
+
+    for obj, i in zip(objects_to_convert, range(len(objects_to_convert))):
+        if type(obj) is list:
+            objects_to_convert[i] = [i for j, i in enumerate(obj) if j not in zero_index_list]
+            # for index in zero_index_list:
+            #     obj.remove(index)
+        elif type(obj) is numpy.ndarray:
+            for index in zero_index_list:
+                objects_to_convert[i] = numpy.delete(obj, index)
+        else:
+            print("wrong objects to remove the zeros")
+
+    return train_ids, filtered_data_train, polarity_Y, subjectivity_Y
+
+
 class Model:
     def __init__(self):
         """
@@ -53,15 +72,15 @@ class Model:
         :return: a numeric vector representation for the features sentences
         """
         train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set)
-        filtered_data_train = self.model_helper.filter_data(train_X, self.vectorizer, True)
+        filtered_data_train, zero_index_list = self.model_helper.filter_data(train_X, self.vectorizer, True)
 
-        return (train_ids, filtered_data_train, polarity_Y, subjectivity_Y)
+        return remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zero_index_list)
 
     def from_test_to_vector(self, test_set):
         test_ids, test_X, test_polarity, test_subjectivity = separate_data(test_set)
-        filtered_data_test = self.model_helper.filter_data(test_set, self.vectorizer)
+        filtered_data_test, zero_index_list = self.model_helper.filter_data(test_set, self.vectorizer)
 
-        return (test_ids, filtered_data_test, test_polarity, test_subjectivity)
+        return remove_zeros(test_ids, filtered_data_test, test_polarity, test_subjectivity, zero_index_list)
 
     def run_model(self, model_name, train_set, train_set_labels, test_set, is_loaded = True , polarity=False):
         """
