@@ -56,14 +56,20 @@ def remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zer
 
 
 class Model:
-    def __init__(self):
+    def __init__(self, stop_words, language='heb'):
         """
         model constructor
         """
         self.model_helper = modelHelperBase()
         self.filtered_train_set = None
         self.filtered_test_set = None
-        self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.005, max_df=0.9)
+        self.language = language
+        if language == 'en':
+            self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.005, max_df=0.9,
+                                          stop_words='english', ngram_range=(1, 2))
+        else:
+            self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.005, max_df=0.9,
+                                          stop_words=stop_words, ngram_range=(1, 2))
 
     def from_train_to_vector(self, train_set):
         """
@@ -71,14 +77,16 @@ class Model:
         :param test_set: test set sentences
         :return: a numeric vector representation for the features sentences
         """
-        train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set)
-        filtered_data_train, zero_index_list = self.model_helper.filter_data(train_X, self.vectorizer, True)
+        train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set, self.language)
+        filtered_data_train, zero_index_list = self.model_helper.filter_data\
+            (train_X, self.vectorizer, is_train=True, language=self.language)
 
         return remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zero_index_list)
 
     def from_test_to_vector(self, test_set):
-        test_ids, test_X, test_polarity, test_subjectivity = separate_data(test_set)
-        filtered_data_test, zero_index_list = self.model_helper.filter_data(test_set, self.vectorizer)
+        test_ids, test_X, test_polarity, test_subjectivity = separate_data(test_set, self.language)
+        filtered_data_test, zero_index_list = self.model_helper.filter_data\
+            (test_set, self.vectorizer, language=self.language)
 
         return remove_zeros(test_ids, filtered_data_test, test_polarity, test_subjectivity, zero_index_list)
 
@@ -106,7 +114,7 @@ class Model:
 
         return predictions, confidence
 
-    def run(self, train_set, test_set, is_loaded):
+    def run(self, train_set, test_set, is_loaded = True):
         """
         runs one model for polarity predictions and the second for subjectivity predictions
         :param train_set: train set for training both models - each one with different labels type
@@ -124,8 +132,7 @@ class Model:
                                                      self.filtered_test_set[1]
                                                      )
 
-        #regressed_train_set = self.get_regressed_features()
-        regressed_train_set = self.filtered_train_set[1]
+        regressed_train_set = self.get_regressed_features()
 
         # Train and test model for polarity results.
         p_predictions, p_confidence = self.run_model(MODEL_NAME,

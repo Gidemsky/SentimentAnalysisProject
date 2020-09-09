@@ -6,6 +6,7 @@ import numpy as np
 
 TEST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\oria_pos.json"
 TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
+STOP_WORDS = "C:\\SentimentAnalysisProject\Models\Data\\heb_stop_words.txt"
 
 def save_results(df, nm, is_trans):
     """
@@ -64,7 +65,7 @@ def get_vocabulary():
     return list(set(dict.fromkeys(vocabulary)))
 
 
-def separate_data(data):
+def separate_data(data, language = 'heb'):
     """
     separate data to features and labels
     :param data: original data
@@ -87,22 +88,35 @@ def separate_data(data):
             polarity = list(df_data.polarity)
             subjectivity = list(df_data.is_topic)
         ids = df_data.iloc[:, 2].values
+        lan = 'input'
+        if language == 'en':
+            lan = 'translatedText'
+
         for _, item in df_data.iterrows():
             if type(item['extended_tweet']) is not float:
                 if type(item['extended_tweet']['full_text']) is list:
-                    if item['extended_tweet']['full_text'].__len__() == 0:
-                        ids.Remove(item['id_str'])
-                    features.append(item['extended_tweet']['full_text'][0]['input'])
+                    # if item['extended_tweet']['full_text'].__len__() == 0:
+                    #     ids.Remove(item['id_str'])
+                    features.append(item['extended_tweet']['full_text'][0][lan])
                 else:
                     features.append(item['extended_tweet']['full_text'])
             else:
                 if type(item['text']) is list:
-                    if item['text'].__len__() == 0:
-                        ids.Remove(item['id_str'])
-                    features.append(item['text'][0]['input'])
+                    # if item['text'].__len__() == 0:
+                    #     ids.Remove(item['id_str'])
+                    features.append(item['text'][0][lan])
                 else:
                     features.append(item['text'])
         return ids, features, polarity, subjectivity
     except:
         print("can't separate data")
-        print("can't separate data")
+
+
+def extract_stop_words():
+    """
+    deserialize vocabulary file
+    :return: list of words
+    """
+    with open(STOP_WORDS, 'r', encoding="utf-8") as file:
+        vocabulary = file.read().split('\n')
+        return vocabulary

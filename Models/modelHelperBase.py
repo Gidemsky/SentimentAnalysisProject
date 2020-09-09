@@ -24,7 +24,7 @@ class modelHelperBase:
         self.pred_and_lab = []
         self.models = {}
 
-    def filter_data(self, features, vectorizer, is_train = False):
+    def filter_data(self, features, vectorizer, is_train = False, language='heb'):
         """
         filter redundant tokens and returns each feature as a vector v witch represents
         the words the feature contains
@@ -40,6 +40,10 @@ class modelHelperBase:
 
             # Remove all the special characters
             processed_feature = re.sub(r'\W', ' ', processed_feature)
+
+            # remove english chars - IMPORTANT: use only for hebrew models!
+            if language == 'heb':
+                processed_feature = re.sub(r'[a-zA-Z]', '', processed_feature)
 
             # remove all single characters
             processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
