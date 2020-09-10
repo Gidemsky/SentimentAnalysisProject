@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import pandas as pd
 
-from support.Utils import separate_debug_print_big, separate_debug_print_small
+from support.Utils import separate_debug_print_big
 
 MODEL_NAME = "random forest"
 SUBJECTIVITY_MODEL_NAME = "svm"
@@ -63,7 +63,7 @@ class Model:
         self.model_helper = modelHelperBase()
         self.filtered_train_set = None
         self.filtered_test_set = None
-        self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.005, max_df=0.9)
+        self.vectorizer = TfidfVectorizer(max_features=2500, min_df=0.05, max_df=0.85)
 
     def from_train_to_vector(self, train_set):
         """

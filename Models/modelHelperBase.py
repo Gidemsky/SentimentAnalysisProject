@@ -170,7 +170,6 @@ class modelHelperBase:
             self.models[model_name] = model
         except:
             raise Exception('unknown model')
-
         return model
 
     def find_file_name_by_model_name(self, model_name):

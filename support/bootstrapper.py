@@ -6,10 +6,9 @@ from Models import model_utils as mUtils
 import nltk
 
 TEST_RATIO = 5
-VALIDATION_CONST = 0.7
-#TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
-MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
-TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
+VALIDATION_CONST = 0.8
+MANUAL_LABELING_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\manual_labeling.json"
+TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for bootstraper.json"
 
 
 class Bootstrapper(object):
@@ -83,7 +82,7 @@ class Bootstrapper(object):
         :param sub_res: example subjectivity prediction
         """
         tweet = self.find_by_id(id)
-        tweet["label"] = {"positivity": str(result), "relative subject": str(sub_res)} # TODO: why here???
+        tweet["label"] = {"positivity": str(result), "relative subject": str(sub_res)}
         self.final_data.append(tweet)
         self.model_data_set.append(tweet)
 
