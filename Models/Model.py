@@ -1,7 +1,7 @@
 import numpy
 
 from Models.modelHelperBase import *
-from Models.model_utils import separate_data
+from Models.model_utils import separate_data, clean_data
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import pandas as pd
@@ -34,6 +34,8 @@ def check_values_acc(predictions, filtered_test_set, polarity):
         for real_subject, predict_subject in zip(filtered_test_set[3], predictions[1]):
             if real_subject == predict_subject:
                 right += 1
+            if predict_subject !=0 and predict_subject!=1:
+                print(predict_subject)
         print("Subjectivity: The real Subjectivity in this iteration -> " + str(right / len(predictions[1])))
 
 
@@ -77,16 +79,20 @@ class Model:
         :param test_set: test set sentences
         :return: a numeric vector representation for the features sentences
         """
-        train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set, self.language)
-        filtered_data_train, zero_index_list = self.model_helper.filter_data\
-            (train_X, self.vectorizer, is_train=True, language=self.language)
-
+        #train_ids, train_X, polarity_Y, subjectivity_Y = separate_data(train_set, self.language)
+        train_ids, train_X, polarity_Y, subjectivity_Y = clean_data(train_set)
+        filtered_data_train, zero_index_list = \
+        self.model_helper.filter_data\
+            (train_X, self.vectorizer, train_ids, polarity_Y,
+             subjectivity_Y, is_train=True, language=self.language, is_filtered=True)
         return remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zero_index_list)
 
     def from_test_to_vector(self, test_set):
-        test_ids, test_X, test_polarity, test_subjectivity = separate_data(test_set, self.language)
+        #test_ids, test_X, test_polarity, test_subjectivity = separate_data(test_set, self.language)
+        test_ids, test_X, test_polarity, test_subjectivity = clean_data(test_set)
         filtered_data_test, zero_index_list = self.model_helper.filter_data\
-            (test_set, self.vectorizer, language=self.language)
+            (test_X, self.vectorizer, test_ids, test_polarity,
+             test_subjectivity, language=self.language, is_filtered=True)
 
         return remove_zeros(test_ids, filtered_data_test, test_polarity, test_subjectivity, zero_index_list)
 
@@ -101,7 +107,7 @@ class Model:
             self.model_helper.create_model(model_name)
         else:
             self.model_helper.load_model(model_name)
-        self.model_helper.train_model(model_name, self.filtered_train_set[0], train_set, train_set_labels)
+        self.model_helper.train_model(model_name, self.filtered_train_set[0], train_set, train_set_labels.astype(int))
         predictions = self.model_helper.test_model(model_name, self.filtered_test_set[0], test_set)
         accuracy = self.model_helper.get_accuracy()
         confidence = self.model_helper.get_confidence(model_name, test_set)

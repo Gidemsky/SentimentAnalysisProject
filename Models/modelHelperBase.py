@@ -1,5 +1,5 @@
 import re
-
+import time
 from pandas import np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
@@ -7,6 +7,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.feature_selection import SelectFromModel
 from joblib import dump, load
+from Models.Stemmer import get_base_sentence_heb
+from Models.HebrewParser import get_parsed_heb_text
+from Models.model_utils import save_file
 
 TRESHHOLD = 0.5
 RANDOM_FOREST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\polarity_model.joblib"
@@ -24,7 +27,8 @@ class modelHelperBase:
         self.pred_and_lab = []
         self.models = {}
 
-    def filter_data(self, features, vectorizer, is_train = False, language='heb'):
+    def filter_data(self, features, vectorizer, ids, polarity,
+                    subjectivity, is_train = False, language='heb', is_filtered = False):
         """
         filter redundant tokens and returns each feature as a vector v witch represents
         the words the feature contains
@@ -33,39 +37,55 @@ class modelHelperBase:
         :param vectorizer: tfidfvectorizer
         :return: filtered and vectorized train and test sets
         """
-        processed_features = []
-        for sentence in features:
-            # Remove all words with @ characters
-            processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
+        if not is_filtered:
+            i = 0
+            index = 0
+            processed_features = []
+            for sentence in features[1060:]:
+                i += 1
+                # Remove all words with @ characters
+                processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
 
-            # Remove all the special characters
-            processed_feature = re.sub(r'\W', ' ', processed_feature)
+                # Remove all the special characters
+                processed_feature = re.sub(r'\W', ' ', processed_feature)
 
-            # remove english chars - IMPORTANT: use only for hebrew models!
-            if language == 'heb':
-                processed_feature = re.sub(r'[a-zA-Z]', '', processed_feature)
+                # remove english chars - IMPORTANT: use only for hebrew models!
+                if language == 'heb':
+                    processed_feature = re.sub(r'[a-zA-Z]', '', processed_feature)
 
-            # remove all single characters
-            processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
+                # remove all single characters
+                processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
 
-            # Remove single characters from the start
-            processed_feature = re.sub(r'\^[a-zA-Z]\s+', ' ', processed_feature)
+                # Remove single characters from the start
+                processed_feature = re.sub(r'\^[a-zA-Z]\s+', ' ', processed_feature)
 
-            # Substituting multiple spaces with single space
-            processed_feature = re.sub(r'\s+', ' ', processed_feature, flags=re.I)
+                # Substituting multiple spaces with single space
+                processed_feature = re.sub(r'\s+', ' ', processed_feature, flags=re.I)
 
-            # Removing prefixed 'b'
-            processed_feature = re.sub(r'^b\s+', '', processed_feature)
+                # Removing prefixed 'b'
+                processed_feature = re.sub(r'^b\s+', '', processed_feature)
 
-            # Converting to Lowercase
-            processed_feature = processed_feature.lower()
+                # Converting to Lowercase
+                processed_feature = processed_feature.lower()
 
-            processed_features.append(processed_feature)
-        if is_train:
+                time.sleep(3)
+                if processed_feature != '' and processed_feature != ' ':
+                    processed_feature = get_parsed_heb_text(processed_feature)
+
+                processed_feature = re.sub(r'(?:^| )\w(?:$| )', ' ', processed_feature).strip()
+
+                processed_features.append(processed_feature)
+        else:
+            processed_features = features
+        if is_train == True:
             results = vectorizer.fit_transform(processed_features).toarray()
         else:
             results = vectorizer.transform(processed_features).toarray()
+        all_zero_array_list = self.remove_zero_items(results)
 
+        return results, all_zero_array_list
+
+    def remove_zero_items(self, results):
         # this is part for checking the zeros array list
         all_zero_array_list = list()
         for i_array, index in zip(results, range(len(results))):
@@ -76,8 +96,23 @@ class modelHelperBase:
                     break
             if all_zero:
                 all_zero_array_list.append(index)
+        return all_zero_array_list
 
-        return results, all_zero_array_list
+    # def save_base_sebtences(self, ids, features, polarity, subjectivity, start_index, end_index):
+    #     if i % 20 == 0 or features.__len__() - i <= 20:
+    #         a_ids = ids[start_index:i]
+    #         a_polarity = polarity[start_index:i]
+    #         a_subjectivity = subjectivity[start_index:i]
+    #         s_features = processed_features[start_index:i]
+    #         if is_train:
+    #             save_file("C:\\SentimentAnalysisProject\Models\Data\\train", s_features,
+    #                       a_ids, a_polarity, a_subjectivity)
+    #             start_index = i
+    #             # results = vectorizer.fit_transform(processed_features).toarray()
+    #         else:
+    #             start_index = i
+    #             save_file("C:\\SentimentAnalysisProject\Models\Data\\test", s_features,
+    #                       ids, polarity, subjectivity)
 
     def create_model(self, modelName):
         """
@@ -93,7 +128,8 @@ class modelHelperBase:
             elif modelName == 'svm':
                 model = SVC(kernel="linear", class_weight="balanced", probability=True)
             elif modelName == 'random forest':
-                model = RandomForestClassifier(n_estimators=1000, random_state=0, class_weight="balanced")
+                model = RandomForestClassifier(n_estimators=1000, random_state=1, class_weight="balanced",
+                                               criterion='entropy')
             else:
                 raise Exception('unknown model')
         self.models[modelName] = model

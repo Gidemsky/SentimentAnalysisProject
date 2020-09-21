@@ -1,4 +1,7 @@
+import csv
 import json
+import random
+
 from support.Utils import get_json_tweet_list
 from datetime import datetime
 import pandas as pd
@@ -7,6 +10,7 @@ import numpy as np
 TEST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\oria_pos.json"
 TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
 STOP_WORDS = "C:\\SentimentAnalysisProject\Models\Data\\heb_stop_words.txt"
+TWEETS_CSV_FILE = "C:\\SentimentAnalysisProject\Models\Data\\train.csv"
 
 def save_results(df, nm, is_trans):
     """
@@ -22,6 +26,12 @@ def save_results(df, nm, is_trans):
     if is_trans:
         fname += "_tr"
     df.to_csv(fname + ".csv")
+
+
+def save_file(file_name, features, ids, polarity, subjectivity):
+    #nd = np.array([ids, features, polarity, subjectivity])
+    df = pd.DataFrame({"ids":ids, "features":np.array(features),"polarity": np.array(polarity), "subjectivity":np.array(subjectivity)})
+    df.to_csv(file_name+".csv", index=False, mode='a', header=False, encoding='utf8')
 
 
 def get_tweets(pos_f, neg_f):
@@ -120,3 +130,20 @@ def extract_stop_words():
     with open(STOP_WORDS, 'r', encoding="utf-8") as file:
         vocabulary = file.read().split('\n')
         return vocabulary
+
+
+def clean_data(data):
+    ids = data[:, 0]
+    features = data[:, 1]
+    polarity = data[:, 2].astype(int)
+    subjectivity = data[:, 3].astype(int)
+    return ids, features, polarity, subjectivity
+
+
+def get_tweets_from_csv():
+    df = pd.read_csv(filepath_or_buffer=TWEETS_CSV_FILE)
+    train_size = int(df.__len__() * 0.8)
+    #random.shuffle(df.values)
+    train = df.loc[:train_size,:]
+    test = df.loc[train_size:,:]
+    return train, test
