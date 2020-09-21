@@ -5,6 +5,7 @@ import numpy as np
 import gensim.downloader as api
 
 
+# creates df of words and weights (like pearson cor df)
 def get_word_weights(fname):
     df = pd.read_csv(fname)
     df.drop(df.columns[0], axis=1, inplace=True)
@@ -25,6 +26,7 @@ def short_words_synonyms(df):
     return have_short_words
 
 
+# creates 'short word' of words with endings - only for english
 def shorten_word(df):
     # finding similar word
     df['to_change'] = df.word.str.endswith(('ily', 'ly', 'ive', 'iest', 'ier', 'able', 'ably', 'able2', 'ably2'))
@@ -64,6 +66,7 @@ def short_words_weight_to_full_vocab(full_df, short_df):
     return full_df
 
 
+# finds short version of long word in vocab (surprisingly - surprise)
 def get_other_synonyms(full_df, short_words_df):
     # want same synonyms for identical words (that were found on short words but happen to be a full word as well)
     full_df_merged = pd.merge(full_df, short_words_df, how='left', left_on='word', right_on='short_word')
@@ -84,6 +87,7 @@ def get_other_synonyms(full_df, short_words_df):
     return have_syns
 
 
+# finds weight average from similar words
 def avg_synonym_weight(ls, have_weights_df):
     if str(ls) == 'nan':
         return 0
@@ -99,6 +103,7 @@ def avg_synonym_weight(ls, have_weights_df):
     return p_cor.mean()
 
 
+# creates new pos words by word letter similarity (only for english)
 def expand_vocab_w_syns(fname):
     vocab_words = get_word_weights(fname)
     zero_p_cor = vocab_words.loc[vocab_words['p_cor'] == 0]
@@ -108,11 +113,11 @@ def expand_vocab_w_syns(fname):
     zero_p_cor = vocab_words.loc[vocab_words['p_cor'] == 0]
     zero_p_cor = shorten_word(zero_p_cor)
     # in comment because i already saved restults of short_words_synonyms
-    # z_short_words = short_words_synonyms(zero_p_cor)
+    z_short_words = short_words_synonyms(zero_p_cor)
     # z_short_words = pd.read_csv('vocab_classifier/results/aug_11_train/pos_short_syns.csv')
     # in comment because i already saved results of full_z_df_syns
-    # full_z_df_syns = get_other_synonyms(zero_p_cor, z_short_words)
-    full_z_df_syns = pd.read_csv('vocab_classifier/results/aug_11_train/neg_all_train_syns.csv')
+    full_z_df_syns = get_other_synonyms(zero_p_cor, z_short_words)
+    # full_z_df_syns = pd.read_csv('vocab_classifier/results/aug_11_train/neg_all_train_syns.csv')
     # fixing string representation of list in order to convert to list later
     full_z_df_syns.replace({'\'': '', '\[': '', '\]': ''}, regex=True, inplace=True)
     have_weight = vocab_words.loc[vocab_words['p_cor'] > 0]
@@ -128,6 +133,7 @@ def expand_vocab_w_syns(fname):
     return vocab_words
 
 
+# w2v dif
 def cal_vec_dif(word, other_words, word_vectors):
     sim_word = ''
     similarity = 0
@@ -146,31 +152,41 @@ def cal_vec_dif(word, other_words, word_vectors):
     return sim_word, similarity
 
 
+# get p_cor of similar word
 def get_p_cor_from_sim(word, sim_word_vals_df):
     if str(word) == 'nan':
         return 0
     new_val = sim_word_vals_df.loc[sim_word_vals_df['word'] == word]['p_cor']
+    if new_val.empty:
+        return 0
     return float(new_val)
 
 
+# finds similar words within words list and takes best match weight
 def calc_word_to_vec(words_df):
     words_df['word_2'] = words_df['word']
     # in comment if already saved df in previous run
     # only want similarities to words with weight greater than 0
+
     word_vectors = api.load("glove-wiki-gigaword-100")  # load pre-trained word-vectors from gensim-data
     words_df['similarity'] = words_df['word'].apply(
         lambda x: cal_vec_dif(x, words_df.loc[words_df['p_cor'] > 0]['word_2'], word_vectors))
     words_df[['word_sim', 'similarity']] = pd.DataFrame(words_df['similarity'].tolist(), index=words_df.index)
-    # words_df = pd.read_csv('vocab_classifier/results/aug_11_train/neg_train_after_word_vec_func.csv')
     words_df.drop(columns=['word_2'], inplace=True)
+
+    # words_df = pd.read_csv('vocab_classifier/results/real_data/trans_pos_after_word_vec_func_11_09.csv')
+    words_df.sort_values(by=['word', 'p_cor'], ascending=False, inplace=True)
+    # should only be relevant for translated vocabulary because multiple words are translated to the same word
+    words_df.drop_duplicates(subset='word', keep='first', inplace=True)
     # need to save words df for some reason as csv and then read and the can run next line
-    words_df['new_p_cor'] = words_df['word_sim'].apply(lambda x: get_p_cor_from_sim(x, words_df[['word', 'p_cor']]))
+    words_df['new_p_cor'] = words_df['word_sim'].apply(lambda x: get_p_cor_from_sim(x, words_df[['word', 'p_cor', 'similarity']]))
     words_df['p_cor'] = np.where(words_df['p_cor'] == 0, words_df['new_p_cor'], words_df['p_cor'])
     words_df.drop(columns=['new_p_cor'], inplace=True)
-
+    # save df
     return words_df
 
 
+# extends weights by finding word2vec similarity
 def add_w2v_p_cors(pos_fname, neg_fname):
     pos_words_df = get_word_weights(pos_fname)
     pos_words_df = calc_word_to_vec(pos_words_df)
@@ -181,7 +197,8 @@ def add_w2v_p_cors(pos_fname, neg_fname):
 
 
 if __name__ == '__main__':
-    # pos_words = expand_vocab_w_syns('vocab_classifier/results/aug_11_train/pos_train_p_cor.csv')
-    # neg_words = expand_vocab_w_syns('vocab_classifier/results/aug_11_train/neg_train_p_cor.csv')
+    new_pos_words, new_neg_words = add_w2v_p_cors(
+        'vocab_classifier/results/real_data/trans_pos_pear_11_9.csv',
+        'vocab_classifier/results/real_data/trans_neg_pear_11_9.csv')
 
     a = 1

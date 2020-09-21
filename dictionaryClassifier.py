@@ -1,7 +1,7 @@
 import pandas as pd
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-
+import json
 import model_utils as mUtils
 import random
 import numpy as np
@@ -11,10 +11,18 @@ from datetime import datetime
 
 datetime_object = datetime.now()
 dt = datetime_object.strftime("%d_%m_%H_%M")
+en_he = 'heb'
 
 
 # NOTE- I CHANGED BULL**** TO BULL AND F**K TO REAL WORD
 
+def get_pos_neg_tweets_df(fname):
+    tweets_df = pd.read_csv(fname)
+    tweets_df['tweet_words'] = create_tweet_words(tweets_df['tweet'])
+    return tweets_df
+
+
+# counts number of words from ls_b in a
 def num_of_words_in_vec(a, ls_b):
     count = 0
     for it in a:
@@ -23,6 +31,7 @@ def num_of_words_in_vec(a, ls_b):
     return count
 
 
+# removes symbols and any non words from tweets
 def create_tweet_words(features):
     processed_features = []
     for sentence in range(0, len(features)):
@@ -72,15 +81,15 @@ def is_correct(x, y):
 
 
 def create_df_and_vocab_ls(p_wrds_fname, n_wrds_fname):
-    fPos = "twitter_samples/positive_tweets1.json"
-    fNeg = "twitter_samples/negative_tweets1.json"
+    # fPos = "twitter_samples/positive_tweets1.json"
+    # fNeg = "twitter_samples/negative_tweets1.json"
+    # neg_pos_tweets = positive_tweets + negative_tweets
+    # random.shuffle(neg_pos_tweets)
+    # neg_pos_tweets = pd.DataFrame(neg_pos_tweets)
     is_trans = False
-    positive_tweets, negative_tweets = mUtils.get_tweets(fPos, fNeg)
-
-    neg_pos_tweets = positive_tweets + negative_tweets
-    random.shuffle(neg_pos_tweets)
-
-    neg_pos_tweets = pd.DataFrame(neg_pos_tweets)
+    # positive_tweets, negative_tweets = mUtils.get_tweets(fPos, fNeg)
+    tweets_fname = 'C:/Users/yonat/PycharmProjects/SentimentAnalysisProject/Models/Data/big json tweets df.csv'
+    neg_pos_tweets = get_pos_neg_tweets_df(tweets_fname)
 
     pos_wrds_fname = f'vocab_classifier/vocabularies/{p_wrds_fname}'
     neg_wrds_fname = f'vocab_classifier/vocabularies/{n_wrds_fname}'
@@ -91,7 +100,7 @@ def create_df_and_vocab_ls(p_wrds_fname, n_wrds_fname):
     with open(neg_wrds_fname, encoding="utf8") as f1:
         neg_words = f1.read().split('\n')
 
-    tweet_text = neg_pos_tweets.iloc[:, 2].values
+    tweet_text = neg_pos_tweets.loc[:, 'tweet'].values
     ids = neg_pos_tweets.loc[:, 'id_str'].values
     labels = neg_pos_tweets.loc[:, 'label'].values
     tweet_words = create_tweet_words(tweet_text)
@@ -99,6 +108,17 @@ def create_df_and_vocab_ls(p_wrds_fname, n_wrds_fname):
     return tweet_wrds_df, pos_words, neg_words
 
 
+# creates lists of vocabs
+def create_vocab_ls(pos_fname, neg_fname):
+    with open(pos_fname, encoding="utf8") as f:
+        pos_words = f.read().split('\n')
+
+    with open(neg_fname, encoding="utf8") as f1:
+        neg_words = f1.read().split('\n')
+    return pos_words, neg_words
+
+
+# classifies accoriding to word count
 def classify_by_vocab(tweets_df, pos_words, neg_words):
     tweets_df['pos_words_count'] = tweets_df.apply(lambda x: num_of_words_in_vec(x['tweet_words'], pos_words),
                                                    axis=1)
@@ -107,15 +127,22 @@ def classify_by_vocab(tweets_df, pos_words, neg_words):
     tweets_df['vocab_words_dif'] = tweets_df.pos_words_count - tweets_df.neg_words_count
     tweets_df['classifier'] = tweets_df.vocab_words_dif.apply(classify)
     # tweets_df['clas_correct'] = tweets_df.apply(lambda x: is_correct(x['classifier'], x['label']), axis=1)
-    tweets_df['clas_correct'] = (tweets_df.label == tweets_df.classifier).astype(int)
+    tweets_df['new_label'] = tweets_df['label']
+    tweets_df['new_label'] = np.where(tweets_df['label'] > 3, 1, tweets_df['new_label'])
+    tweets_df['new_label'] = np.where(tweets_df['label'] < 3, -1, tweets_df['new_label'])
+    tweets_df['new_label'] = np.where(tweets_df['new_label'] == 3, 0, tweets_df['new_label'])
+    tweets_df['clas_correct'] = (tweets_df.new_label == tweets_df.classifier).astype(int)
     tweets_df['clas_correct'].loc[tweets_df['clas_correct'] == 0] = -1
-    tweets_df['clas_correct'].loc[tweets_df['classifier'] == 0] = 0
+    # removed row because label 3 should have 0 difference
+    # tweets_df['clas_correct'].loc[tweets_df['classifier'] == 0] = 0
 
     return tweets_df
 
 
-def run_classification(fout_name, pos_words_fname, neg_words_fname):
-    tweets_df, pos_words, neg_words = create_df_and_vocab_ls(pos_words_fname, neg_words_fname)
+# regular word count classification
+def run_classification(fout_name, tweets_df_fname, pos_words_fname, neg_words_fname):
+    pos_words, neg_words = create_vocab_ls(pos_words_fname, neg_words_fname)
+    tweets_df = get_pos_neg_tweets_df(tweets_df_fname)
     res_df = classify_by_vocab(tweets_df, pos_words, neg_words)
     clas_series = res_df.pivot_table(index=['clas_correct'], aggfunc='size')
     clas_df = pd.DataFrame(data={'is_correct': clas_series.index.values, 'count': clas_series})
@@ -126,6 +153,7 @@ def run_classification(fout_name, pos_words_fname, neg_words_fname):
     clas_df.to_csv(f'{fout_name}_{dt}.csv')
 
 
+# creates list of words from ls_b in a
 def words_in_vec(a, ls_b):
     ls_a = a.split(' ')
     while "" in ls_a:
@@ -137,6 +165,7 @@ def words_in_vec(a, ls_b):
     return words_ls
 
 
+# adds columns with vocab words
 def add_vocab_columns(tweets_df, pos_words, neg_words):
     tweets_df['pos_words'] = tweets_df.apply(lambda x: words_in_vec(x['tweet_words'], pos_words),
                                              axis=1)
@@ -145,6 +174,7 @@ def add_vocab_columns(tweets_df, pos_words, neg_words):
     return tweets_df
 
 
+# seemingly not used
 def create_tweets_w_vocab_df(pos_words_fname, neg_words_fname):
     tweets_df, pos_words, neg_words = create_df_and_vocab_ls(pos_words_fname, neg_words_fname)
     # tweets_df = add_vocab_columns(tweets_df, pos_words, neg_words)
@@ -152,6 +182,7 @@ def create_tweets_w_vocab_df(pos_words_fname, neg_words_fname):
     return pos_df, neg_df, pos_words, neg_words
 
 
+# seemingly not used
 def has_vocab_words(df, pos_words=None, neg_words=None):
     pos_df = pd.DataFrame()
     neg_df = pd.DataFrame()
@@ -184,6 +215,7 @@ def print_words_df(df):
         print(column, ":", s)
 
 
+# gets most frequent words form tweets acording to tfidf
 def get_most_frequent(df, vocab1, vocab2):
     df['tweet_words'] = df['tweet_words'].astype(str)
     # creating tfidf vecotr
@@ -209,6 +241,7 @@ def get_most_frequent(df, vocab1, vocab2):
     return word_count_df
 
 
+# finds words to add to vocabulary
 def make_special_words(pos_df, neg_df):
     pos_v = pos_df['word'].to_list()
     neg_v = neg_df['word'].to_list()
@@ -235,6 +268,8 @@ def make_special_words(pos_df, neg_df):
     new_neg_special.drop(columns=['pos_word_count', 'pos_special'], inplace=True)
     new_neg_special.rename(columns={'neg_word_count': 'word_count', 'neg_special': 'is_special'}, inplace=True)
     neg_df = neg_df.append(new_neg_special)
+    pos_df = pos_df.loc[pos_df['word_count'] >= 5]
+    neg_df = neg_df.loc[neg_df['word_count'] >= 5]
     return pos_df, neg_df
 
 
@@ -255,12 +290,11 @@ def get_bad_word(df, vocab):
     return df
 
 
-def remove_bad_words(pos_words_fname, neg_words_fname):
-    tweets_df, pos_words, neg_words = create_df_and_vocab_ls(pos_words_fname, neg_words_fname)
+# removes words that classify incorrectly and saves the new vocabulary in the files specified in function
+def remove_bad_words(tweets_df, pos_words, neg_words):
     res_df = classify_by_vocab(tweets_df, pos_words, neg_words)
     wrong_class = res_df.loc[res_df['clas_correct'] == -1]
     one_wrong_word_df = wrong_class.loc[wrong_class['label'] == 1].loc[wrong_class['neg_words_count'] == 1]
-    one_wrong_word_df = one_wrong_word_df
     one_wrong_word_df = one_wrong_word_df.append(
         wrong_class.loc[wrong_class['label'] == -1].loc[wrong_class['pos_words_count'] == 1])
     pos_one_wrong_word_df = one_wrong_word_df.loc[one_wrong_word_df['label'] == 1]
@@ -270,7 +304,7 @@ def remove_bad_words(pos_words_fname, neg_words_fname):
     check_df = res_df.loc[res_df['vocab_words_dif'] == 1]
     pos_check_df = check_df.loc[check_df['label'] == 1].loc[check_df['classifier'] == 1]
     neg_check_df = check_df.loc[check_df['label'] == -1].loc[check_df['classifier'] == -1]
-    # the bad words are in apposite lists, that's why they are bad
+    # the bad words are in opposite lists, that's why they are bad
     neg_bad_words = pos_one_wrong_word_df['bad_word'].to_list()
     pos_bad_words = neg_one_wrong_word_df['bad_word'].to_list()
     # checking whether there are 'bad' word that are crucial for other classifications,
@@ -285,8 +319,8 @@ def remove_bad_words(pos_words_fname, neg_words_fname):
     for w in neg_bad_words:
         if w in neg_check_list:
             neg_bad_words.remove(w)
-    new_pos_fname = 'vocab_classifier/vocabularies/positive_words_clean.txt'
-    new_neg_fname = 'vocab_classifier/vocabularies/negative_words_clean.txt'
+    new_pos_fname = f'vocab_classifier/vocabularies/positive_words_clean_{en_he}_{dt}.txt'
+    new_neg_fname = f'vocab_classifier/vocabularies/negative_words_clean_{en_he}_{dt}.txt'
     remove_words_from_file(pos_bad_words, pos_words, new_pos_fname)
     remove_words_from_file(neg_bad_words, neg_words, new_neg_fname)
     return new_pos_fname, new_neg_fname
@@ -297,7 +331,7 @@ def remove_words_from_file(words_ls, vocab, fname):
     for w in words_ls:
         if w in vocab:
             vocab.remove(w)
-    with open(fname, 'w+') as filehandle:
+    with open(fname, 'w+', encoding='utf-8') as filehandle:
         for word in vocab:
             filehandle.write('%s\n' % word)
 
@@ -314,8 +348,9 @@ def calc_pearson_corrolation(df):
     return corrs_res
 
 
+# creates df with word columns if tweet contains word
 def create_tweet_vocab_df(tweets_data, vocab):
-    ids = tweets_data.loc[:, 'id']
+    ids = tweets_data.loc[:, 'id_str']
     tweets = tweets_data.loc[:, 'tweet_words']
     labels = tweets_data.loc[:, 'label']
     tweet_vocab_df = pd.DataFrame(data={'id': ids, 'tweet_words': tweets, 'label': labels})
@@ -332,37 +367,62 @@ def avg_weights(tweet, word_weights_df):
     return avg
 
 
+def sum_weights(tweet, word_weights_df):
+    word_weights_df['is_in_tweet'] = word_weights_df['word'].isin(tweet)
+    sum = word_weights_df['p_cor'].loc[word_weights_df['is_in_tweet'] == True].sum()
+    return sum
+
+
 def classify_by_weights(tweets_df, pos_words_weights, neg_words_weights):
     # finding average if positive and negative weights
-    tweets_df['pos_words_avg'] = tweets_df.apply(lambda x: avg_weights(x['tweet_words'], pos_words_weights), axis=1)
-    tweets_df['neg_words_avg'] = tweets_df.apply(lambda x: avg_weights(x['tweet_words'], neg_words_weights), axis=1)
+    # tweets_df['pos_words_avg'] = tweets_df.apply(lambda x: avg_weights(x['tweet_words'], pos_words_weights), axis=1)
+    # tweets_df['neg_words_avg'] = tweets_df.apply(lambda x: avg_weights(x['tweet_words'], neg_words_weights), axis=1)
+    # tweets_df['pos_words_avg'] = np.where(tweets_df['pos_words_avg'].isna(), 0, tweets_df['pos_words_avg'])
+    # tweets_df['neg_words_avg'] = np.where(tweets_df['neg_words_avg'].isna(), 0, tweets_df['neg_words_avg'])
+    # tweets_df['vocab_words_dif'] = tweets_df.pos_words_avg - tweets_df.neg_words_avg
+    tweets_df['pos_words_sum'] = tweets_df.apply(lambda x: sum_weights(x['tweet_words'], pos_words_weights), axis=1)
+    tweets_df['neg_words_sum'] = tweets_df.apply(lambda x: sum_weights(x['tweet_words'], neg_words_weights), axis=1)
     # changing nan values to 0
-    tweets_df['pos_words_avg'] = np.where(tweets_df['pos_words_avg'].isna(), 0, tweets_df['pos_words_avg'])
-    tweets_df['neg_words_avg'] = np.where(tweets_df['neg_words_avg'].isna(), 0, tweets_df['neg_words_avg'])
-    tweets_df['vocab_words_dif'] = tweets_df.pos_words_avg - tweets_df.neg_words_avg
+    tweets_df['pos_words_sum'] = np.where(tweets_df['pos_words_sum'].isna(), 0, tweets_df['pos_words_sum'])
+    tweets_df['neg_words_sum'] = np.where(tweets_df['neg_words_sum'].isna(), 0, tweets_df['neg_words_sum'])
+    tweets_df['vocab_words_dif'] = tweets_df.pos_words_sum - tweets_df.neg_words_sum
     tweets_df['classifier'] = tweets_df.vocab_words_dif.apply(classify)
     # tweets_df['clas_correct'] = tweets_df.apply(lambda x: is_correct(x['classifier'], x['label']), axis=1)
-    tweets_df['clas_correct'] = (tweets_df.label == tweets_df.classifier).astype(int)
+    tweets_df['clas_correct'] = (tweets_df.new_label == tweets_df.classifier).astype(int)
     tweets_df['clas_correct'].loc[tweets_df['clas_correct'] == 0] = -1
-    tweets_df['clas_correct'].loc[tweets_df['classifier'] == 0] = 0
+    # tweets_df['clas_correct'].loc[tweets_df['classifier'] == 0] = 0
 
     return tweets_df
 
 
-def run_weighted_classification(fout_name, df, pos_words_weights, neg_words_weights):
-    res_df = classify_by_weights(df, pos_words_weights, neg_words_weights)
+# classifies according to weights (like pearson cor)
+def run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weights_df_fname):
+    pos_words_weights = pd.read_csv(pos_weights_df_fname)
+    neg_words_weights = pd.read_csv(neg_weights_df_fname)
+    tweets_df = get_pos_neg_tweets_df(tweets_df_fname)
+    tweets_df['new_label'] = tweets_df['label']
+    tweets_df['new_label'] = np.where(tweets_df['label'] > 3, 1, tweets_df['new_label'])
+    tweets_df['new_label'] = np.where(tweets_df['label'] < 3, -1, tweets_df['new_label'])
+    tweets_df['new_label'] = np.where(tweets_df['label'] == 3, 0, tweets_df['new_label'])
+    res_df = classify_by_weights(tweets_df, pos_words_weights, neg_words_weights)
+    return res_df
+
+
+# runs and saves weighted (i.e pearson cor+ext) classification
+def run_and_save_weighted_clas(fout_name, tweets_df_fname, pos_weights_df_fname, neg_weights_df_fname):
+    res_df = run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weights_df_fname)
     clas_series = res_df.pivot_table(index=['clas_correct'], aggfunc='size')
     clas_df = pd.DataFrame(data={'is_correct': clas_series.index.values, 'count': clas_series})
     clas_df.reset_index(drop=True, inplace=True)
     clas_df.loc[clas_df['is_correct'] == 1, 'is_correct'] = 'correct'
     clas_df.loc[clas_df['is_correct'] == -1, 'is_correct'] = 'incorrect'
     clas_df.loc[clas_df['is_correct'] == 0, 'is_correct'] = 'uncovered'
-    clas_df.to_csv(f'vocab_classifier/results/{fout_name}_{dt}.csv')
+    clas_df.to_csv(f'vocab_classifier/results/real_data/{fout_name}_{dt}.csv')
 
 
-def create_pearson_cor_files(pos_fname, neg_fname):
-    tweets_df, pos_vocab, neg_vocab = create_df_and_vocab_ls('positive_words_clean.txt', 'negative_words_clean.txt')
-
+def create_pearson_cor_files(tweets_fname, pos_voab_fname, neg_vocab_fname):
+    pos_vocab, neg_vocab = create_vocab_ls(pos_voab_fname, neg_vocab_fname)
+    tweets_df = get_pos_neg_tweets_df(tweets_fname)
     ln = len(tweets_df.index)
 
     t_size = int(0.8 * ln)
@@ -380,18 +440,19 @@ def create_pearson_cor_files(pos_fname, neg_fname):
     pos_pearson_cor = calc_pearson_corrolation(tweets_pos_vocab_df)
     # removing last row - empty
     pos_pearson_cor.drop(pos_pearson_cor.tail(1).index, inplace=True)
-    pos_pearson_cor.to_csv(f'vocab_classifier/results/{pos_fname}.csv')
-    neg_pearson_cor.to_csv(f'vocab_classifier/results/{neg_fname}.csv')
+    pos_pearson_cor.to_csv(f'vocab_classifier/results/real_data/pos_pearson_cor_{en_he}_{dt}.csv')
+    neg_pearson_cor.to_csv(f'vocab_classifier/results/real_data/neg_pearson_cor_{en_he}_{dt}.csv')
 
     return pos_pearson_cor, neg_pearson_cor
 
 
-def clean_and_basic_update_vocab():
-    new_pos_fname, new_neg_fname = remove_bad_words('positive-words.txt', 'negative-words.txt')
-
-    new_pos_fname = 'positive_words_clean.txt'
-    new_neg_fname = 'negative_words_clean.txt'
-    pos_words_df, neg_words_df, pos_words, neg_words = create_tweets_w_vocab_df(new_pos_fname, new_neg_fname)
+# create new dictionary with new frequent words
+def clean_and_basic_update_vocab(orig_pos_vocab, orig_neg_vocab):
+    tweets_df, pos_words, neg_words = create_df_and_vocab_ls(orig_pos_vocab, orig_neg_vocab)
+    new_pos_fname, new_neg_fname = remove_bad_words(tweets_df, pos_words, neg_words)
+    pos_words, neg_words = create_vocab_ls(new_pos_fname, new_neg_fname)
+    pos_words_df = tweets_df.loc[tweets_df['new_label'] == 1]
+    neg_words_df = tweets_df.loc[tweets_df['new_label'] == -1]
     new_pos_words = get_most_frequent(pos_words_df, pos_words, neg_words)
     new_neg_words = get_most_frequent(neg_words_df, neg_words, pos_words)
     new_pos_words, new_neg_words = make_special_words(new_pos_words, new_neg_words)
@@ -399,6 +460,7 @@ def clean_and_basic_update_vocab():
     new_neg_words.to_csv(f'vocab_classifier/vocabularies/new_neg_words_{dt}.csv')
 
 
+# runs pearson corr weights classification on test
 def run_weighted_clas_on_test(test_fname, pos_p_cor_fname, neg_p_cor_fname):
     test = pd.read_csv(f'vocab_classifier/{test_fname}.csv').drop(columns=['Unnamed: 0'])
     test.replace({'\'': '', '\[': '', '\]': ''}, regex=True, inplace=True)
@@ -409,9 +471,12 @@ def run_weighted_clas_on_test(test_fname, pos_p_cor_fname, neg_p_cor_fname):
 
 
 if __name__ == "__main__":
-    run_weighted_clas_on_test("helper/test_aug_11_14_36", 'aug_11_train/pos_w2v_new_weights',
-                              'aug_11_train/neg_w2v_new_weights')
-    # run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
+    run_weighted_classification(f'weighted_pearson_vocab_after_ext_{en_he}',
+                                'Models/Data/big json tweets df.csv',
+                                'vocab_classifier/vocabularies/pos_heb_pearson_after_extension.csv',
+                                'vocab_classifier/vocabularies/neg_heb_pearson_after_extension.csv')
     # run_classification(f'vocab_classifier/results/vocab_classifier_res_after_clean_{dt}',
-    #                    'positive_words_clean.txt', 'negative_words_clean.txt')
+    #                    'Models/Data/big json tweets df.csv',
+    #                    'vocab_classifier/vocabularies/positive_words_clean_heb_09_09_15_41.txt',
+    #                    'vocab_classifier/vocabularies/negative_words_clean_heb_09_09_15_41.txt')
 a = 1
