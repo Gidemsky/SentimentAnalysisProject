@@ -197,8 +197,7 @@ def add_w2v_p_cors(pos_fname, neg_fname):
 
 
 if __name__ == '__main__':
-    new_pos_words, new_neg_words = add_w2v_p_cors(
-        'vocab_classifier/results/real_data/trans_pos_pear_11_9.csv',
-        'vocab_classifier/results/real_data/trans_neg_pear_11_9.csv')
+    add_w2v_p_cors('vocab_classifier/vocabularies/english/pos_pearson_cor_english_21_09_17_07.csv',
+                   'vocab_classifier/vocabularies/english/neg_pearson_cor_english_21_09_17_07.csv')
 
     a = 1

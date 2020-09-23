@@ -11,7 +11,8 @@ from datetime import datetime
 
 datetime_object = datetime.now()
 dt = datetime_object.strftime("%d_%m_%H_%M")
-en_he = 'heb'
+en_he = 'english'
+tweets_file_name = 'C:/Users/yonat/PycharmProjects/SentimentAnalysisProject/Models/Data/eng_tweets_df.csv'
 
 
 # NOTE- I CHANGED BULL**** TO BULL AND F**K TO REAL WORD
@@ -88,7 +89,7 @@ def create_df_and_vocab_ls(p_wrds_fname, n_wrds_fname):
     # neg_pos_tweets = pd.DataFrame(neg_pos_tweets)
     is_trans = False
     # positive_tweets, negative_tweets = mUtils.get_tweets(fPos, fNeg)
-    tweets_fname = 'C:/Users/yonat/PycharmProjects/SentimentAnalysisProject/Models/Data/big json tweets df.csv'
+    tweets_fname = tweets_file_name
     neg_pos_tweets = get_pos_neg_tweets_df(tweets_fname)
 
     pos_wrds_fname = f'vocab_classifier/vocabularies/{p_wrds_fname}'
@@ -319,8 +320,8 @@ def remove_bad_words(tweets_df, pos_words, neg_words):
     for w in neg_bad_words:
         if w in neg_check_list:
             neg_bad_words.remove(w)
-    new_pos_fname = f'vocab_classifier/vocabularies/positive_words_clean_{en_he}_{dt}.txt'
-    new_neg_fname = f'vocab_classifier/vocabularies/negative_words_clean_{en_he}_{dt}.txt'
+    new_pos_fname = f'vocab_classifier/vocabularies/{en_he}/positive_words_clean_{en_he}_{dt}.txt'
+    new_neg_fname = f'vocab_classifier/vocabularies/{en_he}/negative_words_clean_{en_he}_{dt}.txt'
     remove_words_from_file(pos_bad_words, pos_words, new_pos_fname)
     remove_words_from_file(neg_bad_words, neg_words, new_neg_fname)
     return new_pos_fname, new_neg_fname
@@ -357,7 +358,10 @@ def create_tweet_vocab_df(tweets_data, vocab):
     tweet_vocab_df['tweet_words'] = ['|'.join(map(str, l)) for l in tweet_vocab_df['tweet_words']]
     # checking appearance of each word in every tweet
     for w in vocab:
-        tweet_vocab_df[w] = tweet_vocab_df['tweet_words'].str.contains(w).astype(int)
+        try:
+            tweet_vocab_df[w] = tweet_vocab_df['tweet_words'].str.contains(w).astype(int)
+        except:
+            b = 1
     return tweet_vocab_df
 
 
@@ -408,6 +412,24 @@ def run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weigh
     return res_df
 
 
+def get_tweets_weights_feature(tweets_df, language):
+    pos_weights_df_fname = f'vocab_classifier/vocabularies/final/final_extended_pos_pearson_{language}.csv'
+    neg_weights_df_fname = f'vocab_classifier/vocabularies/final/final_extended_neg_pearson_{language}.csv'
+    pos_words_weights = pd.read_csv(pos_weights_df_fname)
+    neg_words_weights = pd.read_csv(neg_weights_df_fname)
+    tweets_df['new_label'] = tweets_df['label']
+    tweets_df['new_label'] = np.where(tweets_df['label'] > 3, 1, tweets_df['new_label'])
+    tweets_df['new_label'] = np.where(tweets_df['label'] < 3, -1, tweets_df['new_label'])
+    tweets_df['new_label'] = np.where(tweets_df['label'] == 3, 0, tweets_df['new_label'])
+    tweets_df['pos_words_sum'] = tweets_df.apply(lambda x: sum_weights(x['tweet_words'], pos_words_weights), axis=1)
+    tweets_df['neg_words_sum'] = tweets_df.apply(lambda x: sum_weights(x['tweet_words'], neg_words_weights), axis=1)
+    # changing nan values to 0
+    tweets_df['pos_words_sum'] = np.where(tweets_df['pos_words_sum'].isna(), 0, tweets_df['pos_words_sum'])
+    tweets_df['neg_words_sum'] = np.where(tweets_df['neg_words_sum'].isna(), 0, tweets_df['neg_words_sum'])
+    tweets_df['vocab_feature'] = tweets_df.pos_words_sum - tweets_df.neg_words_sum
+    return tweets_df
+
+
 # runs and saves weighted (i.e pearson cor+ext) classification
 def run_and_save_weighted_clas(fout_name, tweets_df_fname, pos_weights_df_fname, neg_weights_df_fname):
     res_df = run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weights_df_fname)
@@ -417,7 +439,7 @@ def run_and_save_weighted_clas(fout_name, tweets_df_fname, pos_weights_df_fname,
     clas_df.loc[clas_df['is_correct'] == 1, 'is_correct'] = 'correct'
     clas_df.loc[clas_df['is_correct'] == -1, 'is_correct'] = 'incorrect'
     clas_df.loc[clas_df['is_correct'] == 0, 'is_correct'] = 'uncovered'
-    clas_df.to_csv(f'vocab_classifier/results/real_data/{fout_name}_{dt}.csv')
+    clas_df.to_csv(f'vocab_classifier/results/real_data/{fout_name}_{en_he}_{dt}.csv')
 
 
 def create_pearson_cor_files(tweets_fname, pos_voab_fname, neg_vocab_fname):
@@ -426,7 +448,7 @@ def create_pearson_cor_files(tweets_fname, pos_voab_fname, neg_vocab_fname):
     ln = len(tweets_df.index)
 
     t_size = int(0.8 * ln)
-    train = tweets_df.iloc[:t_size]
+    train = tweets_df.iloc[:ln]
     test = tweets_df.iloc[t_size:]
 
     # for running on full list
@@ -456,8 +478,8 @@ def clean_and_basic_update_vocab(orig_pos_vocab, orig_neg_vocab):
     new_pos_words = get_most_frequent(pos_words_df, pos_words, neg_words)
     new_neg_words = get_most_frequent(neg_words_df, neg_words, pos_words)
     new_pos_words, new_neg_words = make_special_words(new_pos_words, new_neg_words)
-    new_pos_words.to_csv(f'vocab_classifier/vocabularies/new_pos_words_{dt}.csv')
-    new_neg_words.to_csv(f'vocab_classifier/vocabularies/new_neg_words_{dt}.csv')
+    new_pos_words.to_csv(f'vocab_classifier/vocabularies/{en_he}/new_pos_words_{dt}.csv')
+    new_neg_words.to_csv(f'vocab_classifier/vocabularies/{en_he}/new_neg_words_{dt}.csv')
 
 
 # runs pearson corr weights classification on test
@@ -467,16 +489,11 @@ def run_weighted_clas_on_test(test_fname, pos_p_cor_fname, neg_p_cor_fname):
     test['tweet_words'] = test['tweet_words'].str.split(', ')
     pos_cors = pd.read_csv(f'vocab_classifier/results/{pos_p_cor_fname}.csv')
     neg_cors = pd.read_csv(f'vocab_classifier/results/{neg_p_cor_fname}.csv')
-    run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
+    # run_weighted_classification("weighted_pearson_vocab_test", test, pos_cors, neg_cors)
 
 
 if __name__ == "__main__":
-    run_weighted_classification(f'weighted_pearson_vocab_after_ext_{en_he}',
-                                'Models/Data/big json tweets df.csv',
-                                'vocab_classifier/vocabularies/pos_heb_pearson_after_extension.csv',
-                                'vocab_classifier/vocabularies/neg_heb_pearson_after_extension.csv')
-    # run_classification(f'vocab_classifier/results/vocab_classifier_res_after_clean_{dt}',
-    #                    'Models/Data/big json tweets df.csv',
-    #                    'vocab_classifier/vocabularies/positive_words_clean_heb_09_09_15_41.txt',
-    #                    'vocab_classifier/vocabularies/negative_words_clean_heb_09_09_15_41.txt')
+    tweets_df = get_pos_neg_tweets_df(tweets_file_name)
+    get_tweets_weights_feature(tweets_df, 'english')
+
 a = 1
