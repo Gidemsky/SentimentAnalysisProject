@@ -133,4 +133,3 @@ if __name__ == '__main__':
     google_api.supp_language()
 
     string_text.append("this is text number one")
-    string_text.append("I can't wait to finish our project")
