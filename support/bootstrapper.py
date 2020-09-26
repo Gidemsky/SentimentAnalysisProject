@@ -5,9 +5,9 @@ from support.Utils import create_json_dict_file, get_json_tweet_list, script_ope
 from Models import model_utils as mUtils
 import nltk
 
-TEST_RATIO = 100
+IS_STEMMED = False
+TEST_RATIO = 10
 VALIDATION_CONST = 0.7
-#TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\bootstrapped_train_set.json"
 MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
 TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
 
@@ -21,8 +21,12 @@ class Bootstrapper(object):
     """
     def __init__(self, model, train_set, data_test):
         self.my_model = model
-        self.none_labeled_tweets = data_test.values
-        self.model_data_set = train_set.values
+        if IS_STEMMED:
+            self.none_labeled_tweets = data_test.values
+            self.model_data_set = train_set.values
+        else:
+            self.none_labeled_tweets = data_test
+            self.model_data_set = train_set
         self.final_data = list()
         self.manual_labeling = []
         self.is_loaded = False
@@ -35,14 +39,14 @@ class Bootstrapper(object):
         """
         self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
         random.shuffle(self.none_labeled_tweets)
-        while self.none_labeled_tweets.__len__() > 0:
+        while self.none_labeled_tweets != None and self.none_labeled_tweets.__len__() > 0:
             random.shuffle(self.model_data_set)
             self.my_model_test_tweets = self.get_test_tweets()
             model_results, confidence, sub_results, sub_confidence= \
-            self.my_model.run(self.model_data_set, self.my_model_test_tweets, self.is_loaded)
-            #self.is_loaded = True
-           # self.validate_model_solution(model_results, confidence, sub_results, sub_confidence)
-      #  self.save_new_train_set()
+            self.my_model.run(self.model_data_set, self.my_model_test_tweets, self.is_loaded, IS_STEMMED)
+            self.is_loaded = True
+            self.validate_model_solution(model_results, confidence, sub_results, sub_confidence)
+        self.save_new_train_set()
         #self.my_model.save_models()
         #return
 
@@ -107,8 +111,10 @@ class Bootstrapper(object):
 if __name__ == '__main__':
     script_opener(script_title="Bootstrapper")
     get_json_tweet_list(MANUAL_LABELING_FILE)
-    #train, test = mUtils.get_train_test_tweets()
-    train, test = mUtils.get_tweets_from_csv()
+    if IS_STEMMED:
+        train, test = mUtils.get_tweets_from_csv()
+    else:
+        train, test = mUtils.get_train_test_tweets()
     stop_words = mUtils.extract_stop_words()
     model = Model(stop_words)
     bootStrapper = Bootstrapper(model, train, test)

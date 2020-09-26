@@ -28,7 +28,7 @@ class modelHelperBase:
         self.models = {}
 
     def filter_data(self, features, vectorizer, ids, polarity,
-                    subjectivity, is_train = False, language='heb', is_filtered = False):
+                    subjectivity, is_train, language='heb', is_filtered = False):
         """
         filter redundant tokens and returns each feature as a vector v witch represents
         the words the feature contains
@@ -37,11 +37,12 @@ class modelHelperBase:
         :param vectorizer: tfidfvectorizer
         :return: filtered and vectorized train and test sets
         """
+        self.start_index = 0
         if not is_filtered:
             i = 0
             index = 0
             processed_features = []
-            for sentence in features[1060:]:
+            for sentence in features:
                 i += 1
                 # Remove all words with @ characters
                 processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
@@ -68,16 +69,20 @@ class modelHelperBase:
                 # Converting to Lowercase
                 processed_feature = processed_feature.lower()
 
-                time.sleep(3)
-                if processed_feature != '' and processed_feature != ' ':
-                    processed_feature = get_parsed_heb_text(processed_feature)
-
-                processed_feature = re.sub(r'(?:^| )\w(?:$| )', ' ', processed_feature).strip()
-
+                # time.sleep(3)
+                # if processed_feature != '' and processed_feature != ' ':
+                #     processed_feature = get_parsed_heb_text(processed_feature)
+                #
+                # processed_feature = re.sub(r'(?:^| )\w(?:$| )', ' ', processed_feature).strip()
+                #
                 processed_features.append(processed_feature)
+                #
+                # self.save_base_sentences(ids, features, polarity,
+                #                          subjectivity, i, is_train=is_train)
         else:
             processed_features = features
-        if is_train == True:
+
+        if is_train:
             results = vectorizer.fit_transform(processed_features).toarray()
         else:
             results = vectorizer.transform(processed_features).toarray()
@@ -98,21 +103,20 @@ class modelHelperBase:
                 all_zero_array_list.append(index)
         return all_zero_array_list
 
-    # def save_base_sebtences(self, ids, features, polarity, subjectivity, start_index, end_index):
-    #     if i % 20 == 0 or features.__len__() - i <= 20:
-    #         a_ids = ids[start_index:i]
-    #         a_polarity = polarity[start_index:i]
-    #         a_subjectivity = subjectivity[start_index:i]
-    #         s_features = processed_features[start_index:i]
-    #         if is_train:
-    #             save_file("C:\\SentimentAnalysisProject\Models\Data\\train", s_features,
-    #                       a_ids, a_polarity, a_subjectivity)
-    #             start_index = i
-    #             # results = vectorizer.fit_transform(processed_features).toarray()
-    #         else:
-    #             start_index = i
-    #             save_file("C:\\SentimentAnalysisProject\Models\Data\\test", s_features,
-    #                       ids, polarity, subjectivity)
+    def save_base_sentences(self, ids, features, polarity, subjectivity, end_index, is_train):
+        if end_index % 20 == 0 or features.__len__() - end_index <= 20:
+            a_ids = ids[self.start_index:end_index]
+            a_polarity = polarity[self.start_index:end_index]
+            a_subjectivity = subjectivity[self.start_index:end_index]
+            s_features = features[self.start_index:end_index]
+            if is_train:
+                save_file("C:\\SentimentAnalysisProject\Models\Data\\train", s_features,
+                          a_ids, a_polarity, a_subjectivity)
+                self.start_index = end_index
+            else:
+                self.start_index = end_index
+                save_file("C:\\SentimentAnalysisProject\Models\Data\\test", s_features,
+                          ids, polarity, subjectivity)
 
     def create_model(self, modelName):
         """
@@ -128,7 +132,7 @@ class modelHelperBase:
             elif modelName == 'svm':
                 model = SVC(kernel="linear", class_weight="balanced", probability=True)
             elif modelName == 'random forest':
-                model = RandomForestClassifier(n_estimators=1000, random_state=1, class_weight="balanced",
+                model = RandomForestClassifier(n_estimators=100, random_state=1, class_weight="balanced",
                                                criterion='entropy')
             else:
                 raise Exception('unknown model')

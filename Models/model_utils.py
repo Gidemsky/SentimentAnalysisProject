@@ -1,7 +1,7 @@
 import csv
 import json
 import random
-
+from Models.dictionaryClassifier import get_tweets_weights_feature
 from support.Utils import get_json_tweet_list
 from datetime import datetime
 import pandas as pd
@@ -143,7 +143,56 @@ def clean_data(data):
 def get_tweets_from_csv():
     df = pd.read_csv(filepath_or_buffer=TWEETS_CSV_FILE)
     train_size = int(df.__len__() * 0.8)
-    #random.shuffle(df.values)
+    random.shuffle(df.values)
     train = df.loc[:train_size,:]
     test = df.loc[train_size:,:]
     return train, test
+
+
+def add_dictionary_feature(ids, data, polarity, lan='hebrew'):
+    df = pd.DataFrame({'ids': ids, 'tweet_words': data, 'label': polarity})
+    df = get_tweets_weights_feature(df, language=lan)
+    return df['vocab_feature']
+
+
+def calc_avg(param):
+    return str(((param[0] + param[1] + param[2] + param[3] + param[4])/5)*100)
+
+
+def check_values_acc(predictions, filtered_test_set, polarity):
+    right = 0
+    almost_right = 0
+    if polarity is True:
+        for real_pol, predict_pol in zip(filtered_test_set[2], predictions[1]):
+            if real_pol == predict_pol:
+                right += 1
+            if real_pol == predict_pol + 1 or real_pol == predict_pol - 1 or real_pol == predict_pol:
+                almost_right += 1
+        print("Polarity: The real accuracy in this iteration -> " + str(right/len(predictions[1])))
+        print("Polarity: The almost real accuracy in this iteration -> " + str(almost_right / len(predictions[1])))
+    else:
+        for real_subject, predict_subject in zip(filtered_test_set[3], predictions[1]):
+            if real_subject == predict_subject:
+                right += 1
+            if predict_subject !=0 and predict_subject!=1:
+                print(predict_subject)
+        print("Subjectivity: The real Subjectivity in this iteration -> " + str(right / len(predictions[1])))
+
+
+# TODO
+def remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zero_index_list):
+    objects_to_convert = list()
+    objects_to_convert.extend([train_ids, filtered_data_train, polarity_Y, subjectivity_Y])
+
+    for obj, i in zip(objects_to_convert, range(len(objects_to_convert))):
+        if type(obj) is list:
+            objects_to_convert[i] = [i for j, i in enumerate(obj) if j not in zero_index_list]
+            # for index in zero_index_list:
+            #     obj.remove(index)
+        elif type(obj) is np.ndarray:
+            for index in zero_index_list:
+                objects_to_convert[i] = np.delete(obj, index)
+        else:
+            print("wrong objects to remove the zeros")
+
+    return train_ids, filtered_data_train, polarity_Y, subjectivity_Y
