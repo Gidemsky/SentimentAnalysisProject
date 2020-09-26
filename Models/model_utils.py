@@ -1,11 +1,16 @@
+import csv
 import json
+import random
+from Models.dictionaryClassifier import get_tweets_weights_feature
 from support.Utils import get_json_tweet_list
 from datetime import datetime
 import pandas as pd
 import numpy as np
 
-TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\labeled json for bootstraper.json"
-TEST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\test json for bootstraper.json"
+TEST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\oria_pos.json"
+TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
+STOP_WORDS = "C:\\SentimentAnalysisProject\Models\Data\\heb_stop_words.txt"
+TWEETS_CSV_FILE = "C:\\SentimentAnalysisProject\Models\Data\\train.csv"
 
 def save_results(df, nm, is_trans):
     """
@@ -21,6 +26,12 @@ def save_results(df, nm, is_trans):
     if is_trans:
         fname += "_tr"
     df.to_csv(fname + ".csv")
+
+
+def save_file(file_name, features, ids, polarity, subjectivity):
+    #nd = np.array([ids, features, polarity, subjectivity])
+    df = pd.DataFrame({"ids":ids, "features":np.array(features),"polarity": np.array(polarity), "subjectivity":np.array(subjectivity)})
+    df.to_csv(file_name+".csv", index=False, mode='a', header=False, encoding='utf8')
 
 
 def get_tweets(pos_f, neg_f):
@@ -64,7 +75,7 @@ def get_vocabulary():
     return list(set(dict.fromkeys(vocabulary)))
 
 
-def separate_data(data):
+def separate_data(data, language = 'heb'):
     """
     separate data to features and labels
     :param data: original data
@@ -87,22 +98,101 @@ def separate_data(data):
             polarity = list(df_data.polarity)
             subjectivity = list(df_data.is_topic)
         ids = df_data.iloc[:, 2].values
+        lan = 'input'
+        if language == 'en':
+            lan = 'translatedText'
+
         for _, item in df_data.iterrows():
             if type(item['extended_tweet']) is not float:
                 if type(item['extended_tweet']['full_text']) is list:
-                    if item['extended_tweet']['full_text'].__len__() == 0:
-                        ids.Remove(item['id_str'])
-                    features.append(item['extended_tweet']['full_text'][0]['input'])
+                    # if item['extended_tweet']['full_text'].__len__() == 0:
+                    #     ids.Remove(item['id_str'])
+                    features.append(item['extended_tweet']['full_text'][0][lan])
                 else:
                     features.append(item['extended_tweet']['full_text'])
             else:
                 if type(item['text']) is list:
-                    if item['text'].__len__() == 0:
-                        ids.Remove(item['id_str'])
-                    features.append(item['text'][0]['input'])
+                    # if item['text'].__len__() == 0:
+                    #     ids.Remove(item['id_str'])
+                    features.append(item['text'][0][lan])
                 else:
                     features.append(item['text'])
         return ids, features, polarity, subjectivity
     except:
         print("can't separate data")
-        print("can't separate data")
+
+
+def extract_stop_words():
+    """
+    deserialize vocabulary file
+    :return: list of words
+    """
+    with open(STOP_WORDS, 'r', encoding="utf-8") as file:
+        vocabulary = file.read().split('\n')
+        return vocabulary
+
+
+def clean_data(data):
+    ids = data[:, 0]
+    features = data[:, 1]
+    polarity = data[:, 2].astype(int)
+    subjectivity = data[:, 3].astype(int)
+    return ids, features, polarity, subjectivity
+
+
+def get_tweets_from_csv():
+    df = pd.read_csv(filepath_or_buffer=TWEETS_CSV_FILE)
+    train_size = int(df.__len__() * 0.8)
+    random.shuffle(df.values)
+    train = df.loc[:train_size,:]
+    test = df.loc[train_size:,:]
+    return train, test
+
+
+def add_dictionary_feature(ids, data, polarity, lan='hebrew'):
+    df = pd.DataFrame({'ids': ids, 'tweet_words': data, 'label': polarity})
+    df = get_tweets_weights_feature(df, language=lan)
+    return df['vocab_feature']
+
+
+def calc_avg(param):
+    return str(((param[0] + param[1] + param[2] + param[3] + param[4])/5)*100)
+
+
+def check_values_acc(predictions, filtered_test_set, polarity):
+    right = 0
+    almost_right = 0
+    if polarity is True:
+        for real_pol, predict_pol in zip(filtered_test_set[2], predictions[1]):
+            if real_pol == predict_pol:
+                right += 1
+            if real_pol == predict_pol + 1 or real_pol == predict_pol - 1 or real_pol == predict_pol:
+                almost_right += 1
+        print("Polarity: The real accuracy in this iteration -> " + str(right/len(predictions[1])))
+        print("Polarity: The almost real accuracy in this iteration -> " + str(almost_right / len(predictions[1])))
+    else:
+        for real_subject, predict_subject in zip(filtered_test_set[3], predictions[1]):
+            if real_subject == predict_subject:
+                right += 1
+            if predict_subject !=0 and predict_subject!=1:
+                print(predict_subject)
+        print("Subjectivity: The real Subjectivity in this iteration -> " + str(right / len(predictions[1])))
+
+
+# TODO
+def remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zero_index_list):
+    objects_to_convert = list()
+    objects_to_convert.extend([train_ids, filtered_data_train, polarity_Y, subjectivity_Y])
+
+    for obj, i in zip(objects_to_convert, range(len(objects_to_convert))):
+        if type(obj) is list:
+            objects_to_convert[i] = [i for j, i in enumerate(obj) if j not in zero_index_list]
+            # for index in zero_index_list:
+            #     obj.remove(index)
+        elif type(obj) is np.ndarray:
+            for index in zero_index_list:
+                objects_to_convert[i] = np.delete(obj, index)
+        else:
+            print("wrong objects to remove the zeros")
+
+    return train_ids, filtered_data_train, polarity_Y, subjectivity_Y
