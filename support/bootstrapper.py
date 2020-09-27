@@ -44,10 +44,9 @@ class Bootstrapper(object):
             self.my_model_test_tweets = self.get_test_tweets()
             model_results, confidence, sub_results, sub_confidence= \
             self.my_model.run(self.model_data_set, self.my_model_test_tweets, self.is_loaded, IS_STEMMED)
-            self.is_loaded = True
             self.validate_model_solution(model_results, confidence, sub_results, sub_confidence)
         self.save_new_train_set()
-        #self.my_model.save_models()
+        self.my_model.save_models()
         #return
 
     def get_test_tweets(self):
@@ -116,6 +115,6 @@ if __name__ == '__main__':
     else:
         train, test = mUtils.get_train_test_tweets()
     stop_words = mUtils.extract_stop_words()
-    model = Model(stop_words)
+    model = Model(stop_words, language='english')
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()
