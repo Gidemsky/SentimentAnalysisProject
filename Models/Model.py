@@ -22,7 +22,7 @@ class Model:
         self.filtered_train_set = None
         self.filtered_test_set = None
         self.language = language
-        if language == 'en':
+        if language == 'english':
             self.vectorizer = TfidfVectorizer(sublinear_tf=True, max_features=2500, min_df=0.005, max_df=0.9,
                                           stop_words='english', ngram_range=(1, 2))
         else:
@@ -40,7 +40,7 @@ class Model:
         else:
             train_ids, train_X, polarity_Y, subjectivity_Y = mUtils.separate_data(train_set, self.language)
 
-        dic_feature = pd.Series.to_numpy(mUtils.add_dictionary_feature(train_ids, train_X, polarity_Y))
+        dic_feature = pd.Series.to_numpy(mUtils.add_dictionary_feature(train_ids, train_X, polarity_Y, self.language))
         filtered_data_train, zero_index_list = \
         self.model_helper.filter_data\
             (train_X, self.vectorizer, train_ids, polarity_Y,
@@ -55,7 +55,8 @@ class Model:
         else:
             test_ids, test_X, test_polarity, test_subjectivity = mUtils.separate_data(test_set, self.language)
 
-        dic_feature = pd.Series.to_numpy(mUtils.add_dictionary_feature(test_ids, test_X, np.empty(test_X.__len__())))
+        dic_feature = pd.Series.to_numpy(mUtils.add_dictionary_feature(test_ids, test_X,
+                                         np.empty(test_X.__len__()), lan=self.language))
         filtered_data_test, zero_index_list = self.model_helper.filter_data\
             (test_X, self.vectorizer, test_ids, test_polarity,
              test_subjectivity, language=self.language, is_filtered=stemmed, is_train=False)

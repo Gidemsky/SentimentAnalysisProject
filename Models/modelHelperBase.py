@@ -10,6 +10,7 @@ from joblib import dump, load
 from Models.Stemmer import get_base_sentence_heb
 from Models.HebrewParser import get_parsed_heb_text
 from Models.model_utils import save_file
+from nltk.stem.snowball import SnowballStemmer
 
 TRESHHOLD = 0.5
 RANDOM_FOREST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\polarity_model.joblib"
@@ -28,7 +29,7 @@ class modelHelperBase:
         self.models = {}
 
     def filter_data(self, features, vectorizer, ids, polarity,
-                    subjectivity, is_train, language='heb', is_filtered = False):
+                    subjectivity, is_train, language='hebrew', is_filtered = False):
         """
         filter redundant tokens and returns each feature as a vector v witch represents
         the words the feature contains
@@ -37,6 +38,7 @@ class modelHelperBase:
         :param vectorizer: tfidfvectorizer
         :return: filtered and vectorized train and test sets
         """
+        stemmer = SnowballStemmer("english")
         self.start_index = 0
         if not is_filtered:
             i = 0
@@ -51,7 +53,7 @@ class modelHelperBase:
                 processed_feature = re.sub(r'\W', ' ', processed_feature)
 
                 # remove english chars - IMPORTANT: use only for hebrew models!
-                if language == 'heb':
+                if language == 'hebrew':
                     processed_feature = re.sub(r'[a-zA-Z]', '', processed_feature)
 
                 # remove all single characters
@@ -69,12 +71,15 @@ class modelHelperBase:
                 # Converting to Lowercase
                 processed_feature = processed_feature.lower()
 
-                # time.sleep(3)
-                # if processed_feature != '' and processed_feature != ' ':
-                #     processed_feature = get_parsed_heb_text(processed_feature)
-                #
-                # processed_feature = re.sub(r'(?:^| )\w(?:$| )', ' ', processed_feature).strip()
-                #
+                if language=='english':
+                    processed_feature = stemmer.stem(processed_feature)
+                #else:
+                    # time.sleep(3)
+                    # if processed_feature != '' and processed_feature != ' ':
+                    #     processed_feature = get_parsed_heb_text(processed_feature)
+                    #
+                    # processed_feature = re.sub(r'(?:^| )\w(?:$| )', ' ', processed_feature).strip()
+                    #
                 processed_features.append(processed_feature)
                 #
                 # self.save_base_sentences(ids, features, polarity,

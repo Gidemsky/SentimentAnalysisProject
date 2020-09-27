@@ -99,7 +99,7 @@ def separate_data(data, language = 'heb'):
             subjectivity = list(df_data.is_topic)
         ids = df_data.iloc[:, 2].values
         lan = 'input'
-        if language == 'en':
+        if language == 'english':
             lan = 'translatedText'
 
         for _, item in df_data.iterrows():
