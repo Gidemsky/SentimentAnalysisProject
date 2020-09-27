@@ -3,13 +3,13 @@ from support.Utils import separate_debug_print_small, send_report_by_email, crea
 
 LOGGING = True
 
-MAIN_JSON_FILE = 'no-labeled-tweets.json'
+MAIN_JSON_FILE = 'test-set.json'
 
 # creates the google access API
 google = GoogleTranslateAPI()
 
-TARGET_LANG = 'iw'
-SRC_LANG = 'ar'
+TARGET_LANG = 'en'
+SRC_LANG = 'iw'
 
 
 def json_translation(json_list):
@@ -74,7 +74,8 @@ def json_translation(json_list):
 
 
 if __name__ == '__main__':
-    list_to_translate = get_json_tweet_list('Temp files/unlabeled JSON/' + MAIN_JSON_FILE)
+    #list_to_translate = get_json_tweet_list('Temp files/unlabeled JSON/' + MAIN_JSON_FILE)
+    list_to_translate = get_json_tweet_list("test json for bootstraper.json")
 
     json_translation(list_to_translate)
 
