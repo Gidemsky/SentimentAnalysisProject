@@ -8,8 +8,8 @@ import nltk
 IS_STEMMED = False
 TEST_RATIO = 10
 VALIDATION_CONST = 0.7
-MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
-TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
+MANUAL_LABELING_FILE = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\Models\Data\manual_labeling.json"
+TRAIN_FILE = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\Models\Data\train-set for the bootstrapper.json"
 
 
 class Bootstrapper(object):
@@ -115,6 +115,7 @@ if __name__ == '__main__':
     else:
         train, test = mUtils.get_train_test_tweets()
     stop_words = mUtils.extract_stop_words()
-    model = Model(stop_words, language='english')
+    # model = Model(stop_words, language='english')
+    model = Model(stop_words)
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()

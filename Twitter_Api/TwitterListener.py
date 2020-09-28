@@ -7,8 +7,8 @@ from support.Utils import send_report_by_email, separate_debug_print_small
 EMAIL_MAIL_MSG = "The number of the tweets we have been accumulating so far is: "
 
 # constants
-SAVING_CONSTANT = 100
-EMAIL_CONSTANT = 1000
+SAVING_CONSTANT = 250
+EMAIL_CONSTANT = 500
 
 
 # # # # TWITTER STREAM LISTENER # # # #

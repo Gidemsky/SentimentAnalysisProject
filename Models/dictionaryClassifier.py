@@ -412,8 +412,8 @@ def run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weigh
 
 
 def get_tweets_weights_feature(tweets_df, language):
-    pos_weights_df_fname = f'C:\SentimentAnalysisProject\\vocabularies\\final_extended_pos_pearson_{language}.csv'
-    neg_weights_df_fname = f'C:\SentimentAnalysisProject\\vocabularies\\final_extended_neg_pearson_{language}.csv'
+    pos_weights_df_fname = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\vocabularies\final_extended_pos_pearson_{}.csv".format(language)
+    neg_weights_df_fname = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\vocabularies\final_extended_neg_pearson_{}.csv".format(language)
     pos_words_weights = pd.read_csv(pos_weights_df_fname)
     neg_words_weights = pd.read_csv(neg_weights_df_fname)
     tweets_df['new_label'] = tweets_df['label']

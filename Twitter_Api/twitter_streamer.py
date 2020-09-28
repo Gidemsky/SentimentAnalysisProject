@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     script_opener("Tweets Downloading")
     file_extractor = FileExtracor()
-    hash_tag_list = file_extractor.extract_file("key_words.txt")
+    hash_tag_list = file_extractor.extract_file("arabic_key_words.txt")
     fetched_tweets_filename = "tweets.json"
 
     twitter_streamer = TwitterStreamer()

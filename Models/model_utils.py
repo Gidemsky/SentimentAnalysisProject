@@ -7,10 +7,10 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-TEST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\oria_pos.json"
-TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
-STOP_WORDS = "C:\\SentimentAnalysisProject\Models\Data\\heb_stop_words.txt"
-TWEETS_CSV_FILE = "C:\\SentimentAnalysisProject\Models\Data\\train.csv"
+TEST_FILE = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\Models\Data\test set for the bootstrapper.json"
+TRAIN_FILE = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\Models\Data\train-set for the bootstrapper.json"
+STOP_WORDS = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\Models\Data\heb_stop_words.txt"
+TWEETS_CSV_FILE = r"C:\Users\User\PycharmProjects\SentimentAnalysisProject\Models\Data\train.csv"
 
 def save_results(df, nm, is_trans):
     """
