@@ -8,8 +8,8 @@ import nltk
 IS_STEMMED = False
 TEST_RATIO = 10
 VALIDATION_CONST = 0.7
-MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
-TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
+MANUAL_LABELING_FILE = "../Models/Data/manual_labeling.json"
+TRAIN_FILE = "../Models/Data/train-set for the bootstrapper.json"
 
 
 class Bootstrapper(object):
@@ -39,12 +39,16 @@ class Bootstrapper(object):
         """
         self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
         random.shuffle(self.none_labeled_tweets)
+        i = 1
         while self.none_labeled_tweets != None and self.none_labeled_tweets.__len__() > 0:
+            print("\nstart of execute number -> " + str(i))
             random.shuffle(self.model_data_set)
             self.my_model_test_tweets = self.get_test_tweets()
-            model_results, confidence, sub_results, sub_confidence= \
+            model_results, confidence, sub_results, sub_confidence = \
             self.my_model.run(self.model_data_set, self.my_model_test_tweets, self.is_loaded, IS_STEMMED)
             self.validate_model_solution(model_results, confidence, sub_results, sub_confidence)
+            print("\nend of execute number -> " + str(i) + "\n")
+            i += 1
         self.save_new_train_set()
         self.my_model.save_models()
         #return
@@ -86,7 +90,7 @@ class Bootstrapper(object):
         :param sub_res: example subjectivity prediction
         """
         tweet = self.find_by_id(id)
-        tweet["label"] = {"positivity": str(result), "relative subject": str(sub_res)} # TODO: why here???
+        tweet["label"] = {"positivity": str(result), "relative subject": str(sub_res)}
         self.final_data.append(tweet)
         self.model_data_set.append(tweet)
 
