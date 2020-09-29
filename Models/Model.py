@@ -8,7 +8,7 @@ from support.Utils import separate_debug_print_big, separate_debug_print_small
 
 MODEL_NAME = "random forest"
 SUBJECTIVITY_MODEL_NAME = "svm"
-TRESHOLD = 0.6
+TRESHOLD = 0.65
 POLARITY_MODEL_FILE = "polarity_model.joblib"
 SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
 
@@ -64,14 +64,14 @@ class Model:
 
         return mUtils.remove_zeros(test_ids, filtered_data_test, test_polarity, test_subjectivity, zero_index_list)
 
-    def run_model(self, model_name, train_set, train_set_labels, test_set, is_loaded = True , polarity=False):
+    def run_model(self, model_name, train_set, train_set_labels, test_set, is_loaded, polarity=False):
         """
         runs a specific model and gets prediction for test set
         :param model_name: name of current model
         :param train_set_labels: labels type for train set (polarity / subjectivity)
         :return: prediction and confidence of current model
         """
-        if is_loaded:
+        if not is_loaded:
             self.model_helper.create_model(model_name)
         else:
             self.model_helper.load_model(model_name)
@@ -84,11 +84,11 @@ class Model:
         print(" Cross Validation Accuracy: ", accuracy[1], " Average ->", mUtils.calc_avg(accuracy[1]), "%")
         if self.filtered_test_set[3] is not None:
             mUtils.check_values_acc(predictions, self.filtered_test_set, polarity)
-            separate_debug_print_big(title="end of iteration")
+        separate_debug_print_big(title="end of iteration")
 
         return predictions, confidence
 
-    def run(self, train_set, test_set, is_loaded = True, stemmed = False):
+    def run(self, train_set, test_set, is_loaded, stemmed = False):
         """
         runs one model for polarity predictions and the second for subjectivity predictions
         :param train_set: train set for training both models - each one with different labels type
@@ -103,7 +103,8 @@ class Model:
         s_predictions, s_confidence = self.run_model(SUBJECTIVITY_MODEL_NAME,
                                                      self.filtered_train_set[1],
                                                      self.filtered_train_set[3],
-                                                     self.filtered_test_set[1]
+                                                     self.filtered_test_set[1],
+                                                     is_loaded
                                                      )
 
         regressed_train_set = self.get_regressed_features()
@@ -113,6 +114,7 @@ class Model:
                                                      regressed_train_set,
                                                      self.filtered_train_set[2],
                                                      self.filtered_test_set[1],
+                                                     is_loaded,
                                                      polarity=True)
 
         return p_predictions, p_confidence, s_predictions, s_confidence

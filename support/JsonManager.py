@@ -125,7 +125,7 @@ class JsonManager(object):
 
 if __name__ == '__main__':
     #     create_sub_json(
-    #         src_json='Temp files/Json manager results/no-labeled-tweets.json', destination_json_size=1000,
+    #         src_json='Temp files/Json manager results/no-labeled-tweets0.json', destination_json_size=1000,
     #         destination_file_number=2)
     #
     #     create_sub_json_by_label(src_json="Temp files/Json manager results/new total labeled.json", label_to_save=3)

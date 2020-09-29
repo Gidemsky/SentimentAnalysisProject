@@ -8,8 +8,8 @@ import nltk
 IS_STEMMED = False
 TEST_RATIO = 10
 VALIDATION_CONST = 0.7
-MANUAL_LABELING_FILE = "C:\\SentimentAnalysisProject\\Models\Data\\manual_labeling.json"
-TRAIN_FILE = "C:\\SentimentAnalysisProject\Models\Data\\labeled_tweets2.json"
+MANUAL_LABELING_FILE = "../Models/Data/manual_labeling.json"
+TRAIN_FILE = "../Models/Data/train-set for the bootstrapper.json"
 
 
 class Bootstrapper(object):
@@ -29,7 +29,7 @@ class Bootstrapper(object):
             self.model_data_set = train_set
         self.final_data = list()
         self.manual_labeling = []
-        self.is_loaded = False
+        self.is_loaded = True
 
     def execute(self):
         """
@@ -39,12 +39,17 @@ class Bootstrapper(object):
         """
         self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
         random.shuffle(self.none_labeled_tweets)
+        i = 1
         while self.none_labeled_tweets != None and self.none_labeled_tweets.__len__() > 0:
+            print("\nstart of execute number -> " + str(i))
+            print("tweets left: " + str(len(self.none_labeled_tweets)))
             random.shuffle(self.model_data_set)
             self.my_model_test_tweets = self.get_test_tweets()
-            model_results, confidence, sub_results, sub_confidence= \
+            model_results, confidence, sub_results, sub_confidence = \
             self.my_model.run(self.model_data_set, self.my_model_test_tweets, self.is_loaded, IS_STEMMED)
             self.validate_model_solution(model_results, confidence, sub_results, sub_confidence)
+            print("\nend of execute number -> " + str(i) + "\n")
+            i += 1
         self.save_new_train_set()
         self.my_model.save_models()
         #return
@@ -72,11 +77,14 @@ class Bootstrapper(object):
         :param sub_results: subjectivity predictions
         :param sub_confidence: probability of subjectivity predictions
         """
+        good_res_tweets = 0
         for id, conf, res, sub_conf, sub_res in zip(results[0], confidence, results[1], sub_confidence, sub_results[1]):
             if conf[res-1] >= VALIDATION_CONST/5 and sub_conf[sub_res] >= VALIDATION_CONST:
+                good_res_tweets += 1
                 self.append_to_train_set(id, res, sub_res)
             else:
                 self.manual_labeling.append(self.find_by_id(id))
+        print(str(good_res_tweets) + " was added to the train set")
 
     def append_to_train_set(self, id, result, sub_res):
         """
@@ -86,7 +94,7 @@ class Bootstrapper(object):
         :param sub_res: example subjectivity prediction
         """
         tweet = self.find_by_id(id)
-        tweet["label"] = {"positivity": str(result), "relative subject": str(sub_res)} # TODO: why here???
+        tweet["label"] = {"positivity": str(result), "relative subject": str(sub_res)}
         self.final_data.append(tweet)
         self.model_data_set.append(tweet)
 
@@ -115,6 +123,7 @@ if __name__ == '__main__':
     else:
         train, test = mUtils.get_train_test_tweets()
     stop_words = mUtils.extract_stop_words()
-    model = Model(stop_words, language='english')
+    # model = Model(stop_words, language='english')
+    model = Model(stop_words)
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()

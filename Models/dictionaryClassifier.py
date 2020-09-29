@@ -8,15 +8,15 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 datetime_object = datetime.now()
 dt = datetime_object.strftime("%d_%m_%H_%M")
-en_he = 'english'
+en_he = 'hebrew'
 tweets_file_name = 'C:/Users/yonat/PycharmProjects/SentimentAnalysisProject/Models/Data/eng_tweets_df.csv'
 
 
 # NOTE- I CHANGED BULL**** TO BULL AND F**K TO REAL WORD
 
-def get_pos_neg_tweets_df(fname):
+def get_pos_neg_tweets_df(fname, language='hebrew'):
     tweets_df = pd.read_csv(fname)
-    tweets_df['tweet_words'] = create_tweet_words(tweets_df['tweet'])
+    tweets_df['tweet_words'] = create_tweet_words(tweets_df['tweet'], language)
     return tweets_df
 
 
@@ -30,14 +30,20 @@ def num_of_words_in_vec(a, ls_b):
 
 
 # removes symbols and any non words from tweets
-def create_tweet_words(features):
+def create_tweet_words(features, lang):
     processed_features = []
     for sentence in range(0, len(features)):
-        # Remove all the special characters
-        processed_feature = re.sub(r'\W', ' ', str(features[sentence]))
+        # remove all the user's tag
+        processed_feature = re.sub(r'@[a-zA-Z0-9]+|@ [a-zA-Z0-9]+', ' ', str(features[sentence]))
 
-        # remove all single characters
-        processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
+        # Remove all the special characters
+        processed_feature = re.sub(r'\W', ' ', str(processed_feature))
+
+        # remove all single characters except of 'I'
+        if lang == 'english':
+            processed_feature = re.sub(r'\s+[a-zA-HJ-Z]\s+', ' ', processed_feature)
+        else:
+            processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
 
         # Remove single characters from the start
         processed_feature = re.sub(r'\^[a-zA-Z]\s+', ' ', processed_feature)
@@ -412,8 +418,10 @@ def run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weigh
 
 
 def get_tweets_weights_feature(tweets_df, language):
-    pos_weights_df_fname = f'C:\SentimentAnalysisProject\\vocabularies\\final_extended_pos_pearson_{language}.csv'
-    neg_weights_df_fname = f'C:\SentimentAnalysisProject\\vocabularies\\final_extended_neg_pearson_{language}.csv'
+    pos_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_neg_pearson_heb.csv"
+    neg_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_pos_pearson_heb.csv"
+    # pos_weights_df_fname = r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_pos_pearson_heb.csv'
+    # neg_weights_df_fname = r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_neg_pearson_heb.csv'
     pos_words_weights = pd.read_csv(pos_weights_df_fname)
     neg_words_weights = pd.read_csv(neg_weights_df_fname)
     tweets_df['new_label'] = tweets_df['label']
