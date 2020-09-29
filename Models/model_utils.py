@@ -7,10 +7,11 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-TEST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\test set for the bootstrapper.json"
+TEST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\No Labeled Transalated Tweets 1.json"
 TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\train-set for the bootstrapper.json"
 STOP_WORDS = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\heb_stop_words.txt"
 TWEETS_CSV_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\train.csv"
+
 
 def save_results(df, nm, is_trans):
     """
@@ -192,7 +193,7 @@ def remove_zeros(train_ids, filtered_data_train, polarity_Y, subjectivity_Y, zer
         elif type(obj) is np.ndarray:
             for index in zero_index_list:
                 objects_to_convert[i] = np.delete(obj, index)
-        else:
-            print("wrong objects to remove the zeros")
+        # else:
+        #     print("wrong objects to remove the zeros")
 
     return train_ids, filtered_data_train, polarity_Y, subjectivity_Y

@@ -13,8 +13,8 @@ from Models.model_utils import save_file
 from nltk.stem.snowball import SnowballStemmer
 
 TRESHHOLD = 0.5
-RANDOM_FOREST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\polarity_model.joblib"
-SVM_FILE = "C:\\SentimentAnalysisProject\Models\Data\\subjectivity_model.joblib"
+RANDOM_FOREST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\polarity_model.joblib"
+SVM_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\subjectivity_model.joblib"
 
 
 class modelHelperBase:

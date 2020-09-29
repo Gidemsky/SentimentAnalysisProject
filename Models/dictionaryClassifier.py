@@ -14,9 +14,9 @@ tweets_file_name = 'C:/Users/yonat/PycharmProjects/SentimentAnalysisProject/Mode
 
 # NOTE- I CHANGED BULL**** TO BULL AND F**K TO REAL WORD
 
-def get_pos_neg_tweets_df(fname):
+def get_pos_neg_tweets_df(fname, language='hebrew'):
     tweets_df = pd.read_csv(fname)
-    tweets_df['tweet_words'] = create_tweet_words(tweets_df['tweet'])
+    tweets_df['tweet_words'] = create_tweet_words(tweets_df['tweet'], language)
     return tweets_df
 
 
@@ -30,14 +30,20 @@ def num_of_words_in_vec(a, ls_b):
 
 
 # removes symbols and any non words from tweets
-def create_tweet_words(features):
+def create_tweet_words(features, lang):
     processed_features = []
     for sentence in range(0, len(features)):
-        # Remove all the special characters
-        processed_feature = re.sub(r'\W', ' ', str(features[sentence]))
+        # remove all the user's tag
+        processed_feature = re.sub(r'@[a-zA-Z0-9]+|@ [a-zA-Z0-9]+', ' ', str(features[sentence]))
 
-        # remove all single characters
-        processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
+        # Remove all the special characters
+        processed_feature = re.sub(r'\W', ' ', str(processed_feature))
+
+        # remove all single characters except of 'I'
+        if lang == 'english':
+            processed_feature = re.sub(r'\s+[a-zA-HJ-Z]\s+', ' ', processed_feature)
+        else:
+            processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
 
         # Remove single characters from the start
         processed_feature = re.sub(r'\^[a-zA-Z]\s+', ' ', processed_feature)

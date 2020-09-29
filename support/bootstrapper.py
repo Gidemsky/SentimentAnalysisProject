@@ -29,7 +29,7 @@ class Bootstrapper(object):
             self.model_data_set = train_set
         self.final_data = list()
         self.manual_labeling = []
-        self.is_loaded = False
+        self.is_loaded = True
 
     def execute(self):
         """
@@ -42,6 +42,7 @@ class Bootstrapper(object):
         i = 1
         while self.none_labeled_tweets != None and self.none_labeled_tweets.__len__() > 0:
             print("\nstart of execute number -> " + str(i))
+            print("tweets left: " + str(len(self.none_labeled_tweets)))
             random.shuffle(self.model_data_set)
             self.my_model_test_tweets = self.get_test_tweets()
             model_results, confidence, sub_results, sub_confidence = \
@@ -76,11 +77,14 @@ class Bootstrapper(object):
         :param sub_results: subjectivity predictions
         :param sub_confidence: probability of subjectivity predictions
         """
+        good_res_tweets = 0
         for id, conf, res, sub_conf, sub_res in zip(results[0], confidence, results[1], sub_confidence, sub_results[1]):
             if conf[res-1] >= VALIDATION_CONST/5 and sub_conf[sub_res] >= VALIDATION_CONST:
+                good_res_tweets += 1
                 self.append_to_train_set(id, res, sub_res)
             else:
                 self.manual_labeling.append(self.find_by_id(id))
+        print(str(good_res_tweets) + " was added to the train set")
 
     def append_to_train_set(self, id, result, sub_res):
         """
@@ -119,6 +123,7 @@ if __name__ == '__main__':
     else:
         train, test = mUtils.get_train_test_tweets()
     stop_words = mUtils.extract_stop_words()
-    model = Model(stop_words, language='english')
+    # model = Model(stop_words, language='english')
+    model = Model(stop_words)
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()
