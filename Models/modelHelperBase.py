@@ -11,6 +11,7 @@ from Models.Stemmer import get_base_sentence_heb
 from Models.HebrewParser import get_parsed_heb_text
 from Models.model_utils import save_file
 from nltk.stem.snowball import SnowballStemmer
+from nltk.tokenize import word_tokenize
 
 TRESHHOLD = 0.5
 RANDOM_FOREST_FILE = "C:\\SentimentAnalysisProject\Models\Data\\polarity_model.joblib"
@@ -71,8 +72,9 @@ class modelHelperBase:
                 # Converting to Lowercase
                 processed_feature = processed_feature.lower()
 
-                if language=='english':
-                    processed_feature = stemmer.stem(processed_feature)
+                if language == 'english':
+                    word_tokens = processed_feature.split(' ')
+                    processed_feature = ' '.join([stemmer.stem(token) for token in word_tokens])
                 #else:
                     # time.sleep(3)
                     # if processed_feature != '' and processed_feature != ' ':
