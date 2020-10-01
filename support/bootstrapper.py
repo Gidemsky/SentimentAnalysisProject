@@ -7,9 +7,9 @@ import nltk
 
 IS_STEMMED = False
 TEST_RATIO = 10
-VALIDATION_CONST = 0.7
-MANUAL_LABELING_FILE = "../Models/Data/manual_labeling.json"
-TRAIN_FILE = "../Models/Data/train-set for the bootstrapper.json"
+VALIDATION_CONST = 0.75
+MANUAL_LABELING_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\manual_labeling.json"
+TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\Train-Set.json"
 
 
 class Bootstrapper(object):
@@ -28,8 +28,9 @@ class Bootstrapper(object):
             self.none_labeled_tweets = data_test
             self.model_data_set = train_set
         self.final_data = list()
-        self.manual_labeling = []
+        self.manual_labeling = get_json_tweet_list(MANUAL_LABELING_FILE)
         self.is_loaded = True
+        self.ratio = 0
 
     def execute(self):
         """
@@ -37,10 +38,10 @@ class Bootstrapper(object):
         (with high probability) to the data_set - for training the model in the future.
         the loop runs until the test_set is empty.
         """
-        self.ratio = int(len(self.model_data_set)*(TEST_RATIO/100))
+        self.ratio = int(len(self.model_data_set) * (TEST_RATIO / 100))
         random.shuffle(self.none_labeled_tweets)
         i = 1
-        while self.none_labeled_tweets != None and self.none_labeled_tweets.__len__() > 0:
+        while self.none_labeled_tweets is not None and self.none_labeled_tweets.__len__() > 0:
             print("\nstart of execute number -> " + str(i))
             print("tweets left: " + str(len(self.none_labeled_tweets)))
             random.shuffle(self.model_data_set)
@@ -52,15 +53,14 @@ class Bootstrapper(object):
             i += 1
         self.save_new_train_set()
         self.my_model.save_models()
-        #return
 
     def get_test_tweets(self):
         """
         each time the function return a slice of the test_set
         :return: test set for current iteration
         """
+        self.ratio = int(len(self.model_data_set) * (TEST_RATIO / 100))
         test_tweets = self.none_labeled_tweets
-
         if len(test_tweets) > self.ratio:
             test_tweets = test_tweets[: self.ratio]
             self.none_labeled_tweets = self.none_labeled_tweets[self.ratio: -1]
@@ -117,7 +117,6 @@ class Bootstrapper(object):
 
 if __name__ == '__main__':
     script_opener(script_title="Bootstrapper")
-    get_json_tweet_list(MANUAL_LABELING_FILE)
     if IS_STEMMED:
         train, test = mUtils.get_tweets_from_csv()
     else:

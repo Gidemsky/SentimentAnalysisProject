@@ -2,13 +2,14 @@ import csv
 import json
 import random
 from Models.dictionaryClassifier import get_tweets_weights_feature
+from support import bootstrapper
 from support.Utils import get_json_tweet_list
 from datetime import datetime
 import pandas as pd
 import numpy as np
 
-TEST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\No Labeled Transalated Tweets 1.json"
-TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\train-set for the bootstrapper.json"
+TEST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\No Labeled Translated Tweets 2.json"
+TRAIN_FILE = bootstrapper.TRAIN_FILE
 STOP_WORDS = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\heb_stop_words.txt"
 TWEETS_CSV_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\train.csv"
 
@@ -60,7 +61,6 @@ def get_tweets(pos_f, neg_f):
 def get_train_test_tweets():
     train_set = get_json_tweet_list(TRAIN_FILE)
     test_set = get_json_tweet_list(TEST_FILE)
-
     return train_set, test_set
 
 

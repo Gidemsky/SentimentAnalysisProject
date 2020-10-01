@@ -30,20 +30,14 @@ def num_of_words_in_vec(a, ls_b):
 
 
 # removes symbols and any non words from tweets
-def create_tweet_words(features, lang):
+def create_tweet_words(features):
     processed_features = []
     for sentence in range(0, len(features)):
-        # remove all the user's tag
-        processed_feature = re.sub(r'@[a-zA-Z0-9]+|@ [a-zA-Z0-9]+', ' ', str(features[sentence]))
-
         # Remove all the special characters
-        processed_feature = re.sub(r'\W', ' ', str(processed_feature))
+        processed_feature = re.sub(r'\W', ' ', str(features[sentence]))
 
-        # remove all single characters except of 'I'
-        if lang == 'english':
-            processed_feature = re.sub(r'\s+[a-zA-HJ-Z]\s+', ' ', processed_feature)
-        else:
-            processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
+        # remove all single characters
+        processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
 
         # Remove single characters from the start
         processed_feature = re.sub(r'\^[a-zA-Z]\s+', ' ', processed_feature)
