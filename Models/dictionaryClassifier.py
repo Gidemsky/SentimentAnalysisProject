@@ -418,8 +418,8 @@ def run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weigh
 
 
 def get_tweets_weights_feature(tweets_df, language):
-    pos_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_neg_pearson_heb.csv"
-    neg_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_pos_pearson_heb.csv"
+    pos_weights_df_fname = f"C:\SentimentAnalysisProject\\vocabularies\\final_extended_neg_pearson_{language}.csv"
+    neg_weights_df_fname = f"C:\SentimentAnalysisProject\\vocabularies\\final_extended_pos_pearson_{language}.csv"
     # pos_weights_df_fname = r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_pos_pearson_heb.csv'
     # neg_weights_df_fname = r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_neg_pearson_heb.csv'
     pos_words_weights = pd.read_csv(pos_weights_df_fname)

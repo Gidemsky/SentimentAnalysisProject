@@ -14,8 +14,8 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.tokenize import word_tokenize
 
 TRESHHOLD = 0.5
-RANDOM_FOREST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\polarity_model.joblib"
-SVM_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\subjectivity_model.joblib"
+RANDOM_FOREST_FILE = r"C:\SentimentAnalysisProject\Models\Data\polarity_model.joblib"
+SVM_FILE = r"C:\SentimentAnalysisProject\Models\Data\subjectivity_model.joblib"
 
 
 class modelHelperBase:
