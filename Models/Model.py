@@ -14,7 +14,7 @@ SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
 
 
 class Model:
-    def __init__(self, stop_words, language='heb'):
+    def __init__(self, stop_words, language='hebrew'):
         """
         model constructor
         """
