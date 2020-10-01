@@ -8,7 +8,7 @@ from support.Utils import separate_debug_print_big, separate_debug_print_small
 
 MODEL_NAME = "random forest"
 SUBJECTIVITY_MODEL_NAME = "svm"
-TRESHOLD = 0.65
+TRESHOLD = 0.7
 POLARITY_MODEL_FILE = "polarity_model.joblib"
 SUBJECTIVITY_MODEL_FILE = "subjectivity_model.joblib"
 

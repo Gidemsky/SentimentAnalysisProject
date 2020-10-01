@@ -30,7 +30,7 @@ class modelHelperBase:
         self.models = {}
 
     def filter_data(self, features, vectorizer, ids, polarity,
-                    subjectivity, is_train, language='hebrew', is_filtered = False):
+                    subjectivity, is_train, language='hebrew', is_filtered=False):
         """
         filter redundant tokens and returns each feature as a vector v witch represents
         the words the feature contains
@@ -43,19 +43,24 @@ class modelHelperBase:
         self.start_index = 0
         if not is_filtered:
             i = 0
-            index = 0
             processed_features = []
             for sentence in features:
                 i += 1
                 # Remove all words with @ characters
-                processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
+                if language == 'hebrew':
+                    processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
+                else:
+                    # remove all the user's tag - english case
+                    processed_feature = re.sub(r'@[a-zA-Z0-9]+|@ [a-zA-Z0-9]+', ' ', str(features[sentence]))
 
                 # Remove all the special characters
                 processed_feature = re.sub(r'\W', ' ', processed_feature)
 
                 # remove english chars - IMPORTANT: use only for hebrew models!
-                if language == 'hebrew':
-                    processed_feature = re.sub(r'[a-zA-Z]', '', processed_feature)
+                if language == 'english':
+                    processed_feature = re.sub(r'\s+[a-zA-HJ-Z]\s+', ' ', processed_feature)
+                else:
+                    processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
 
                 # remove all single characters
                 processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)

@@ -126,3 +126,4 @@ if __name__ == '__main__':
     model = Model(stop_words, language='english')
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()
+    bootStrapper.execute()
