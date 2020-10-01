@@ -11,6 +11,7 @@ from Models.Stemmer import get_base_sentence_heb
 from Models.HebrewParser import get_parsed_heb_text
 from Models.model_utils import save_file
 from nltk.stem.snowball import SnowballStemmer
+from nltk.tokenize import word_tokenize
 
 TRESHHOLD = 0.5
 RANDOM_FOREST_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\polarity_model.joblib"
@@ -77,14 +78,15 @@ class modelHelperBase:
                 processed_feature = processed_feature.lower()
 
                 if language == 'english':
-                    processed_feature = stemmer.stem(processed_feature)
-                # else:
-                # time.sleep(3)
-                # if processed_feature != '' and processed_feature != ' ':
-                #     processed_feature = get_parsed_heb_text(processed_feature)
-                #
-                # processed_feature = re.sub(r'(?:^| )\w(?:$| )', ' ', processed_feature).strip()
-                #
+                    word_tokens = processed_feature.split(' ')
+                    processed_feature = ' '.join([stemmer.stem(token) for token in word_tokens])
+                #else:
+                    # time.sleep(3)
+                    # if processed_feature != '' and processed_feature != ' ':
+                    #     processed_feature = get_parsed_heb_text(processed_feature)
+                    #
+                    # processed_feature = re.sub(r'(?:^| )\w(?:$| )', ' ', processed_feature).strip()
+                    #
                 processed_features.append(processed_feature)
                 #
                 # self.save_base_sentences(ids, features, polarity,
