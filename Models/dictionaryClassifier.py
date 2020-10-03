@@ -412,8 +412,8 @@ def run_weighted_classification(tweets_df_fname, pos_weights_df_fname, neg_weigh
 
 
 def get_tweets_weights_feature(tweets_df, language):
-    pos_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_neg_pearson_heb.csv"
-    neg_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_pos_pearson_heb.csv"
+    pos_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_pos_pearson_heb.csv"
+    neg_weights_df_fname = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_neg_pearson_heb.csv"
     # pos_weights_df_fname = r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_pos_pearson_heb.csv'
     # neg_weights_df_fname = r'C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\vocabularies\final_extended_neg_pearson_heb.csv'
     pos_words_weights = pd.read_csv(pos_weights_df_fname)
@@ -423,7 +423,9 @@ def get_tweets_weights_feature(tweets_df, language):
     tweets_df['new_label'] = np.where(tweets_df['label'] < 3, -1, tweets_df['new_label'])
     tweets_df['new_label'] = np.where(tweets_df['label'] == 3, 0, tweets_df['new_label'])
     tweets_df['pos_words_sum'] = tweets_df.apply(lambda x: sum_weights(x['tweet_words'], pos_words_weights), axis=1)
+    print("stage one passed")
     tweets_df['neg_words_sum'] = tweets_df.apply(lambda x: sum_weights(x['tweet_words'], neg_words_weights), axis=1)
+    print("stage two passed")
     # changing nan values to 0
     tweets_df['pos_words_sum'] = np.where(tweets_df['pos_words_sum'].isna(), 0, tweets_df['pos_words_sum'])
     tweets_df['neg_words_sum'] = np.where(tweets_df['neg_words_sum'].isna(), 0, tweets_df['neg_words_sum'])

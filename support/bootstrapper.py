@@ -9,7 +9,8 @@ IS_STEMMED = False
 TEST_RATIO = 10
 VALIDATION_CONST = 0.75
 MANUAL_LABELING_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\manual_labeling.json"
-TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\Train-Set.json"
+# TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\translated_new total labeled.json"
+TRAIN_FILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\Train-Set2.json"
 
 
 class Bootstrapper(object):

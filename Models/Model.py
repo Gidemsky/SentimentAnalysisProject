@@ -39,7 +39,7 @@ class Model:
             train_ids, train_X, polarity_Y, subjectivity_Y = mUtils.clean_data(train_set)
         else:
             train_ids, train_X, polarity_Y, subjectivity_Y = mUtils.separate_data(train_set, self.language)
-
+        print("adding train dictionary features")
         dic_feature = pd.Series.to_numpy(mUtils.add_dictionary_feature(train_ids, train_X, polarity_Y, self.language))
         filtered_data_train, zero_index_list = \
         self.model_helper.filter_data\
@@ -54,7 +54,7 @@ class Model:
             test_ids, test_X, test_polarity, test_subjectivity = mUtils.clean_data(test_set)
         else:
             test_ids, test_X, test_polarity, test_subjectivity = mUtils.separate_data(test_set, self.language)
-
+        print("adding test dictionary features")
         dic_feature = pd.Series.to_numpy(mUtils.add_dictionary_feature(test_ids, test_X,
                                          np.empty(test_X.__len__()), lan=self.language))
         filtered_data_test, zero_index_list = self.model_helper.filter_data\
@@ -98,8 +98,9 @@ class Model:
         if train_set is not None:
             self.filtered_train_set = self.from_train_to_vector(train_set, stemmed)
         self.filtered_test_set = self.from_test_to_vector(test_set, stemmed)
-
+        print("vector created!")
         # Train and test model for subjectivity results.
+        print("running the subjectivity model")
         s_predictions, s_confidence = self.run_model(SUBJECTIVITY_MODEL_NAME,
                                                      self.filtered_train_set[1],
                                                      self.filtered_train_set[3],
@@ -110,6 +111,7 @@ class Model:
         regressed_train_set = self.get_regressed_features()
 
         # Train and test model for polarity results.
+        print("running the polarity model")
         p_predictions, p_confidence = self.run_model(MODEL_NAME,
                                                      regressed_train_set,
                                                      self.filtered_train_set[2],

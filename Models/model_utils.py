@@ -76,9 +76,10 @@ def get_vocabulary():
     return list(set(dict.fromkeys(vocabulary)))
 
 
-def separate_data(data, language = 'heb'):
+def separate_data(data, language='heb'):
     """
     separate data to features and labels
+    :param language:
     :param data: original data
     :return: separated data
     """
@@ -104,20 +105,28 @@ def separate_data(data, language = 'heb'):
             lan = 'translatedText'
 
         for _, item in df_data.iterrows():
-            if type(item['extended_tweet']) is not float:
-                if type(item['extended_tweet']['full_text']) is list:
-                    # if item['extended_tweet']['full_text'].__len__() == 0:
-                    #     ids.Remove(item['id_str'])
-                    features.append(item['extended_tweet']['full_text'][0][lan])
-                else:
-                    features.append(item['extended_tweet']['full_text'])
-            else:
+            if 'extended_tweet' not in item:
                 if type(item['text']) is list:
                     # if item['text'].__len__() == 0:
                     #     ids.Remove(item['id_str'])
                     features.append(item['text'][0][lan])
                 else:
                     features.append(item['text'])
+            else:
+                if type(item['extended_tweet']) is not float:
+                    if type(item['extended_tweet']['full_text']) is list:
+                        # if item['extended_tweet']['full_text'].__len__() == 0:
+                        #     ids.Remove(item['id_str'])
+                        features.append(item['extended_tweet']['full_text'][0][lan])
+                    else:
+                        features.append(item['extended_tweet']['full_text'])
+                else:
+                    if type(item['text']) is list:
+                        # if item['text'].__len__() == 0:
+                        #     ids.Remove(item['id_str'])
+                        features.append(item['text'][0][lan])
+                    else:
+                        features.append(item['text'])
         return ids, features, polarity, subjectivity
     except:
         print("can't separate data")
