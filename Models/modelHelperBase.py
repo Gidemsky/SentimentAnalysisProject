@@ -49,7 +49,7 @@ class modelHelperBase:
             for sentence in features:
                 i += 1
                 # Remove all words with @ characters
-                if language == 'heb':
+                if language == 'hebrew':
                     processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
                 else:
                     # remove all the user's tag - english case
@@ -59,7 +59,7 @@ class modelHelperBase:
                 processed_feature = re.sub(r'\W', ' ', processed_feature)
 
                 # remove english chars - IMPORTANT: use only for hebrew models!
-                if language == 'eng':
+                if language == 'english':
                     processed_feature = re.sub(r'\s+[a-zA-HJ-Z]\s+', ' ', processed_feature)
                 else:
                     processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
