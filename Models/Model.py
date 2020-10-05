@@ -31,7 +31,7 @@ class Model:
                                               stop_words='english', ngram_range=(1, 2))
             else:
                 self.vectorizer = TfidfVectorizer(sublinear_tf=True, max_features=2500, min_df=0.005, max_df=0.9,
-                                             ngram_range=(1, 2), strip_accents='unicode', stop_words=stop_words)
+                                             ngram_range=(1, 2), strip_accents='unicode')
 
     def from_train_to_vector(self, train_set, stemmed = False):
         """
