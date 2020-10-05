@@ -30,10 +30,12 @@ class modelHelperBase:
         self.models = {}
 
     def filter_data(self, features, vectorizer, ids, polarity,
-                    subjectivity, is_train, language='hebrew', is_filtered=False):
+                    subjectivity, is_train, language, is_filtered=False):
         """
         filter redundant tokens and returns each feature as a vector v witch represents
         the words the feature contains
+        :param is_train:
+        :param language:
         :param features: train set
         :param test_X: test set
         :param vectorizer: tfidfvectorizer
@@ -47,7 +49,7 @@ class modelHelperBase:
             for sentence in features:
                 i += 1
                 # Remove all words with @ characters
-                if language == 'hebrew':
+                if language == 'heb':
                     processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
                 else:
                     # remove all the user's tag - english case
@@ -57,7 +59,7 @@ class modelHelperBase:
                 processed_feature = re.sub(r'\W', ' ', processed_feature)
 
                 # remove english chars - IMPORTANT: use only for hebrew models!
-                if language == 'english':
+                if language == 'eng':
                     processed_feature = re.sub(r'\s+[a-zA-HJ-Z]\s+', ' ', processed_feature)
                 else:
                     processed_feature = re.sub(r'\s+[a-zA-Z]\s+', ' ', processed_feature)
@@ -159,11 +161,13 @@ class modelHelperBase:
         :param train_set: train set
         :param labels: train set labels
         """
+        print("start train the model")
         model = self.models[model_name]
         if model is None:
             raise Exception('unknown model')
         self.scores = (fet_ids, cross_val_score(model, train_set, labels, cv=5))
         model.fit(train_set, labels)
+        print("train is done")
 
     def test_model(self, model_name, test_ids, test_set):
         """
