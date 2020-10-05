@@ -105,31 +105,81 @@ def separate_data(data, language='heb'):
             lan = 'translatedText'
 
         for _, item in df_data.iterrows():
-            if 'extended_tweet' not in item:
+            if type(item['extended_tweet']) is not float:
+                if type(item['extended_tweet']['full_text']) is list:
+                    # if item['extended_tweet']['full_text']._len_() == 0:
+                    #     ids.Remove(item['id_str'])
+                    features.append(item['extended_tweet']['full_text'][0][lan])
+                else:
+                    features.append(item['extended_tweet']['full_text'])
+            else:
                 if type(item['text']) is list:
-                    # if item['text'].__len__() == 0:
+                    # if item['text']._len_() == 0:
                     #     ids.Remove(item['id_str'])
                     features.append(item['text'][0][lan])
                 else:
                     features.append(item['text'])
-            else:
-                if type(item['extended_tweet']) is not float:
-                    if type(item['extended_tweet']['full_text']) is list:
-                        # if item['extended_tweet']['full_text'].__len__() == 0:
-                        #     ids.Remove(item['id_str'])
-                        features.append(item['extended_tweet']['full_text'][0][lan])
-                    else:
-                        features.append(item['extended_tweet']['full_text'])
-                else:
-                    if type(item['text']) is list:
-                        # if item['text'].__len__() == 0:
-                        #     ids.Remove(item['id_str'])
-                        features.append(item['text'][0][lan])
-                    else:
-                        features.append(item['text'])
         return ids, features, polarity, subjectivity
     except:
         print("can't separate data")
+    # """
+    # separate data to features and labels
+    # :param language:
+    # :param data: original data
+    # :return: separated data
+    # """
+    # polarity = None
+    # subjectivity = None
+    # features = []
+    # temp = None
+    # try:
+    #     df_data = pd.DataFrame(data)
+    #     if 'label' in df_data.columns:
+    #         df_data['label'] = df_data['label'].astype(str)
+    #         df_data['polarity'] = df_data['label'].str.slice(15, 17)
+    #         df_data.polarity = np.where(df_data['polarity'].str.contains('\''),
+    #                                     df_data['polarity'].str.slice(1, 2), df_data['polarity'].str.slice(0, 1))
+    #         df_data.polarity = df_data.polarity.astype(int)
+    #         df_data['subjectivity'] = df_data['label'].str.slice(41, -2)
+    #         df_data['is_topic'] = df_data['subjectivity'] == 'topic'
+    #         df_data.is_topic = df_data.is_topic.astype(int)
+    #         polarity = list(df_data.polarity)
+    #         subjectivity = list(df_data.is_topic)
+    #     ids = df_data.iloc[:, 2].values
+    #     lan = 'input'
+    #     if language == 'english':
+    #         lan = 'translatedText'
+    #
+    #     i = 1
+    #     for _, item in df_data.iterrows():
+    #         print("saperating iteration number: " + str(i) + ". the tweet id is: " + str(item[id]))
+    #         temp = item
+    #         i += 1
+    #         if 'extended_tweet' not in item:
+    #             if type(item['text']) is list:
+    #                 # if item['text'].__len__() == 0:
+    #                 #     ids.Remove(item['id_str'])
+    #                 features.append(item['text'][0][lan])
+    #             else:
+    #                 features.append(item['text'])
+    #         else:
+    #             if type(item['extended_tweet']) is not float:
+    #                 if type(item['extended_tweet']['full_text']) is list:
+    #                     # if item['extended_tweet']['full_text'].__len__() == 0:
+    #                     #     ids.Remove(item['id_str'])
+    #                     features.append(item['extended_tweet']['full_text'][0][lan])
+    #                 else:
+    #                     features.append(item['extended_tweet']['full_text'])
+    #             else:
+    #                 if type(item['text']) is list:
+    #                     # if item['text'].__len__() == 0:
+    #                     #     ids.Remove(item['id_str'])
+    #                     features.append(item['text'][0][lan])
+    #                 else:
+    #                     features.append(item['text'])
+    #     return ids, features, polarity, subjectivity
+    # except:
+    #     print("can't separate data")
 
 
 def extract_stop_words():

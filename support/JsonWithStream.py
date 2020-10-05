@@ -2,7 +2,8 @@ import ijson
 
 from support.Utils import get_json_tweet_list, create_json_dict_file
 
-JFILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\Train-Set.json"
+# JFILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\Train-Set.json"
+JFILE = r"C:\Users\dembo\Documents\Computer Science\Third Year\Project\Sentiment Analysis Project\Models\Data\No Labeled Translated Tweets 2.json"
 
 dataset = ijson.parse(open(JFILE, encoding="utf8"))
 
@@ -97,5 +98,5 @@ for prefix, type_of_object, value in dataset:
         elif prefix == 'tweets.item.label' and type_of_object == 'end_map':
             tweet_dict[k] = text_dict
 
-create_json_dict_file(data_set_try, "Train-Set2")
+create_json_dict_file(data_set_try, "No Labeled Translated Tweets 22.json")
 print("number of tweets: " + str(i))
