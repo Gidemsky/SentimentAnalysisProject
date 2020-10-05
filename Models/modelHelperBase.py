@@ -51,7 +51,7 @@ class modelHelperBase:
                     processed_feature = re.sub(r'[@|_][a-zA-Z]+', ' ', str(sentence))
                 else:
                     # remove all the user's tag - english case
-                    processed_feature = re.sub(r'@[a-zA-Z0-9]+|@ [a-zA-Z0-9]+', ' ', str(features[sentence]))
+                    processed_feature = re.sub(r'@[a-zA-Z0-9]+|@ [a-zA-Z0-9]+', ' ', str(sentence))
 
                 # Remove all the special characters
                 processed_feature = re.sub(r'\W', ' ', processed_feature)
@@ -80,6 +80,7 @@ class modelHelperBase:
                 if language == 'english':
                     word_tokens = processed_feature.split(' ')
                     processed_feature = ' '.join([stemmer.stem(token) for token in word_tokens])
+                # stemmer for hebrew language, currently we don't use it
                 #else:
                     # time.sleep(3)
                     # if processed_feature != '' and processed_feature != ' ':

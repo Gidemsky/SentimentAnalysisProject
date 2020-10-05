@@ -7,8 +7,8 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-TEST_FILE = r"C:\SentimentAnalysisProject\Models\Data\No Labeled Translated Tweets.json"
-TRAIN_FILE = r"C:\SentimentAnalysisProject\Models\Data\train-set for the bootstrapper.json"
+TEST_FILE = r"C:\SentimentAnalysisProject\Models\Data\test set for the bootstrapper.json"
+TRAIN_FILE = r"C:\SentimentAnalysisProject\Models\Data\train-set for the bootstrapper origin.json"
 STOP_WORDS = r"C:\SentimentAnalysisProject\Models\Data\heb_stop_words.txt"
 TWEETS_CSV_FILE = r"C:\SentimentAnalysisProject\Models\Data\train.csv"
 
@@ -62,6 +62,11 @@ def get_train_test_tweets():
     test_set = get_json_tweet_list(TEST_FILE)
 
     return train_set, test_set
+
+
+def get_test_set():
+    test_set = get_json_tweet_list(TEST_FILE)
+    return test_set
 
 
 def get_vocabulary():

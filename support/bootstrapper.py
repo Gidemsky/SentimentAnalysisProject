@@ -40,7 +40,7 @@ class Bootstrapper(object):
         """
         random.shuffle(self.none_labeled_tweets)
         i = 1
-        while self.none_labeled_tweets != None and self.none_labeled_tweets.__len__() > 0:
+        while self.none_labeled_tweets is not None and self.none_labeled_tweets.__len__() > 0:
             print("\nstart of execute number -> " + str(i))
             print("tweets left: " + str(len(self.none_labeled_tweets)))
             random.shuffle(self.model_data_set)
@@ -52,7 +52,7 @@ class Bootstrapper(object):
             i += 1
         self.save_new_train_set()
         self.my_model.save_models()
-        #return
+        self.my_model.save_vectorizer()
 
     def get_test_tweets(self):
         """
@@ -126,4 +126,4 @@ if __name__ == '__main__':
     model = Model(stop_words, language='english')
     bootStrapper = Bootstrapper(model, train, test)
     bootStrapper.execute()
-    bootStrapper.execute()
+
