@@ -75,7 +75,10 @@ def refactor_labels_back(new_fixed_tweets):
 
 
 def main_json_merger():
-
+    """
+    runs the merger of multi jsons to one list
+    :return:
+    """
     new_fixed_json = list()
     # for every tweet check by the id the sum of all the next tweets
     for tweet in initial_merged_json:
@@ -110,6 +113,10 @@ def main_json_merger():
 
 
 def labeled_and_unlabeled_json_creator():
+    """
+    creates two list of tweets. One of the labeled tweets and one to the unlabeled tweets separately
+    :return:
+    """
 
     # creates the main labeled list
     print("\nCollecting labeled tweets...")
@@ -133,6 +140,11 @@ def labeled_and_unlabeled_json_creator():
 
 
 def change_labels_value(new_tweet_label_values):
+    """
+    when we do merge we must check the values are the correct value type
+    :param new_tweet_label_values:
+    :return:
+    """
     counter = 0
     change_to = get_json_tweet_list(src_json_file=new_tweet_label_values)
     candidate_files = json_files_collector(path=LABELED_JSONS)

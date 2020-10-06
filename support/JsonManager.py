@@ -19,6 +19,9 @@ JSON_MANAGER_RESULTS = 'Temp files/Json manager results/'
 
 
 class JsonManager(object):
+    """
+    function to manage the tasks with any json we want
+    """
 
     def __init__(self, json_file_name):
         self.json_list = get_json_tweet_list(json_file_name)
@@ -82,6 +85,11 @@ class JsonManager(object):
         return self.new_tweet_list
 
     def remove_double_tweets(self, comparison_json):
+        """
+        removes double tweets from compared list
+        :param comparison_json:
+        :return:
+        """
         removed_counter = 0
         comparison_json = get_json_tweet_list(comparison_json)
 
@@ -95,12 +103,6 @@ class JsonManager(object):
                     continue
 
         print(str(removed_counter) + " labeled tweets has been removed")
-        # self.save_new_json_manager_file(self.json_list, name='no-labeled-tweets')
-
-    # def create_json_for_model_run(self):
-    #     if os.path.isfile('support/Temp files/Json manager results/labels summarize.txt'):
-    #
-    #         self.json_list
 
     @staticmethod
     def save_new_json_manager_file(list_to_be_saved=None, name='', general_file_to_save=None):
@@ -112,6 +114,11 @@ class JsonManager(object):
                 print(TOTAL_LABELS_VALUE, file=file)
 
     def summarize_labeled_tweets(self, json_to_summarize):
+        """
+        summarize and prints the results
+        :param json_to_summarize:
+        :return:
+        """
         print("The total number of labeled tweets is: " + str(check_tweets_number(json_to_summarize)))
         for t in json_to_summarize:
             try:
@@ -124,11 +131,6 @@ class JsonManager(object):
 
 
 if __name__ == '__main__':
-    #     create_sub_json(
-    #         src_json='Temp files/Json manager results/no-labeled-tweets0.json', destination_json_size=1000,
-    #         destination_file_number=2)
-    #
-    #     create_sub_json_by_label(src_json="Temp files/Json manager results/new total labeled.json", label_to_save=3)
 
     # the new total labeled list creation by number I want
     no_label_list = get_json_tweet_list(src_json_file=
@@ -145,13 +147,3 @@ if __name__ == '__main__':
         TOTAL_LABELS_VALUE[int(tweet_label)] = TOTAL_LABELS_VALUE[int(tweet_label)] - 1
         labeled_json_for_model.append(t)
         print(TOTAL_LABELS_VALUE)
-
-    test_for_boot = list()
-
-    random.shuffle(labeled_json_for_model)
-
-    for i in range(400):
-        test_for_boot.append(labeled_json_for_model.pop(i))
-
-    create_json_dict_file(json_list=labeled_json_for_model, json_file_name=JSON_MANAGER_RESULTS + 'labeled json for bootstraper')
-    create_json_dict_file(json_list=test_for_boot, json_file_name=JSON_MANAGER_RESULTS + 'test json for bootstraper')

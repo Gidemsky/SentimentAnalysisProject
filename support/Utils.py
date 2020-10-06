@@ -205,7 +205,12 @@ def marge_all_json_file(file_list):
 
 
 def check_duplicate_tweet(json_with_duplicate):
-
+    """
+    This function looks for the same tweets in some json list
+    If it finds, the function deletes it
+    :param json_with_duplicate:
+    :return: new tweets list without duplicate tweets
+    """
     new_fixed_list = json_with_duplicate
     deleted = 0
 
@@ -271,6 +276,12 @@ def create_sub_json(src_json, destination_json_size, destination_file_number):
 
 
 def create_sub_json_by_label(src_json, label_to_save):
+    """
+    in case we want to create another json acourding to the labels
+    :param src_json:
+    :param label_to_save:
+    :return:
+    """
     destination_list = list()
     src_json = get_json_tweet_list(src_json)
     for t in src_json:
@@ -280,6 +291,12 @@ def create_sub_json_by_label(src_json, label_to_save):
 
 
 def check_json_format(json_list):
+    """
+    This function checks the json fields and the values
+    Changes the values to the correct values we need to use
+    :param json_list:
+    :return: the new correct list with the correct fields and values
+    """
     checked_json_list = list()
     temp_text = list()
     for t in json_list:
@@ -287,15 +304,19 @@ def check_json_format(json_list):
             temp_text.append({'translatedText': None, 'input': t['text']})
             t['text'] = temp_text.copy()
             temp_text.clear()
+
         if 'extended_tweet' in t:
             if not isinstance(t['extended_tweet']['full_text'], list):
                 temp_text.append({'translatedText': None, 'input': t['extended_tweet']['full_text']})
                 t['extended_tweet']['full_text'] = temp_text.copy()
                 temp_text.clear()
+
         if not isinstance((t['label']), list):
             t['label']['positivity'] = str(int(t['label']['positivity']))
         if t['label']["relative subject"] == 'subject':
+
             t['label']["relative subject"] = 'person'
         checked_json_list.append(t)
+
     print("The labeled json format checked")
     return checked_json_list
