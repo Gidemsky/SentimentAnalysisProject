@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 
 TEST_FILE = r"C:\SentimentAnalysisProject\Models\Data\test set for the bootstrapper.json"
-TRAIN_FILE = r"C:\SentimentAnalysisProject\Models\Data\train-set for the bootstrapper origin.json"
+TRAIN_FILE = r"C:\SentimentAnalysisProject\Models\Data\train-set for the bootstrapper.json"
 STOP_WORDS = r"C:\SentimentAnalysisProject\Models\Data\heb_stop_words.txt"
 TWEETS_CSV_FILE = r"C:\SentimentAnalysisProject\Models\Data\train.csv"
 
@@ -30,7 +30,6 @@ def save_results(df, nm, is_trans):
 
 
 def save_file(file_name, features, ids, polarity, subjectivity):
-    #nd = np.array([ids, features, polarity, subjectivity])
     df = pd.DataFrame({"ids":ids, "features":np.array(features),"polarity": np.array(polarity), "subjectivity":np.array(subjectivity)})
     df.to_csv(file_name+".csv", index=False, mode='a', header=False, encoding='utf8')
 

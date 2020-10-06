@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import pandas as pd
 import pickle
-
+from Models.MostCommonClassifier import my_main
 from support.Utils import separate_debug_print_big, separate_debug_print_small
 
 MODEL_NAME = "random forest"
@@ -94,7 +94,7 @@ class Model:
 
         return predictions, confidence
 
-    def run(self, train_set, test_set, is_loaded, stemmed = False):
+    def run(self, train_set, test_set, is_loaded, stemmed = False, model_name='svm'):
         """
         runs one model for polarity predictions and the second for subjectivity predictions
         :param train_set: train set for training both models - each one with different labels type
@@ -145,6 +145,25 @@ class Model:
 
     def save_vectorizer(self):
         pickle.dump(self.vectorizer, open(f"../Models/Data/tfidf_{self.language}.pickle", "wb"))
+
+    def run_most_common(self, train_set, test_set, is_loaded, stemmed=False):
+        models = ['random forest', 'svm', 'naive bayes']
+        df_list = []
+        for model in models:
+            df_polarity = pd.DataFrame()
+            df_subjectivity = pd.DataFrame()
+            p_predictions, p_confidence, s_predictions, s_confidence = \
+                self.run(train_set, test_set, is_loaded, stemmed, model_name=model)
+            df_polarity['id'] = self.test_ids
+            df_polarity['model_prediction'] = p_predictions
+            df_subjectivity['id'] = self.test_ids
+            df_subjectivity['model_prediction'] = s_predictions
+            df_list.append(df_polarity)
+            df_list.append(df_subjectivity)
+        most_common_predictions = my_main(df_list[0], df_list[1], df_list[2],
+                                          df_list[3], df_list[4], df_list[5])
+        return most_common_predictions['model_prediction_pol'], p_confidence,\
+               most_common_predictions['model_prediction_subj'], s_confidence
 
     def get_predictions(self, train_set, test_set, is_loaded, stemmed=False):
         p_predictions, p_confidence, s_predictions, s_confidence = \
